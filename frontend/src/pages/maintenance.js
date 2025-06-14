@@ -3,6 +3,7 @@ import { t } from '../utils/i18n.js';
 import { api } from '../utils/api.js';
 import { createLayout, showLoading } from '../components/layout.js';
 import { showToast } from '../utils/toast.js';
+import { navigate } from '../utils/router.js';
 
 let maintenanceRecords = [];
 let filteredRecords = [];
@@ -174,6 +175,9 @@ function renderMaintenanceTable() {
             <td>$${formatNumber(record.cost)}</td>
             <td>${record.vendor || '-'}</td>
             <td>
+              <button class="btn btn-sm btn-primary" onclick="viewCar('${record.car_id}')">
+                ${t('cars.carDetails')}
+              </button>
               <button class="btn btn-sm btn-secondary" onclick="editMaintenance('${record.id}')">
                 ${t('common.edit')}
               </button>
@@ -527,6 +531,10 @@ window.deleteMaintenance = async function(recordId) {
     console.error('Error deleting maintenance record:', error);
     showToast(t('messages.errorOccurred') + ': ' + error.message, 'error');
   }
+};
+
+window.viewCar = function(carId) {
+  navigate(`/cars/${carId}`);
 };
 
 function formatDate(dateString) {

@@ -59,6 +59,7 @@
     "model": "Model",
     "year": "Year",
     "color": "Color",
+    "mileage": "Mileage",
     "purchaseDate": "Purchase Date",
     "purchasePrice": "Purchase Price",
     "saleDate": "Sale Date",
@@ -142,7 +143,11 @@
     "Gas": "Gas",
     "Holding Cost": "Holding Cost",
     "Towing": "Towing",
-    "Parking": "Parking"
+    "Parking": "Parking",
+    "Taxes": "Taxes",
+    "Fees": "Fees",
+    "In State Tax": "In State Tax",
+    "Out of State Tax": "Out of State Tax"
   },
   "reports": {
     "title": "Reports",

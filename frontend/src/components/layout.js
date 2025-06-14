@@ -15,6 +15,7 @@ export function createLayout(content, activeRoute = '') {
           <div class="language-selector">
             <select id="languageSelect">
               <option value="en">English</option>
+              <option value="es">Español</option>
               <option value="ar">العربية</option>
             </select>
           </div>
@@ -56,7 +57,7 @@ function setupLayoutEventListeners() {
     
     languageSelect.addEventListener('change', async (e) => {
       const newLanguage = e.target.value;
-      setLanguage(newLanguage);
+      await setLanguage(newLanguage);
       
       // Reload the current page with new language
       window.location.reload();

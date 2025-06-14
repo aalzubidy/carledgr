@@ -13,6 +13,8 @@ function createToastContainer() {
 }
 
 function showToast(message, type = 'info', duration = 5000) {
+  console.log('Showing toast:', message, type); // Debug log
+  
   const container = createToastContainer();
   
   const toast = document.createElement('div');
@@ -23,9 +25,20 @@ function showToast(message, type = 'info', duration = 5000) {
     <div class="toast-content">
       <span class="toast-icon">${icon}</span>
       <span class="toast-message">${message}</span>
-      <button class="toast-close" onclick="this.parentElement.parentElement.remove()">×</button>
+      <button class="toast-close">×</button>
     </div>
   `;
+  
+  // Add click handler for close button
+  const closeBtn = toast.querySelector('.toast-close');
+  closeBtn.addEventListener('click', () => {
+    toast.classList.remove('toast-show');
+    setTimeout(() => {
+      if (toast.parentElement) {
+        toast.remove();
+      }
+    }, 300);
+  });
   
   container.appendChild(toast);
   

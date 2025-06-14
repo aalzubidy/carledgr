@@ -4,6 +4,7 @@ import { api } from '../utils/api.js';
 import { createLayout, showLoading, showEmptyState } from '../components/layout.js';
 import { showToast } from '../utils/toast.js';
 import { navigate } from '../utils/router.js';
+import vinDecoder from '../utils/vinDecoder.js';
 
 let carsData = [];
 let filteredCars = [];
@@ -87,6 +88,7 @@ function renderCarsTable() {
           <th class="sortable" data-column="model">${t('cars.model')} ${getSortIcon('model')}</th>
           <th class="sortable" data-column="year">${t('cars.year')} ${getSortIcon('year')}</th>
           <th class="sortable" data-column="color">${t('cars.color')} ${getSortIcon('color')}</th>
+          <th class="sortable" data-column="mileage">${t('cars.mileage')} ${getSortIcon('mileage')}</th>
           <th class="sortable" data-column="purchase_price">${t('cars.purchasePrice')} ${getSortIcon('purchase_price')}</th>
           <th class="sortable" data-column="sale_price">${t('cars.salePrice')} ${getSortIcon('sale_price')}</th>
           <th class="sortable" data-column="status">${t('cars.status')} ${getSortIcon('status')}</th>
@@ -101,6 +103,7 @@ function renderCarsTable() {
             <td>${car.model}</td>
             <td>${car.year}</td>
             <td>${car.color || '-'}</td>
+            <td>${car.mileage ? formatNumber(car.mileage) + ' mi' : '-'}</td>
             <td>$${formatNumber(car.purchase_price)}</td>
             <td>${car.sale_price ? '$' + formatNumber(car.sale_price) : '-'}</td>
             <td><span class="status-badge status-${car.status}">${t('status.' + car.status)}</span></td>
@@ -253,7 +256,10 @@ function showCarModal(car = null) {
             <div class="form-row">
               <div class="form-group">
                 <label for="vin">${t('cars.vin')}</label>
-                <input type="text" id="vin" class="form-control" required value="${car?.vin || ''}">
+                <input type="text" id="vin" class="form-control" required value="${car?.vin || ''}" placeholder="Enter VIN to auto-populate fields">
+                <small style="display: block; margin-top: 5px; color: #666;">
+                  ${isEdit ? '' : 'Enter a VIN number to automatically populate make, model, year, and color'}
+                </small>
               </div>
               <div class="form-group">
                 <label for="make">${t('cars.make')}</label>
@@ -275,7 +281,13 @@ function showCarModal(car = null) {
                 <label for="color">${t('cars.color')}</label>
                 <input type="text" id="color" class="form-control" value="${car?.color || ''}">
               </div>
-              ${isEdit ? `
+              <div class="form-group">
+                <label for="mileage">${t('cars.mileage')}</label>
+                <input type="number" id="mileage" class="form-control" min="0" value="${car?.mileage || ''}" placeholder="e.g., 50000">
+              </div>
+            </div>
+            ${isEdit ? `
+            <div class="form-row single">
               <div class="form-group">
                 <label for="status">${t('cars.status')}</label>
                 <select id="status" class="form-select">
@@ -284,8 +296,8 @@ function showCarModal(car = null) {
                   <option value="pending" ${car?.status === 'pending' ? 'selected' : ''}>${t('status.pending')}</option>
                 </select>
               </div>
-              ` : ''}
             </div>
+            ` : ''}
             <div class="form-row">
               <div class="form-group">
                 <label for="purchase_date">${t('cars.purchaseDate')}</label>
@@ -324,9 +336,101 @@ function showCarModal(car = null) {
   
   document.body.insertAdjacentHTML('beforeend', modalHtml);
   
+  // Set up VIN decoding for new cars
+  if (!car) {
+    setupVINDecoding();
+  }
+  
   // Set up form submission
   const saveBtn = document.getElementById('saveCarBtn');
   saveBtn.addEventListener('click', () => handleSaveCar(car?.id));
+}
+
+function setupVINDecoding() {
+  const vinInput = document.getElementById('vin');
+  let decodeTimeout;
+  
+  vinInput.addEventListener('input', async (e) => {
+    const vin = e.target.value.trim();
+    
+    // Clear previous timeout
+    if (decodeTimeout) {
+      clearTimeout(decodeTimeout);
+    }
+    
+    // Only decode if we have a reasonable length VIN
+    if (vin.length >= 17) {
+      // Add visual feedback
+      vinInput.style.borderColor = '#ffc107';
+      vinInput.style.backgroundColor = '#fff3cd';
+      
+      // Decode with a small delay to avoid too many API calls
+      decodeTimeout = setTimeout(async () => {
+        try {
+          const decoded = await vinDecoder.decode(vin);
+          
+          if (decoded.isValid) {
+            // Populate fields with decoded data
+            if (decoded.make) {
+              document.getElementById('make').value = decoded.make;
+            }
+            if (decoded.model) {
+              document.getElementById('model').value = decoded.model;
+            }
+            if (decoded.year) {
+              document.getElementById('year').value = decoded.year;
+            }
+            if (decoded.color) {
+              document.getElementById('color').value = decoded.color;
+            }
+            
+            // Success visual feedback
+            vinInput.style.borderColor = '#28a745';
+            vinInput.style.backgroundColor = '#d4edda';
+            
+            // Show success message
+            showToast('VIN decoded successfully!', 'success');
+            
+            // Reset styles after a delay
+            setTimeout(() => {
+              vinInput.style.borderColor = '';
+              vinInput.style.backgroundColor = '';
+            }, 2000);
+          } else {
+            throw new Error('Invalid VIN format');
+          }
+        } catch (error) {
+          console.warn('VIN decode error:', error);
+          
+          // Error visual feedback
+          vinInput.style.borderColor = '#dc3545';
+          vinInput.style.backgroundColor = '#f8d7da';
+          
+          // Show error message
+          if (vin.length === 17) {
+            showToast('Could not decode VIN. Please check the VIN number or enter details manually.', 'warning');
+          }
+          
+          // Reset styles after a delay
+          setTimeout(() => {
+            vinInput.style.borderColor = '';
+            vinInput.style.backgroundColor = '';
+          }, 3000);
+        }
+      }, 1000); // 1 second delay
+    } else {
+      // Reset visual feedback for incomplete VIN
+      vinInput.style.borderColor = '';
+      vinInput.style.backgroundColor = '';
+    }
+  });
+  
+  // Also trigger on paste
+  vinInput.addEventListener('paste', (e) => {
+    setTimeout(() => {
+      vinInput.dispatchEvent(new Event('input'));
+    }, 100);
+  });
 }
 
 async function handleSaveCar(carId = null) {
@@ -344,6 +448,7 @@ async function handleSaveCar(carId = null) {
     model: document.getElementById('model').value,
     year: parseInt(document.getElementById('year').value),
     color: document.getElementById('color').value,
+    mileage: document.getElementById('mileage').value ? parseInt(document.getElementById('mileage').value) : null,
     purchase_date: document.getElementById('purchase_date').value,
     purchase_price: parseFloat(document.getElementById('purchase_price').value)
   };

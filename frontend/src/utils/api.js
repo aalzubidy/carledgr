@@ -108,21 +108,16 @@ async function makeRequest(endpoint, options = {}) {
 const api = {
   // Authentication
   async login(credentials) {
-    try {
-      const response = await makeRequest('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify(credentials)
-      });
-      
-      if (response.token) {
-        setAuthToken(response.token);
-      }
-      
-      return response;
-    } catch (error) {
-      showToast(error.message, 'error');
-      throw error;
+    const response = await makeRequest('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(credentials)
+    });
+    
+    if (response.token) {
+      setAuthToken(response.token);
     }
+    
+    return response;
   },
   
   async logout() {

@@ -14,10 +14,15 @@ async function loadTranslations(language) {
   }
 }
 
-function setLanguage(language) {
+async function setLanguage(language) {
   currentLanguage = language;
   document.documentElement.lang = language;
   document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+  
+  // Load translations for the new language if not already loaded
+  if (!translations[language]) {
+    await loadTranslations(language);
+  }
   
   // Save to localStorage
   localStorage.setItem('language', language);

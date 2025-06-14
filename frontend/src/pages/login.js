@@ -12,6 +12,7 @@ export function showLoginPage() {
       <div class="language-selector">
         <select id="languageSelect">
           <option value="en">English</option>
+          <option value="es">Español</option>
           <option value="ar">العربية</option>
         </select>
       </div>
@@ -70,7 +71,7 @@ function setupLoginEventListeners() {
   
   languageSelect.addEventListener('change', async (e) => {
     const newLanguage = e.target.value;
-    setLanguage(newLanguage);
+    await setLanguage(newLanguage);
     
     // Reload the login page with new language
     showLoginPage();
