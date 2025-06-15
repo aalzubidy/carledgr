@@ -2,7 +2,7 @@
 import { t, setLanguage, getCurrentLanguage } from '../utils/i18n.js';
 import { api } from '../utils/api.js';
 import { navigate } from '../utils/router.js';
-import { showToast } from '../utils/toast.js';
+import { showSuccess, showError } from '../utils/snackbar.js';
 
 export function showLoginPage() {
   const app = document.getElementById('app');
@@ -12,11 +12,12 @@ export function showLoginPage() {
       <div class="language-selector">
         <select id="languageSelect">
           <option value="en">English</option>
+          <option value="es">Español</option>
           <option value="ar">العربية</option>
         </select>
       </div>
       
-      <form class="login-form" id="loginForm">
+      <form class="login-form" id="loginForm" onsubmit="return false;">
         <h1>${t('app.title')}</h1>
         
         <div class="form-group">
@@ -70,7 +71,7 @@ function setupLoginEventListeners() {
   
   languageSelect.addEventListener('change', async (e) => {
     const newLanguage = e.target.value;
-    setLanguage(newLanguage);
+    await setLanguage(newLanguage);
     
     // Reload the login page with new language
     showLoginPage();
@@ -83,13 +84,29 @@ function setupLoginEventListeners() {
 
 async function handleLogin(e) {
   e.preventDefault();
+  e.stopPropagation();
   
-  const formData = new FormData(e.target);
   const credentials = {
-    organization: document.getElementById('organization').value,
-    email: document.getElementById('email').value,
+    organization: document.getElementById('organization').value.trim(),
+    email: document.getElementById('email').value.trim(),
     password: document.getElementById('password').value
   };
+  
+  // Basic client-side validation
+  if (!credentials.organization) {
+    showError('Organization is required');
+    return false;
+  }
+  
+  if (!credentials.email) {
+    showError('Email is required');
+    return false;
+  }
+  
+  if (!credentials.password) {
+    showError('Password is required');
+    return false;
+  }
   
   // Disable form during login
   const submitButton = e.target.querySelector('button[type="submit"]');
@@ -100,17 +117,24 @@ async function handleLogin(e) {
   try {
     const response = await api.login(credentials);
     
-    if (response.token) {
-      showToast(t('auth.loginSuccess'), 'success');
-      navigate('/dashboard');
+    if (response && response.token) {
+      showSuccess(t('auth.loginSuccess'));
+      // Small delay to show success message before navigation
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1000);
     } else {
       throw new Error(t('auth.loginError'));
     }
   } catch (error) {
-    showToast(error.message || t('auth.loginError'), 'error');
+    console.error('Login error:', error);
+    const errorMessage = error.message || t('auth.loginError');
+    showError(errorMessage);
   } finally {
     // Re-enable form
     submitButton.disabled = false;
     submitButton.textContent = originalText;
   }
+  
+  return false;
 } 

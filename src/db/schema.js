@@ -39,6 +39,7 @@ const createTableStatements = [
     model VARCHAR(50) NOT NULL,
     year INT NOT NULL,
     color VARCHAR(30),
+    mileage INT DEFAULT 0,
     purchase_date DATE NOT NULL,
     purchase_price DECIMAL(10, 2) NOT NULL,
     sale_date DATE,
@@ -86,7 +87,11 @@ const defaultCategories = [
   'Tires',
   'Oil Change',
   'General Maintenance',
-  'Other'
+  'Other',
+  'Taxes',
+  'Fees',
+  'In State Tax',
+  'Out of State Tax'
 ];
 
 // Initialize the database schema

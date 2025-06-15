@@ -2,7 +2,7 @@
 import { t } from '../utils/i18n.js';
 import { api } from '../utils/api.js';
 import { createLayout, showLoading } from '../components/layout.js';
-import { showToast } from '../utils/toast.js';
+import { showError } from '../utils/snackbar.js';
 
 export async function showDashboard() {
   // Show loading state
@@ -20,7 +20,7 @@ export async function showDashboard() {
     createLayout(content, 'dashboard');
   } catch (error) {
     console.error('Failed to load dashboard:', error);
-    showToast(t('messages.errorOccurred') + ': ' + error.message, 'error');
+    showError(t('messages.errorOccurred') + ': ' + error.message);
     
     // Show error state
     const errorContent = `

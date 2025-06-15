@@ -2,7 +2,7 @@
 import { t, setLanguage, getCurrentLanguage } from '../utils/i18n.js';
 import { api } from '../utils/api.js';
 import { navigate } from '../utils/router.js';
-import { showToast } from '../utils/toast.js';
+import { showSuccess } from '../utils/snackbar.js';
 
 export function createLayout(content, activeRoute = '') {
   const app = document.getElementById('app');
@@ -15,6 +15,7 @@ export function createLayout(content, activeRoute = '') {
           <div class="language-selector">
             <select id="languageSelect">
               <option value="en">English</option>
+              <option value="es">Español</option>
               <option value="ar">العربية</option>
             </select>
           </div>
@@ -56,7 +57,7 @@ function setupLayoutEventListeners() {
     
     languageSelect.addEventListener('change', async (e) => {
       const newLanguage = e.target.value;
-      setLanguage(newLanguage);
+      await setLanguage(newLanguage);
       
       // Reload the current page with new language
       window.location.reload();
@@ -88,7 +89,7 @@ async function handleLogout(e) {
   
   try {
     await api.logout();
-    showToast(t('auth.logout') + ' ' + t('common.success'), 'success');
+    showSuccess(t('auth.logout') + ' ' + t('common.success'));
     navigate('/login');
   } catch (error) {
     console.error('Logout error:', error);

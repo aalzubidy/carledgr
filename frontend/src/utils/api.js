@@ -1,6 +1,6 @@
 // API utility for making HTTP requests
 import { loadConfig } from './config.js';
-import { showToast } from './toast.js';
+import { showWarning } from './snackbar.js';
 
 let apiConfig = null;
 
@@ -62,16 +62,29 @@ async function makeRequest(endpoint, options = {}) {
     clearTimeout(timeoutId);
     
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+      let errorData = {};
+      try {
+        errorData = await response.json();
+      } catch (parseError) {
+        console.error('Failed to parse error response:', parseError);
+      }
       
       // Handle authentication errors specifically
       if (response.status === 401 || response.status === 403) {
-        removeAuthToken();
-        showToast('Your session has expired. Please login again.', 'warning');
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 2000);
-        throw new Error('Session expired');
+        // Only redirect if we're not on the login page
+        if (!window.location.pathname.includes('/login') && !window.location.pathname === '/') {
+          removeAuthToken();
+          showWarning('Your session has expired. Please login again.');
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 2000);
+        }
+        throw new Error(errorData.message || 'Authentication failed');
+      }
+      
+      // Handle validation errors (400)
+      if (response.status === 400) {
+        throw new Error(errorData.message || 'Invalid request data');
       }
       
       throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
@@ -93,7 +106,7 @@ async function makeRequest(endpoint, options = {}) {
     if (error.message.includes('401') || error.message.includes('Unauthorized') || 
         error.message.includes('jwt expired') || error.message.includes('Session expired')) {
       removeAuthToken();
-      showToast('Your session has expired. Please login again.', 'warning');
+      showWarning('Your session has expired. Please login again.');
       setTimeout(() => {
         window.location.href = '/';
       }, 2000);
@@ -108,21 +121,16 @@ async function makeRequest(endpoint, options = {}) {
 const api = {
   // Authentication
   async login(credentials) {
-    try {
-      const response = await makeRequest('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify(credentials)
-      });
-      
-      if (response.token) {
-        setAuthToken(response.token);
-      }
-      
-      return response;
-    } catch (error) {
-      showToast(error.message, 'error');
-      throw error;
+    const response = await makeRequest('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(credentials)
+    });
+    
+    if (response.token) {
+      setAuthToken(response.token);
     }
+    
+    return response;
   },
   
   async logout() {

@@ -2,7 +2,7 @@
 import { t } from '../utils/i18n.js';
 import { api } from '../utils/api.js';
 import { createLayout, showLoading, showEmptyState } from '../components/layout.js';
-import { showToast } from '../utils/toast.js';
+import { showSuccess, showError, showWarning } from '../utils/snackbar.js';
 import { navigate } from '../utils/router.js';
 
 let carData = null;
@@ -35,7 +35,7 @@ export async function showCarDetails(carId) {
     setupCarDetailsEventListeners();
   } catch (error) {
     console.error('Failed to load car details:', error);
-    showToast(t('messages.errorOccurred') + ': ' + error.message, 'error');
+    showError(t('messages.errorOccurred') + ': ' + error.message);
     
     // Show error state
     const errorContent = `
@@ -95,6 +95,10 @@ function renderCarDetailsContent() {
           <div class="stat-card">
             <h3>${t('cars.color')}</h3>
             <div class="stat-value" style="font-size: 1.2rem;">${carData.color || '-'}</div>
+          </div>
+          <div class="stat-card">
+            <h3>${t('cars.mileage')}</h3>
+            <div class="stat-value" style="font-size: 1.2rem;">${carData.mileage ? formatNumber(carData.mileage) + ' mi' : '-'}</div>
           </div>
           <div class="stat-card">
             <h3>${t('cars.purchasePrice')}</h3>
@@ -271,12 +275,18 @@ function handleMaintenanceSearch(e) {
 }
 
 function showCarModal(car) {
+  // Remove existing modal if it exists
+  const existingModal = document.getElementById('carModal');
+  if (existingModal) {
+    existingModal.remove();
+  }
+  
   const modalHtml = `
     <div class="modal-overlay" id="carModal">
       <div class="modal">
         <div class="modal-header">
           <h2>${t('cars.editCar')}</h2>
-          <button class="modal-close" onclick="document.getElementById('carModal').remove()">×</button>
+          <button class="modal-close" id="closeCarModal">×</button>
         </div>
         <div class="modal-body">
           <form id="carForm">
@@ -337,7 +347,7 @@ function showCarModal(car) {
           </form>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" onclick="document.getElementById('carModal').remove()">
+          <button class="btn btn-secondary" id="cancelCarBtn">
             ${t('common.cancel')}
           </button>
           <button class="btn btn-primary" id="saveCarBtn">
@@ -350,21 +360,53 @@ function showCarModal(car) {
   
   document.body.insertAdjacentHTML('beforeend', modalHtml);
   
-  // Set up form submission
+  // Show the modal
+  const modal = document.getElementById('carModal');
+  modal.classList.add('show');
+  
+  // Set up event listeners
+  const closeBtn = document.getElementById('closeCarModal');
+  const cancelBtn = document.getElementById('cancelCarBtn');
   const saveBtn = document.getElementById('saveCarBtn');
+  
+  closeBtn.addEventListener('click', hideCarModal);
+  cancelBtn.addEventListener('click', hideCarModal);
   saveBtn.addEventListener('click', () => handleSaveCar(car.id));
+  
+  // Close modal when clicking outside
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      hideCarModal();
+    }
+  });
+}
+
+function hideCarModal() {
+  const modal = document.getElementById('carModal');
+  if (modal) {
+    modal.classList.remove('show');
+    setTimeout(() => {
+      modal.remove();
+    }, 300); // Wait for CSS transition
+  }
 }
 
 function showMaintenanceModal(maintenance = null) {
   const isEdit = maintenance !== null;
   const modalTitle = isEdit ? t('maintenance.editRecord') : t('maintenance.addRecord');
   
+  // Remove existing modal if it exists
+  const existingModal = document.getElementById('maintenanceModal');
+  if (existingModal) {
+    existingModal.remove();
+  }
+  
   const modalHtml = `
     <div class="modal-overlay" id="maintenanceModal">
       <div class="modal">
         <div class="modal-header">
           <h2>${modalTitle}</h2>
-          <button class="modal-close" onclick="document.getElementById('maintenanceModal').remove()">×</button>
+          <button class="modal-close" id="closeMaintenanceModal">×</button>
         </div>
         <div class="modal-body">
           <form id="maintenanceForm">
@@ -382,7 +424,7 @@ function showMaintenanceModal(maintenance = null) {
               </div>
               <div class="form-group">
                 <label for="maintenance_date">${t('maintenance.date')}</label>
-                <input type="date" id="maintenance_date" class="form-control" required value="${maintenance?.maintenance_date ? maintenance.maintenance_date.split('T')[0] : ''}">
+                <input type="date" id="maintenance_date" class="form-control" required value="${maintenance?.maintenance_date ? maintenance.maintenance_date.split('T')[0] : new Date().toISOString().split('T')[0]}">
               </div>
             </div>
             <div class="form-row single">
@@ -410,7 +452,7 @@ function showMaintenanceModal(maintenance = null) {
           </form>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" onclick="document.getElementById('maintenanceModal').remove()">
+          <button class="btn btn-secondary" id="cancelMaintenanceBtn">
             ${t('common.cancel')}
           </button>
           <button class="btn btn-primary" id="saveMaintenanceBtn">
@@ -423,9 +465,35 @@ function showMaintenanceModal(maintenance = null) {
   
   document.body.insertAdjacentHTML('beforeend', modalHtml);
   
-  // Set up form submission
+  // Show the modal
+  const modal = document.getElementById('maintenanceModal');
+  modal.classList.add('show');
+  
+  // Set up event listeners
+  const closeBtn = document.getElementById('closeMaintenanceModal');
+  const cancelBtn = document.getElementById('cancelMaintenanceBtn');
   const saveBtn = document.getElementById('saveMaintenanceBtn');
+  
+  closeBtn.addEventListener('click', hideMaintenanceModal);
+  cancelBtn.addEventListener('click', hideMaintenanceModal);
   saveBtn.addEventListener('click', () => handleSaveMaintenance(maintenance?.id));
+  
+  // Close modal when clicking outside
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      hideMaintenanceModal();
+    }
+  });
+}
+
+function hideMaintenanceModal() {
+  const modal = document.getElementById('maintenanceModal');
+  if (modal) {
+    modal.classList.remove('show');
+    setTimeout(() => {
+      modal.remove();
+    }, 300); // Wait for CSS transition
+  }
 }
 
 async function handleSaveCar(carId) {
@@ -449,13 +517,13 @@ async function handleSaveCar(carId) {
   
   try {
     await api.updateCar(carId, carData);
-    showToast(t('messages.carUpdated'), 'success');
+    showSuccess(t('messages.carUpdated'));
     
     // Close modal and refresh data
-    document.getElementById('carModal').remove();
+    hideCarModal();
     showCarDetails(carId);
   } catch (error) {
-    showToast(error.message, 'error');
+    showError(error.message);
   }
 }
 
@@ -467,12 +535,12 @@ async function handleDeleteCar(carId) {
   
   try {
     await api.deleteCar(carId);
-    showToast(t('messages.carDeleted'), 'success');
+    showSuccess(t('messages.carDeleted'));
     
     // Navigate back to cars page
     navigate('/cars');
   } catch (error) {
-    showToast(error.message, 'error');
+    showError(error.message);
   }
 }
 
@@ -495,17 +563,17 @@ async function handleSaveMaintenance(maintenanceId = null) {
   try {
     if (maintenanceId) {
       await api.updateMaintenanceRecord(maintenanceId, maintenanceData);
-      showToast(t('messages.maintenanceUpdated'), 'success');
+      showSuccess(t('messages.maintenanceUpdated'));
     } else {
       await api.createMaintenanceRecord(maintenanceData);
-      showToast(t('messages.maintenanceAdded'), 'success');
+      showSuccess(t('messages.maintenanceAdded'));
     }
     
     // Close modal and refresh data
-    document.getElementById('maintenanceModal').remove();
+    hideMaintenanceModal();
     showCarDetails(carData.id);
   } catch (error) {
-    showToast(error.message, 'error');
+    showError(error.message);
   }
 }
 
@@ -516,10 +584,10 @@ async function handleDeleteMaintenance(maintenanceId) {
   
   try {
     await api.deleteMaintenanceRecord(maintenanceId);
-    showToast(t('messages.maintenanceDeleted'), 'success');
+    showSuccess(t('messages.maintenanceDeleted'));
     showCarDetails(carData.id);
   } catch (error) {
-    showToast(error.message, 'error');
+    showError(error.message);
   }
 }
 
@@ -539,7 +607,7 @@ function printCarDetails() {
   const printWindow = window.open('', '_blank');
   
   if (!carData || !maintenanceRecords) {
-    showToast('No car details to print', 'warning');
+    showWarning('No car details to print');
     return;
   }
   
@@ -689,6 +757,10 @@ function printCarDetails() {
         <div class="info-card">
           <div class="info-label">${t('cars.color')}</div>
           <div class="info-value">${carData.color || '-'}</div>
+        </div>
+        <div class="info-card">
+          <div class="info-label">${t('cars.mileage')}</div>
+          <div class="info-value">${carData.mileage ? formatNumber(carData.mileage) + ' mi' : '-'}</div>
         </div>
         <div class="info-card">
           <div class="info-label">${t('cars.status')}</div>

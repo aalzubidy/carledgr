@@ -2,7 +2,8 @@
 import { t } from '../utils/i18n.js';
 import { api } from '../utils/api.js';
 import { createLayout, showLoading } from '../components/layout.js';
-import { showToast } from '../utils/toast.js';
+import { showSuccess, showError, showWarning } from '../utils/snackbar.js';
+import { navigate } from '../utils/router.js';
 
 let maintenanceRecords = [];
 let filteredRecords = [];
@@ -34,7 +35,7 @@ export async function showMaintenancePage() {
     setupMaintenanceEventListeners();
   } catch (error) {
     console.error('Failed to load maintenance records:', error);
-    showToast(t('messages.errorOccurred') + ': ' + error.message, 'error');
+    showError(t('messages.errorOccurred') + ': ' + error.message);
     
     // Show error state
     const errorContent = `
@@ -174,6 +175,9 @@ function renderMaintenanceTable() {
             <td>$${formatNumber(record.cost)}</td>
             <td>${record.vendor || '-'}</td>
             <td>
+              <button class="btn btn-sm btn-primary" onclick="viewCar('${record.car_id}')">
+                ${t('cars.carDetails')}
+              </button>
               <button class="btn btn-sm btn-secondary" onclick="editMaintenance('${record.id}')">
                 ${t('common.edit')}
               </button>
@@ -226,7 +230,7 @@ function setupMaintenanceEventListeners() {
       if (selectedCarId) {
         showMaintenanceModal();
       } else {
-        showToast(t('common.select') + ' ' + t('maintenance.car'), 'warning');
+        showWarning(t('common.select') + ' ' + t('maintenance.car'));
       }
     });
   }
@@ -492,11 +496,11 @@ async function handleMaintenanceSubmit(e) {
     if (recordId) {
       // Update existing record
       await api.updateMaintenanceRecord(recordId, data);
-      showToast(t('messages.maintenanceUpdated'), 'success');
+      showSuccess(t('messages.maintenanceUpdated'));
     } else {
       // Create new record
       await api.createMaintenanceRecord(data);
-      showToast(t('messages.maintenanceAdded'), 'success');
+      showSuccess(t('messages.maintenanceAdded'));
     }
     
     hideMaintenanceModal();
@@ -504,7 +508,7 @@ async function handleMaintenanceSubmit(e) {
     showMaintenancePage();
   } catch (error) {
     console.error('Error saving maintenance record:', error);
-    showToast(t('messages.errorOccurred') + ': ' + error.message, 'error');
+    showError(t('messages.errorOccurred') + ': ' + error.message);
   }
 }
 
@@ -520,13 +524,17 @@ window.deleteMaintenance = async function(recordId) {
   
   try {
     await api.deleteMaintenanceRecord(recordId);
-    showToast(t('messages.maintenanceDeleted'), 'success');
+    showSuccess(t('messages.maintenanceDeleted'));
     // Reload the page to refresh data
     showMaintenancePage();
   } catch (error) {
     console.error('Error deleting maintenance record:', error);
-    showToast(t('messages.errorOccurred') + ': ' + error.message, 'error');
+    showError(t('messages.errorOccurred') + ': ' + error.message);
   }
+};
+
+window.viewCar = function(carId) {
+  navigate(`/cars/${carId}`);
 };
 
 function formatDate(dateString) {
