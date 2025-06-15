@@ -10,6 +10,7 @@ import { showCarsPage } from './pages/cars.js';
 import { showCarDetails } from './pages/carDetails.js';
 import { showMaintenancePage } from './pages/maintenance.js';
 import { showReportsPage } from './pages/reports.js';
+// Snackbar system will be initialized automatically
 
 // Initialize the application
 async function initializeApp() {
@@ -25,6 +26,9 @@ async function initializeApp() {
     
     // Initialize router
     initializeRouter();
+    
+    // Initialize snackbar system
+    await import('./utils/snackbar.js');
     
     console.log('Application initialized successfully');
   } catch (error) {

@@ -2,7 +2,7 @@
 import { t } from '../utils/i18n.js';
 import { api } from '../utils/api.js';
 import { createLayout, showLoading } from '../components/layout.js';
-import { showToast } from '../utils/toast.js';
+import { showSuccess, showError, showWarning } from '../utils/snackbar.js';
 
 let currentReportType = 'inventory';
 let currentDateRange = { start: '', end: '' };
@@ -23,7 +23,7 @@ export async function showReportsPage() {
     await loadReport();
   } catch (error) {
     console.error('Failed to load reports page:', error);
-    showToast(t('messages.errorOccurred') + ': ' + error.message, 'error');
+    showError(t('messages.errorOccurred') + ': ' + error.message);
     
     // Show error state
     const errorContent = `
@@ -662,10 +662,10 @@ async function exportToExcel() {
     
     exportDataToExcel(reportData);
     
-    showToast('Excel export completed successfully', 'success');
+    showSuccess('Excel export completed successfully');
   } catch (error) {
     console.error('Export error:', error);
-    showToast(t('messages.errorOccurred') + ': ' + error.message, 'error');
+    showError(t('messages.errorOccurred') + ': ' + error.message);
   }
 }
 
@@ -885,7 +885,7 @@ function printReport() {
   const reportsHeader = document.querySelector('.reports-header');
   
   if (!reportContent || !reportsHeader) {
-    showToast('No report content to print', 'warning');
+    showWarning('No report content to print');
     return;
   }
   

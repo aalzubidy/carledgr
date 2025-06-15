@@ -2,7 +2,7 @@
 import { t } from '../utils/i18n.js';
 import { api } from '../utils/api.js';
 import { createLayout, showLoading, showEmptyState } from '../components/layout.js';
-import { showToast } from '../utils/toast.js';
+import { showSuccess, showError, showWarning } from '../utils/snackbar.js';
 import { navigate } from '../utils/router.js';
 import vinDecoder from '../utils/vinDecoder.js';
 
@@ -28,7 +28,7 @@ export async function showCarsPage() {
     setupCarsEventListeners();
   } catch (error) {
     console.error('Failed to load cars:', error);
-    showToast(t('messages.errorOccurred') + ': ' + error.message, 'error');
+    showError(t('messages.errorOccurred') + ': ' + error.message);
     
     // Show error state
     const errorContent = `
@@ -389,7 +389,7 @@ function setupVINDecoding() {
             vinInput.style.backgroundColor = '#d4edda';
             
             // Show success message
-            showToast('VIN decoded successfully!', 'success');
+            showSuccess('VIN decoded successfully!');
             
             // Reset styles after a delay
             setTimeout(() => {
@@ -408,7 +408,7 @@ function setupVINDecoding() {
           
           // Show error message
           if (vin.length === 17) {
-            showToast('Could not decode VIN. Please check the VIN number or enter details manually.', 'warning');
+            showWarning('Could not decode VIN. Please check the VIN number or enter details manually.');
           }
           
           // Reset styles after a delay
@@ -467,17 +467,17 @@ async function handleSaveCar(carId = null) {
   try {
     if (carId) {
       await api.updateCar(carId, carData);
-      showToast(t('messages.carUpdated'), 'success');
+      showSuccess(t('messages.carUpdated'));
     } else {
       await api.createCar(carData);
-      showToast(t('messages.carAdded'), 'success');
+      showSuccess(t('messages.carAdded'));
     }
     
     // Close modal and refresh data
     document.getElementById('carModal').remove();
     showCarsPage();
   } catch (error) {
-    showToast(error.message, 'error');
+    showError(error.message);
   }
 }
 
@@ -485,10 +485,10 @@ async function handleDeleteCar(carId) {
   if (confirm(t('messages.confirmDelete'))) {
     try {
       await api.deleteCar(carId);
-      showToast(t('messages.carDeleted'), 'success');
+      showSuccess(t('messages.carDeleted'));
       showCarsPage();
     } catch (error) {
-      showToast(error.message, 'error');
+      showError(error.message);
     }
   }
 }

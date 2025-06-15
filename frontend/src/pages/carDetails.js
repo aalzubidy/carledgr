@@ -2,7 +2,7 @@
 import { t } from '../utils/i18n.js';
 import { api } from '../utils/api.js';
 import { createLayout, showLoading, showEmptyState } from '../components/layout.js';
-import { showToast } from '../utils/toast.js';
+import { showSuccess, showError, showWarning } from '../utils/snackbar.js';
 import { navigate } from '../utils/router.js';
 
 let carData = null;
@@ -35,7 +35,7 @@ export async function showCarDetails(carId) {
     setupCarDetailsEventListeners();
   } catch (error) {
     console.error('Failed to load car details:', error);
-    showToast(t('messages.errorOccurred') + ': ' + error.message, 'error');
+    showError(t('messages.errorOccurred') + ': ' + error.message);
     
     // Show error state
     const errorContent = `
@@ -517,13 +517,13 @@ async function handleSaveCar(carId) {
   
   try {
     await api.updateCar(carId, carData);
-    showToast(t('messages.carUpdated'), 'success');
+    showSuccess(t('messages.carUpdated'));
     
     // Close modal and refresh data
     hideCarModal();
     showCarDetails(carId);
   } catch (error) {
-    showToast(error.message, 'error');
+    showError(error.message);
   }
 }
 
@@ -535,12 +535,12 @@ async function handleDeleteCar(carId) {
   
   try {
     await api.deleteCar(carId);
-    showToast(t('messages.carDeleted'), 'success');
+    showSuccess(t('messages.carDeleted'));
     
     // Navigate back to cars page
     navigate('/cars');
   } catch (error) {
-    showToast(error.message, 'error');
+    showError(error.message);
   }
 }
 
@@ -563,17 +563,17 @@ async function handleSaveMaintenance(maintenanceId = null) {
   try {
     if (maintenanceId) {
       await api.updateMaintenanceRecord(maintenanceId, maintenanceData);
-      showToast(t('messages.maintenanceUpdated'), 'success');
+      showSuccess(t('messages.maintenanceUpdated'));
     } else {
       await api.createMaintenanceRecord(maintenanceData);
-      showToast(t('messages.maintenanceAdded'), 'success');
+      showSuccess(t('messages.maintenanceAdded'));
     }
     
     // Close modal and refresh data
     hideMaintenanceModal();
     showCarDetails(carData.id);
   } catch (error) {
-    showToast(error.message, 'error');
+    showError(error.message);
   }
 }
 
@@ -584,10 +584,10 @@ async function handleDeleteMaintenance(maintenanceId) {
   
   try {
     await api.deleteMaintenanceRecord(maintenanceId);
-    showToast(t('messages.maintenanceDeleted'), 'success');
+    showSuccess(t('messages.maintenanceDeleted'));
     showCarDetails(carData.id);
   } catch (error) {
-    showToast(error.message, 'error');
+    showError(error.message);
   }
 }
 
@@ -607,7 +607,7 @@ function printCarDetails() {
   const printWindow = window.open('', '_blank');
   
   if (!carData || !maintenanceRecords) {
-    showToast('No car details to print', 'warning');
+    showWarning('No car details to print');
     return;
   }
   

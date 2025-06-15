@@ -2,7 +2,7 @@
 import { t, setLanguage, getCurrentLanguage } from '../utils/i18n.js';
 import { api } from '../utils/api.js';
 import { navigate } from '../utils/router.js';
-import { showToast } from '../utils/toast.js';
+import { showSuccess } from '../utils/snackbar.js';
 
 export function createLayout(content, activeRoute = '') {
   const app = document.getElementById('app');
@@ -89,7 +89,7 @@ async function handleLogout(e) {
   
   try {
     await api.logout();
-    showToast(t('auth.logout') + ' ' + t('common.success'), 'success');
+    showSuccess(t('auth.logout') + ' ' + t('common.success'));
     navigate('/login');
   } catch (error) {
     console.error('Logout error:', error);
