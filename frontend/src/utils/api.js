@@ -234,10 +234,11 @@ const api = {
     return makeRequest(`/reports/sales${params.toString() ? `?${params.toString()}` : ''}`);
   },
   
-  async getMaintenanceReport(dateRange = {}) {
+  async getMaintenanceReport(dateRange = {}, categoryId = null) {
     const params = new URLSearchParams();
     if (dateRange.start) params.append('start_date', dateRange.start);
     if (dateRange.end) params.append('end_date', dateRange.end);
+    if (categoryId) params.append('category_id', categoryId);
     return makeRequest(`/reports/maintenance${params.toString() ? `?${params.toString()}` : ''}`);
   },
   

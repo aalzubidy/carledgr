@@ -111,7 +111,7 @@ const getSalesReport = async (organizationId, dateRange = {}) => {
 };
 
 // Get maintenance cost report by date range
-const getMaintenanceReport = async (organizationId, startDate, endDate) => {
+const getMaintenanceReport = async (organizationId, startDate, endDate, categoryId) => {
   let sql = `
     SELECT 
       c.id,
@@ -130,6 +130,12 @@ const getMaintenanceReport = async (organizationId, startDate, endDate) => {
   
   const params = [organizationId];
   
+  // Add category filter if provided - this will filter at the JOIN level
+  if (categoryId) {
+    sql += ' AND (m.category_id = ? OR m.id IS NULL)';
+    params.push(categoryId);
+  }
+  
   if (startDate) {
     sql += ' AND (m.created_at >= ? OR m.created_at IS NULL)';
     params.push(startDate);
@@ -140,7 +146,14 @@ const getMaintenanceReport = async (organizationId, startDate, endDate) => {
     params.push(endDate);
   }
   
-  sql += ' GROUP BY c.id ORDER BY total_cost DESC';
+  sql += ' GROUP BY c.id';
+  
+  // If category filter is applied, only show cars that have maintenance records in that category
+  if (categoryId) {
+    sql += ' HAVING maintenance_count > 0';
+  }
+  
+  sql += ' ORDER BY total_cost DESC';
   
   const cars = await query(sql, params);
   
@@ -160,6 +173,12 @@ const getMaintenanceReport = async (organizationId, startDate, endDate) => {
     `;
     
     const recordsParams = [car.id];
+    
+    // Add category filter for detailed records too
+    if (categoryId) {
+      recordsSql += ' AND m.category_id = ?';
+      recordsParams.push(categoryId);
+    }
     
     if (startDate) {
       recordsSql += ' AND m.created_at >= ?';
@@ -190,6 +209,12 @@ const getMaintenanceReport = async (organizationId, startDate, endDate) => {
   `;
   
   const categoryParams = [organizationId];
+  
+  // Add category filter for category rankings if provided
+  if (categoryId) {
+    categorySql += ' AND (mc.id = ? OR mc.id IS NULL)';
+    categoryParams.push(categoryId);
+  }
   
   if (startDate) {
     categorySql += ' AND (m.created_at >= ? OR m.created_at IS NULL)';
@@ -222,6 +247,12 @@ const getMaintenanceReport = async (organizationId, startDate, endDate) => {
   
   const modelParams = [organizationId];
   
+  // Add category filter for model rankings if provided
+  if (categoryId) {
+    modelSql += ' AND (m.category_id = ? OR m.id IS NULL)';
+    modelParams.push(categoryId);
+  }
+  
   if (startDate) {
     modelSql += ' AND (m.created_at >= ? OR m.created_at IS NULL)';
     modelParams.push(startDate);
@@ -250,13 +281,22 @@ const getMaintenanceReport = async (organizationId, startDate, endDate) => {
   const totalCarCost = parseFloat(totalCarCostResult[0]?.total_car_cost || 0);
   
   // Calculate total investment (total car cost + total maintenance cost for all cars)
-  const totalMaintenanceAllCarsQuery = `
+  let totalMaintenanceAllCarsQuery = `
     SELECT COALESCE(SUM(m.cost), 0) as total_maintenance_all_cars
     FROM maintenance_records m
     JOIN cars c ON m.car_id = c.id
     WHERE c.organization_id = ?
   `;
-  const totalMaintenanceAllCarsResult = await query(totalMaintenanceAllCarsQuery, [organizationId]);
+  
+  const totalMaintenanceAllCarsParams = [organizationId];
+  
+  // Add category filter for total maintenance calculation if provided
+  if (categoryId) {
+    totalMaintenanceAllCarsQuery += ' AND m.category_id = ?';
+    totalMaintenanceAllCarsParams.push(categoryId);
+  }
+  
+  const totalMaintenanceAllCarsResult = await query(totalMaintenanceAllCarsQuery, totalMaintenanceAllCarsParams);
   const totalMaintenanceAllCars = parseFloat(totalMaintenanceAllCarsResult[0]?.total_maintenance_all_cars || 0);
   const totalInvestment = totalCarCost + totalMaintenanceAllCars;
   

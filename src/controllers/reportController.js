@@ -59,9 +59,9 @@ const getSalesReportHandler = async (req, res) => {
 const getMaintenanceReportHandler = async (req, res, next) => {
   try {
     const organizationId = req.user.organization_id;
-    let { start_date, end_date } = req.query;
+    let { start_date, end_date, category_id } = req.query;
     
-    const report = await reportQueries.getMaintenanceReport(organizationId, start_date, end_date);
+    const report = await reportQueries.getMaintenanceReport(organizationId, start_date, end_date, category_id);
     
     res.json(report);
   } catch (error) {

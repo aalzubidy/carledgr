@@ -181,7 +181,8 @@
     "avgCostPerCar": "Costo Promedio por Vehículo",
     "monthly": "Desglose Mensual",
     "byMake": "Por Marca",
-    "noData": "No hay datos disponibles"
+    "noData": "No hay datos disponibles",
+    "allCategories": "Todas las Categorías"
   },
   "messages": {
     "carAdded": "Vehículo agregado exitosamente",
