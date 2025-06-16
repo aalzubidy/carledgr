@@ -35,6 +35,19 @@ const getInventoryReport = async (organizationId, filters = {}) => {
     params.push(filters.year);
   }
   
+  // Add date range filtering on created_at
+  if (filters.dateRange) {
+    if (filters.dateRange.start) {
+      sql += ' AND c.created_at >= ?';
+      params.push(filters.dateRange.start);
+    }
+    
+    if (filters.dateRange.end) {
+      sql += ' AND c.created_at <= ?';
+      params.push(filters.dateRange.end);
+    }
+  }
+  
   sql += ' GROUP BY c.id ORDER BY c.created_at DESC';
   
   return query(sql, params);
@@ -118,12 +131,12 @@ const getMaintenanceReport = async (organizationId, startDate, endDate) => {
   const params = [organizationId];
   
   if (startDate) {
-    sql += ' AND (m.maintenance_date >= ? OR m.maintenance_date IS NULL)';
+    sql += ' AND (m.created_at >= ? OR m.created_at IS NULL)';
     params.push(startDate);
   }
   
   if (endDate) {
-    sql += ' AND (m.maintenance_date <= ? OR m.maintenance_date IS NULL)';
+    sql += ' AND (m.created_at <= ? OR m.created_at IS NULL)';
     params.push(endDate);
   }
   
@@ -149,16 +162,16 @@ const getMaintenanceReport = async (organizationId, startDate, endDate) => {
     const recordsParams = [car.id];
     
     if (startDate) {
-      recordsSql += ' AND m.maintenance_date >= ?';
+      recordsSql += ' AND m.created_at >= ?';
       recordsParams.push(startDate);
     }
     
     if (endDate) {
-      recordsSql += ' AND m.maintenance_date <= ?';
+      recordsSql += ' AND m.created_at <= ?';
       recordsParams.push(endDate);
     }
     
-    recordsSql += ' ORDER BY m.maintenance_date DESC';
+    recordsSql += ' ORDER BY m.created_at DESC';
     
     car.maintenance_records = await query(recordsSql, recordsParams);
   }
@@ -179,12 +192,12 @@ const getMaintenanceReport = async (organizationId, startDate, endDate) => {
   const categoryParams = [organizationId];
   
   if (startDate) {
-    categorySql += ' AND (m.maintenance_date >= ? OR m.maintenance_date IS NULL)';
+    categorySql += ' AND (m.created_at >= ? OR m.created_at IS NULL)';
     categoryParams.push(startDate);
   }
   
   if (endDate) {
-    categorySql += ' AND (m.maintenance_date <= ? OR m.maintenance_date IS NULL)';
+    categorySql += ' AND (m.created_at <= ? OR m.created_at IS NULL)';
     categoryParams.push(endDate);
   }
   
@@ -210,12 +223,12 @@ const getMaintenanceReport = async (organizationId, startDate, endDate) => {
   const modelParams = [organizationId];
   
   if (startDate) {
-    modelSql += ' AND (m.maintenance_date >= ? OR m.maintenance_date IS NULL)';
+    modelSql += ' AND (m.created_at >= ? OR m.created_at IS NULL)';
     modelParams.push(startDate);
   }
   
   if (endDate) {
-    modelSql += ' AND (m.maintenance_date <= ? OR m.maintenance_date IS NULL)';
+    modelSql += ' AND (m.created_at <= ? OR m.created_at IS NULL)';
     modelParams.push(endDate);
   }
   
