@@ -5,9 +5,14 @@ const reportQueries = require('../db/queries/reportQueries');
 const getInventoryReportHandler = async (req, res, next) => {
   try {
     const organizationId = req.user.organization_id;
-    const { status, make, model, year } = req.query;
+    const { status, make, model, year, start_date, end_date } = req.query;
     
-    const report = await reportQueries.getInventoryReport(organizationId, { status, make, model, year });
+    // Pass date parameters to the query
+    const dateRange = {};
+    if (start_date) dateRange.start = start_date;
+    if (end_date) dateRange.end = end_date;
+    
+    const report = await reportQueries.getInventoryReport(organizationId, { status, make, model, year, dateRange });
     
     // Calculate totals
     const totals = {
@@ -32,11 +37,11 @@ const getInventoryReportHandler = async (req, res, next) => {
 const getSalesReportHandler = async (req, res) => {
   try {
     const organizationId = req.user.organization_id;
-    const { startDate, endDate } = req.query;
+    const { start_date, end_date } = req.query;
     
     const dateRange = {};
-    if (startDate) dateRange.start = startDate;
-    if (endDate) dateRange.end = endDate;
+    if (start_date) dateRange.start = start_date;
+    if (end_date) dateRange.end = end_date;
     
     const reportData = await reportQueries.getSalesReport(organizationId, dateRange);
     

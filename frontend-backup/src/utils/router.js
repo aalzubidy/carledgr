@@ -1,4 +1,4 @@
-// Simple router utility for React app
+// Simple router utility
 let routes = {};
 let currentRoute = null;
 
@@ -9,14 +9,7 @@ function addRoute(path, handler) {
 function navigate(path, data = {}) {
   // Update URL without page reload
   window.history.pushState(data, '', path);
-  
-  // Trigger React router update if available
-  if (window.navigate) {
-    window.navigate(path);
-  } else {
-    // Fallback to old routing system if React router not available
-    handleRoute(path, data);
-  }
+  handleRoute(path, data);
 }
 
 function handleRoute(path = window.location.pathname, data = {}) {
@@ -68,20 +61,11 @@ function getCurrentRoute() {
 function initializeRouter() {
   // Handle browser back/forward buttons
   window.addEventListener('popstate', (event) => {
-    if (window.navigate) {
-      // Let React handle the routing
-      const path = window.location.pathname;
-      window.navigate(path);
-    } else {
-      // Fallback to old routing system
-      handleRoute(window.location.pathname, event.state || {});
-    }
+    handleRoute(window.location.pathname, event.state || {});
   });
   
   // Handle initial route
-  if (!window.navigate) {
-    handleRoute();
-  }
+  handleRoute();
 }
 
 export { addRoute, navigate, handleRoute, getCurrentRoute, initializeRouter }; 

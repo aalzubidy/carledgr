@@ -4,18 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "npm i && vite",
+    "dev": "npm i &&vite",
     "build": "vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "^6.3.5",
-    "@vitejs/plugin-react": "^4.2.1"
+    "vite": "^6.3.5"
   },
   "dependencies": {
     "@material/web": "^2.3.0",
-    "vin-validator": "^1.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "vin-validator": "^1.0.0"
   }
 }
