@@ -11,10 +11,34 @@ function ReportsPage() {
   const [dateRange, setDateRange] = useState({ start: '', end: '' })
   const [reportData, setReportData] = useState(null)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState('')
+  const [categories, setCategories] = useState([])
 
   useEffect(() => {
     loadReport()
   }, [reportType]) // Only trigger when report type changes
+  
+  useEffect(() => {
+    if (reportType === 'maintenance' && categories.length === 0) {
+      loadCategories()
+    }
+  }, [reportType]) // Load categories when switching to maintenance report
+  
+  useEffect(() => {
+    if (reportType === 'maintenance') {
+      loadReport()
+    }
+  }, [selectedCategory]) // Trigger when category changes for maintenance reports
+
+  const loadCategories = async () => {
+    try {
+      const categoriesData = await api.getMaintenanceCategories()
+      setCategories(categoriesData)
+    } catch (error) {
+      console.error('Failed to load categories:', error)
+      // Don't show error for categories as it's not critical
+    }
+  }
 
   const loadReport = async () => {
     setIsGenerating(true)
@@ -40,7 +64,7 @@ function ReportsPage() {
           }
           break
         case 'maintenance':
-          data = await api.getMaintenanceReport(dateRange)
+          data = await api.getMaintenanceReport(dateRange, selectedCategory || null)
           break
         default:
           throw new Error('Unknown report type')
@@ -60,6 +84,11 @@ function ReportsPage() {
   const handleReportTypeChange = (e) => {
     setReportType(e.target.value)
     setReportData(null) // Clear previous report data
+    setSelectedCategory('') // Clear category filter when switching report types
+  }
+
+  const handleCategoryChange = (e) => {
+    setSelectedCategory(e.target.value)
   }
 
   const handleDateChange = (field, value) => {
@@ -993,6 +1022,24 @@ function ReportsPage() {
             />
           </div>
         </div>
+        
+        {reportType === 'maintenance' && (
+          <div className="control-group">
+            <label>{t('maintenance.category')}</label>
+            <select 
+              className="form-select"
+              value={selectedCategory}
+              onChange={handleCategoryChange}
+            >
+              <option value="">{t('reports.allCategories')}</option>
+              {categories.map(category => (
+                <option key={category.id} value={category.id}>
+                  {t('categories.' + category.name) || category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         
         <div className="control-actions">
           <button className="btn btn-primary" onClick={handleGenerate}>

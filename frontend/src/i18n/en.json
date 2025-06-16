@@ -181,7 +181,8 @@
     "avgCostPerCar": "Avg Cost Per Car",
     "monthly": "Monthly Breakdown",
     "byMake": "By Make",
-    "noData": "No data available"
+    "noData": "No data available",
+    "allCategories": "All Categories"
   },
   "messages": {
     "carAdded": "Car added successfully",

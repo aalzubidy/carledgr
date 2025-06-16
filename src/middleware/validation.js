@@ -88,7 +88,8 @@ const rules = {
   report: {
     generate: [
       query('start_date').optional().isDate().withMessage('Valid start date is required'),
-      query('end_date').optional().isDate().withMessage('Valid end date is required')
+      query('end_date').optional().isDate().withMessage('Valid end date is required'),
+      query('category_id').optional().isUUID().withMessage('Valid category ID is required')
     ]
   }
 };
