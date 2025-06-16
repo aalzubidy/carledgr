@@ -18,6 +18,7 @@
     "cars": "السيارات",
     "maintenance": "الصيانة",
     "reports": "التقارير",
+    "expenses": "مصاريف الوكالة",
     "settings": "الإعدادات"
   },
   "dashboard": {
@@ -120,7 +121,9 @@
     "filtered": "مفلترة",
     "from": "من",
     "first": "الأول",
-    "last": "الأخير"
+    "last": "الأخير",
+    "all": "الكل",
+    "required": "مطلوب"
   },
   "status": {
     "in_stock": "في المخزون",
@@ -179,6 +182,51 @@
     "noData": "لا توجد بيانات متاحة",
     "allCategories": "جميع الفئات"
   },
+  "expenses": {
+    "title": "مصاريف الوكالة",
+    "addExpense": "إضافة مصروف",
+    "editExpense": "تعديل المصروف",
+    "deleteExpense": "حذف المصروف",
+    "category": "الفئة",
+    "amount": "المبلغ",
+    "description": "الوصف",
+    "date": "التاريخ",
+    "recurring": "متكرر",
+    "frequency": "التكرار",
+    "monthly": "شهري",
+    "quarterly": "ربع سنوي",
+    "annually": "سنوي",
+    "oneTime": "مرة واحدة",
+    "totalThisMonth": "المجموع هذا الشهر",
+    "recurringMonthly": "المتكرر الشهري",
+    "summary": "الملخص",
+    "filters": "المرشحات",
+    "dateRange": "نطاق التاريخ",
+    "startDate": "تاريخ البداية",
+    "endDate": "تاريخ النهاية",
+    "allCategories": "جميع الفئات",
+    "recurringOnly": "المتكررة فقط",
+    "oneTimeOnly": "مرة واحدة فقط",
+    "noExpenses": "لم يتم العثور على مصاريف",
+    "type": "النوع"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "expenseCategories": "فئات المصاريف",
+    "addCategory": "إضافة فئة",
+    "newExpenseCategory": "فئة مصاريف جديدة",
+    "editCategory": "تعديل الفئة",
+    "deleteCategory": "حذف الفئة",
+    "categoryName": "اسم الفئة",
+    "allowRecurring": "السماح بالتكرار",
+    "allowRecurringHelp": "السماح للمصاريف في هذه الفئة بأن تكون متكررة",
+    "categoryHasExpenses": "هذه الفئة تحتوي على مصاريف",
+    "moveExpenses": "نقل المصاريف إلى فئة أخرى",
+    "deleteExpenses": "حذف جميع المصاريف في هذه الفئة",
+    "selectCategory": "اختر الفئة",
+    "noCategories": "لم يتم إنشاء فئات مصاريف بعد",
+    "confirmDeleteCategory": "هل أنت متأكد من أنك تريد حذف هذه الفئة؟"
+  },
   "messages": {
     "carAdded": "تم إضافة السيارة بنجاح",
     "carUpdated": "تم تحديث السيارة بنجاح",
@@ -186,6 +234,12 @@
     "maintenanceAdded": "تم إضافة سجل الصيانة بنجاح",
     "maintenanceUpdated": "تم تحديث سجل الصيانة بنجاح",
     "maintenanceDeleted": "تم حذف سجل الصيانة بنجاح",
+    "expenseAdded": "تم إضافة المصروف بنجاح",
+    "expenseUpdated": "تم تحديث المصروف بنجاح",
+    "expenseDeleted": "تم حذف المصروف بنجاح",
+    "categoryAdded": "تم إضافة الفئة بنجاح",
+    "categoryUpdated": "تم تحديث الفئة بنجاح",
+    "categoryDeleted": "تم حذف الفئة بنجاح",
     "errorOccurred": "حدث خطأ",
     "confirmDelete": "هل أنت متأكد من أنك تريد حذف هذا العنصر؟",
     "confirmEdit": "هل أنت متأكد من أنك تريد تعديل هذا العنصر؟"

@@ -72,6 +72,34 @@ const createTableStatements = [
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (car_id) REFERENCES cars(id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES maintenance_categories(id)
+  )`,
+
+  // Organization Expense Categories table
+  `CREATE TABLE IF NOT EXISTS organization_expense_categories (
+    id VARCHAR(36) PRIMARY KEY,
+    organization_id VARCHAR(36) NOT NULL,
+    category_name VARCHAR(100) NOT NULL,
+    is_recurring BOOLEAN DEFAULT FALSE,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+  )`,
+
+  // Organization Expenses table
+  `CREATE TABLE IF NOT EXISTS organization_expenses (
+    id VARCHAR(36) PRIMARY KEY,
+    organization_id VARCHAR(36) NOT NULL,
+    category_id VARCHAR(36) NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    description TEXT,
+    expense_date DATE NOT NULL,
+    is_recurring BOOLEAN DEFAULT FALSE,
+    recurring_frequency ENUM('monthly', 'quarterly', 'annually') NULL,
+    created_by_user_id VARCHAR(36) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES organization_expense_categories(id),
+    FOREIGN KEY (created_by_user_id) REFERENCES users(id)
   )`
 ];
 

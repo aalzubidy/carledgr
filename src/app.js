@@ -10,6 +10,7 @@ const carRoutes = require('./routes/carRoutes');
 const maintenanceRoutes = require('./routes/maintenanceRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const expenseRoutes = require('./routes/expenseRoutes');
 
 // Create Express app
 const app = express();
@@ -32,6 +33,7 @@ app.use('/api/cars', carRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/expenses', expenseRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

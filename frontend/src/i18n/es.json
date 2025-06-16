@@ -18,6 +18,7 @@
     "cars": "Vehículos",
     "maintenance": "Mantenimiento",
     "reports": "Reportes",
+    "expenses": "Gastos del Concesionario",
     "settings": "Configuración"
   },
   "dashboard": {
@@ -121,7 +122,9 @@
     "filtered": "filtradas",
     "from": "desde",
     "first": "Primero",
-    "last": "Último"
+    "last": "Último",
+    "all": "Todo",
+    "required": "es requerido"
   },
   "status": {
     "in_stock": "En Stock",
@@ -184,6 +187,51 @@
     "noData": "No hay datos disponibles",
     "allCategories": "Todas las Categorías"
   },
+  "expenses": {
+    "title": "Gastos del Concesionario",
+    "addExpense": "Agregar Gasto",
+    "editExpense": "Editar Gasto",
+    "deleteExpense": "Eliminar Gasto",
+    "category": "Categoría",
+    "amount": "Cantidad",
+    "description": "Descripción",
+    "date": "Fecha",
+    "recurring": "Recurrente",
+    "frequency": "Frecuencia",
+    "monthly": "Mensual",
+    "quarterly": "Trimestral",
+    "annually": "Anual",
+    "oneTime": "Una vez",
+    "totalThisMonth": "Total Este Mes",
+    "recurringMonthly": "Recurrente Mensual",
+    "summary": "Resumen",
+    "filters": "Filtros",
+    "dateRange": "Rango de Fechas",
+    "startDate": "Fecha de Inicio",
+    "endDate": "Fecha de Fin",
+    "allCategories": "Todas las Categorías",
+    "recurringOnly": "Solo Recurrentes",
+    "oneTimeOnly": "Solo Una Vez",
+    "noExpenses": "No se encontraron gastos",
+    "type": "Tipo"
+  },
+  "settings": {
+    "title": "Configuración",
+    "expenseCategories": "Categorías de Gastos",
+    "addCategory": "Agregar Categoría",
+    "newExpenseCategory": "Nueva Categoría de Gastos",
+    "editCategory": "Editar Categoría",
+    "deleteCategory": "Eliminar Categoría",
+    "categoryName": "Nombre de Categoría",
+    "allowRecurring": "Permitir Recurrente",
+    "allowRecurringHelp": "Permitir que los gastos en esta categoría se marquen como recurrentes",
+    "categoryHasExpenses": "Esta categoría tiene gastos",
+    "moveExpenses": "Mover gastos a otra categoría",
+    "deleteExpenses": "Eliminar todos los gastos en esta categoría",
+    "selectCategory": "Seleccionar categoría",
+    "noCategories": "Aún no se han creado categorías de gastos",
+    "confirmDeleteCategory": "¿Está seguro de que desea eliminar esta categoría?"
+  },
   "messages": {
     "carAdded": "Vehículo agregado exitosamente",
     "carUpdated": "Vehículo actualizado exitosamente",
@@ -191,6 +239,12 @@
     "maintenanceAdded": "Registro de mantenimiento agregado exitosamente",
     "maintenanceUpdated": "Registro de mantenimiento actualizado exitosamente",
     "maintenanceDeleted": "Registro de mantenimiento eliminado exitosamente",
+    "expenseAdded": "Gasto agregado exitosamente",
+    "expenseUpdated": "Gasto actualizado exitosamente",
+    "expenseDeleted": "Gasto eliminado exitosamente",
+    "categoryAdded": "Categoría agregada exitosamente",
+    "categoryUpdated": "Categoría actualizada exitosamente",
+    "categoryDeleted": "Categoría eliminada exitosamente",
     "errorOccurred": "Ocurrió un error",
     "confirmDelete": "¿Está seguro de que desea eliminar este elemento?",
     "confirmEdit": "¿Está seguro de que desea editar este elemento?"
