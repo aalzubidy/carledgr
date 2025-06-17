@@ -19,6 +19,16 @@ const getExpenseCategories = async (organizationId) => {
   return await query(sql, [organizationId]);
 };
 
+const getExpenseCategoryById = async (id, organizationId) => {
+  const sql = `
+    SELECT id, category_name, is_recurring, created_date
+    FROM organization_expense_categories 
+    WHERE id = ? AND organization_id = ?
+  `;
+  const results = await query(sql, [id, organizationId]);
+  return results[0];
+};
+
 const createExpenseCategory = async (organizationId, categoryName, isRecurring) => {
   const id = uuidv4();
   const sql = `
@@ -81,7 +91,7 @@ const deleteExpensesByCategory = async (categoryId, organizationId) => {
 const getExpenses = async (organizationId, filters = {}) => {
   let sql = `
     SELECT 
-      e.id, e.amount, e.description, e.expense_date, e.is_recurring, e.recurring_frequency,
+      e.id, e.category_id, e.amount, e.description, e.expense_date, e.is_recurring, e.recurring_frequency,
       e.created_at, e.updated_at,
       c.category_name,
       u.first_name, u.last_name
@@ -196,8 +206,8 @@ const deleteExpense = async (expenseId, organizationId) => {
   return result.affectedRows > 0;
 };
 
-const getExpenseSummary = async (organizationId, startDate, endDate) => {
-  const sql = `
+const getExpenseSummary = async (organizationId, startDate, endDate, categoryId = null) => {
+  let sql = `
     SELECT 
       SUM(amount) as total_amount,
       COUNT(*) as total_count,
@@ -207,7 +217,15 @@ const getExpenseSummary = async (organizationId, startDate, endDate) => {
     WHERE organization_id = ? 
     AND expense_date BETWEEN ? AND ?
   `;
-  const result = await query(sql, [organizationId, startDate, endDate]);
+  
+  const params = [organizationId, startDate, endDate];
+  
+  if (categoryId) {
+    sql += ' AND category_id = ?';
+    params.push(categoryId);
+  }
+  
+  const result = await query(sql, params);
   return result[0];
 };
 
@@ -227,9 +245,73 @@ const getMonthlyRecurringTotal = async (organizationId) => {
   return result[0].monthly_recurring_total || 0;
 };
 
+const getCategoriesBreakdown = async (organizationId, startDate, endDate, categoryId = null) => {
+  let sql = `
+    SELECT 
+      c.id as category_id,
+      c.category_name,
+      SUM(e.amount) as total_amount,
+      COUNT(e.id) as expense_count
+    FROM organization_expense_categories c
+    LEFT JOIN organization_expenses e ON c.id = e.category_id 
+      AND e.organization_id = ? 
+      AND e.expense_date BETWEEN ? AND ?
+  `;
+  
+  const params = [organizationId, startDate, endDate];
+  
+  if (categoryId) {
+    sql += ' AND c.id = ?';
+    params.push(categoryId);
+  }
+  
+  sql += `
+    WHERE c.organization_id = ?
+    GROUP BY c.id, c.category_name
+    HAVING total_amount > 0
+    ORDER BY total_amount DESC
+  `;
+  
+  params.push(organizationId);
+  
+  return await query(sql, params);
+};
+
+const getMonthlyBreakdown = async (organizationId, startDate, endDate, categoryId = null) => {
+  let sql = `
+    SELECT 
+      DATE_FORMAT(e.expense_date, '%Y-%m') as month_year,
+      SUM(e.amount) as total_amount,
+      COUNT(e.id) as expense_count
+    FROM organization_expenses e
+    WHERE e.organization_id = ?
+  `;
+  
+  const params = [organizationId];
+  
+  if (startDate && endDate) {
+    sql += ' AND e.expense_date BETWEEN ? AND ?';
+    params.push(startDate, endDate);
+  }
+  
+  if (categoryId) {
+    sql += ' AND e.category_id = ?';
+    params.push(categoryId);
+  }
+  
+  sql += `
+    GROUP BY DATE_FORMAT(e.expense_date, '%Y-%m')
+    ORDER BY month_year DESC
+    LIMIT 12
+  `;
+  
+  return await query(sql, params);
+};
+
 module.exports = {
   // Category queries
   getExpenseCategories,
+  getExpenseCategoryById,
   createExpenseCategory,
   updateExpenseCategory,
   deleteExpenseCategory,
@@ -244,5 +326,7 @@ module.exports = {
   updateExpense,
   deleteExpense,
   getExpenseSummary,
-  getMonthlyRecurringTotal
+  getMonthlyRecurringTotal,
+  getCategoriesBreakdown,
+  getMonthlyBreakdown
 }; 

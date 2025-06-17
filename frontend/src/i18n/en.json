@@ -213,13 +213,19 @@
     "recurringOnly": "Recurring Only",
     "oneTimeOnly": "One-time Only",
     "noExpenses": "No expenses found",
-    "type": "Type"
+    "type": "Type",
+    "expense": "expense",
+    "expenses": "expenses",
+    "totalExpenses": "Total Expenses",
+    "categoriesBreakdown": "Categories Breakdown",
+    "monthlyBreakdown": "Monthly Breakdown",
+    "month": "Month"
   },
   "settings": {
     "title": "Settings",
     "expenseCategories": "Expense Categories",
     "addCategory": "Add Category",
-    "newExpenseCategory": "New Expense Category",
+    "newCategory": "New Category",
     "editCategory": "Edit Category",
     "deleteCategory": "Delete Category",
     "categoryName": "Category Name",
@@ -230,7 +236,18 @@
     "deleteExpenses": "Delete all expenses in this category",
     "selectCategory": "Select category",
     "noCategories": "No expense categories have been created yet",
-    "confirmDeleteCategory": "Are you sure you want to delete this category?"
+    "confirmDeleteCategory": "Are you sure you want to delete this category?",
+    "numberOfExpenses": "Number of Expenses",
+    "moveTransactions": "Move Expenses",
+    "sourceCategory": "Source Category",
+    "targetCategory": "Target Category",
+    "expensesToMove": "Expenses to Move",
+    "selectTargetCategory": "Please select a target category",
+    "moveTransactionsHelp": "All expenses from the source category will be moved to the selected target category.",
+    "deleteWarning": "You need to decide what to do with the expenses in this category before deleting it.",
+    "moveExpensesFirst": "Move expenses to another category first (opens move form)",
+    "openMoveForm": "Open Move Form",
+    "categoryEmpty": "This category is empty - no expenses to move"
   },
   "messages": {
     "carAdded": "Car added successfully",
@@ -247,6 +264,9 @@
     "categoryDeleted": "Category deleted successfully",
     "errorOccurred": "An error occurred",
     "confirmDelete": "Are you sure you want to delete this item?",
-    "confirmEdit": "Are you sure you want to edit this item?"
+    "confirmEdit": "Are you sure you want to edit this item?",
+    "confirmAdd": "Are you sure you want to add this item?",
+    "confirmMove": "Are you sure you want to move these expenses?",
+    "expensesMoved": "Expenses moved successfully"
   }
 } 

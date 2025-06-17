@@ -275,6 +275,13 @@ const api = {
     });
   },
 
+  async moveExpensesToCategory(fromCategoryId, toCategoryId) {
+    return makeRequest(`/expenses/categories/${fromCategoryId}/move`, {
+      method: 'POST',
+      body: JSON.stringify({ target_category_id: toCategoryId })
+    });
+  },
+
   // Expenses
   async getExpenses(params = {}) {
     const queryString = new URLSearchParams();

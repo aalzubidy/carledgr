@@ -11,6 +11,7 @@ router.get('/categories', expenseController.getExpenseCategories);
 router.post('/categories', expenseController.createExpenseCategory);
 router.put('/categories/:id', expenseController.updateExpenseCategory);
 router.delete('/categories/:id', expenseController.deleteExpenseCategory);
+router.post('/categories/:id/move', expenseController.moveExpensesToCategory);
 
 // Expenses Routes
 router.get('/', expenseController.getExpenses);

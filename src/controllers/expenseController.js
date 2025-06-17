@@ -239,23 +239,59 @@ const deleteExpense = async (req, res) => {
 const getExpenseSummary = async (req, res) => {
   try {
     const organizationId = req.user.organization_id;
-    const { start_date, end_date } = req.query;
+    const { start_date, end_date, category_id } = req.query;
 
     // Default to current month if no dates provided
     const startDate = start_date || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
     const endDate = end_date || new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0];
 
-    const summary = await expenseQueries.getExpenseSummary(organizationId, startDate, endDate);
+    const summary = await expenseQueries.getExpenseSummary(organizationId, startDate, endDate, category_id);
     const monthlyRecurring = await expenseQueries.getMonthlyRecurringTotal(organizationId);
+    const categoriesBreakdown = await expenseQueries.getCategoriesBreakdown(organizationId, startDate, endDate, category_id);
+    const monthlyBreakdown = await expenseQueries.getMonthlyBreakdown(organizationId, startDate, endDate, category_id);
 
     res.json({
       ...summary,
       monthly_recurring_total: monthlyRecurring,
+      categories_breakdown: categoriesBreakdown,
+      monthly_breakdown: monthlyBreakdown,
       period: { start_date: startDate, end_date: endDate }
     });
   } catch (error) {
     logger.error(`Error fetching expense summary: ${error.message}`);
     res.status(500).json({ error: 'Failed to fetch expense summary' });
+  }
+};
+
+const moveExpensesToCategory = async (req, res) => {
+  try {
+    const organizationId = req.user.organization_id;
+    const { id } = req.params;
+    const { target_category_id } = req.body;
+
+    if (!target_category_id) {
+      return res.status(400).json({ error: 'Target category ID is required' });
+    }
+
+    // Verify both categories exist and belong to the organization
+    const sourceCategory = await expenseQueries.getExpenseCategoryById(id, organizationId);
+    const targetCategory = await expenseQueries.getExpenseCategoryById(target_category_id, organizationId);
+
+    if (!sourceCategory) {
+      return res.status(404).json({ error: 'Source category not found' });
+    }
+
+    if (!targetCategory) {
+      return res.status(404).json({ error: 'Target category not found' });
+    }
+
+    // Move expenses to the target category
+    await expenseQueries.moveExpensesToUncategorized(id, organizationId, target_category_id);
+
+    res.json({ message: 'Expenses moved successfully' });
+  } catch (error) {
+    logger.error(`Error moving expenses to category: ${error.message}`);
+    res.status(500).json({ error: 'Failed to move expenses' });
   }
 };
 
@@ -265,6 +301,7 @@ module.exports = {
   createExpenseCategory,
   updateExpenseCategory,
   deleteExpenseCategory,
+  moveExpensesToCategory,
   
   // Expense controllers
   getExpenses,

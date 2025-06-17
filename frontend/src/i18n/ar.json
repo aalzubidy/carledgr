@@ -208,13 +208,19 @@
     "recurringOnly": "المتكررة فقط",
     "oneTimeOnly": "مرة واحدة فقط",
     "noExpenses": "لم يتم العثور على مصاريف",
-    "type": "النوع"
+    "type": "النوع",
+    "expense": "مصروف",
+    "expenses": "مصاريف",
+    "totalExpenses": "إجمالي المصاريف",
+    "categoriesBreakdown": "تفصيل الفئات",
+    "monthlyBreakdown": "التفصيل الشهري",
+    "month": "الشهر"
   },
   "settings": {
     "title": "الإعدادات",
     "expenseCategories": "فئات المصاريف",
     "addCategory": "إضافة فئة",
-    "newExpenseCategory": "فئة مصاريف جديدة",
+    "newCategory": "فئة جديدة",
     "editCategory": "تعديل الفئة",
     "deleteCategory": "حذف الفئة",
     "categoryName": "اسم الفئة",
@@ -225,7 +231,18 @@
     "deleteExpenses": "حذف جميع المصاريف في هذه الفئة",
     "selectCategory": "اختر الفئة",
     "noCategories": "لم يتم إنشاء فئات مصاريف بعد",
-    "confirmDeleteCategory": "هل أنت متأكد من أنك تريد حذف هذه الفئة؟"
+    "confirmDeleteCategory": "هل أنت متأكد من أنك تريد حذف هذه الفئة؟",
+    "numberOfExpenses": "عدد المصاريف",
+    "moveTransactions": "نقل المعاملات",
+    "sourceCategory": "الفئة المصدر",
+    "targetCategory": "الفئة المستهدفة",
+    "expensesToMove": "المصاريف المراد نقلها",
+    "selectTargetCategory": "يرجى اختيار فئة مستهدفة",
+    "moveTransactionsHelp": "سيتم نقل جميع المصاريف من الفئة المصدر إلى الفئة المستهدفة المحددة.",
+    "deleteWarning": "تحتاج إلى تحديد ما تريد فعله بالمصاريف في هذه الفئة قبل حذفها.",
+    "moveExpensesFirst": "نقل المصاريف إلى فئة أخرى أولاً (يفتح نموذج النقل)",
+    "openMoveForm": "فتح نموذج النقل",
+    "categoryEmpty": "هذه الفئة فارغة - لا توجد مصاريف للنقل"
   },
   "messages": {
     "carAdded": "تم إضافة السيارة بنجاح",
@@ -242,6 +259,9 @@
     "categoryDeleted": "تم حذف الفئة بنجاح",
     "errorOccurred": "حدث خطأ",
     "confirmDelete": "هل أنت متأكد من أنك تريد حذف هذا العنصر؟",
-    "confirmEdit": "هل أنت متأكد من أنك تريد تعديل هذا العنصر؟"
+    "confirmEdit": "هل أنت متأكد من أنك تريد تعديل هذا العنصر؟",
+    "confirmAdd": "هل أنت متأكد من أنك تريد إضافة هذا العنصر؟",
+    "confirmMove": "هل أنت متأكد من أنك تريد نقل هذه المصاريف؟",
+    "expensesMoved": "تم نقل المصاريف بنجاح"
   }
 } 

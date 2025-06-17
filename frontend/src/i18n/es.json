@@ -213,13 +213,19 @@
     "recurringOnly": "Solo Recurrentes",
     "oneTimeOnly": "Solo Una Vez",
     "noExpenses": "No se encontraron gastos",
-    "type": "Tipo"
+    "type": "Tipo",
+    "expense": "gasto",
+    "expenses": "gastos",
+    "totalExpenses": "Total de Gastos",
+    "categoriesBreakdown": "Desglose por Categorías",
+    "monthlyBreakdown": "Desglose Mensual",
+    "month": "Mes"
   },
   "settings": {
     "title": "Configuración",
     "expenseCategories": "Categorías de Gastos",
     "addCategory": "Agregar Categoría",
-    "newExpenseCategory": "Nueva Categoría de Gastos",
+    "newCategory": "Nueva Categoría",
     "editCategory": "Editar Categoría",
     "deleteCategory": "Eliminar Categoría",
     "categoryName": "Nombre de Categoría",
@@ -230,7 +236,18 @@
     "deleteExpenses": "Eliminar todos los gastos en esta categoría",
     "selectCategory": "Seleccionar categoría",
     "noCategories": "Aún no se han creado categorías de gastos",
-    "confirmDeleteCategory": "¿Está seguro de que desea eliminar esta categoría?"
+    "confirmDeleteCategory": "¿Está seguro de que desea eliminar esta categoría?",
+    "numberOfExpenses": "Número de Gastos",
+    "moveTransactions": "Mover Transacciones",
+    "sourceCategory": "Categoría de Origen",
+    "targetCategory": "Categoría de Destino",
+    "expensesToMove": "Gastos a Mover",
+    "selectTargetCategory": "Por favor seleccione una categoría de destino",
+    "moveTransactionsHelp": "Todos los gastos de la categoría de origen se moverán a la categoría de destino seleccionada.",
+    "deleteWarning": "Necesita decidir qué hacer con los gastos en esta categoría antes de eliminarla.",
+    "moveExpensesFirst": "Mover gastos a otra categoría primero (abre formulario de mover)",
+    "openMoveForm": "Abrir Formulario de Mover",
+    "categoryEmpty": "Esta categoría está vacía - no hay gastos para mover"
   },
   "messages": {
     "carAdded": "Vehículo agregado exitosamente",
@@ -247,6 +264,9 @@
     "categoryDeleted": "Categoría eliminada exitosamente",
     "errorOccurred": "Ocurrió un error",
     "confirmDelete": "¿Está seguro de que desea eliminar este elemento?",
-    "confirmEdit": "¿Está seguro de que desea editar este elemento?"
+    "confirmEdit": "¿Está seguro de que desea editar este elemento?",
+    "confirmAdd": "¿Está seguro de que desea agregar este elemento?",
+    "confirmMove": "¿Está seguro de que desea mover estos gastos?",
+    "expensesMoved": "Gastos movidos exitosamente"
   }
 } 
