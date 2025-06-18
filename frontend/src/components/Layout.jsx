@@ -137,6 +137,26 @@ function Layout({ children, activeRoute = '' }) {
             {t('navigation.reports')}
           </a>
           <a 
+            href="/expenses" 
+            className={`nav-item ${activeRoute === 'expenses' ? 'active' : ''}`}
+            onClick={(e) => {
+              e.preventDefault()
+              handleNavigation('/expenses')
+            }}
+          >
+            {t('navigation.expenses')}
+          </a>
+          <a 
+            href="/settings" 
+            className={`nav-item ${activeRoute === 'settings' ? 'active' : ''}`}
+            onClick={(e) => {
+              e.preventDefault()
+              handleNavigation('/settings')
+            }}
+          >
+            {t('navigation.settings')}
+          </a>
+          <a 
             href="#" 
             className="nav-item" 
             onClick={handleLogout}

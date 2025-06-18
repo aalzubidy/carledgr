@@ -8,6 +8,8 @@ import CarsPage from './pages/CarsPage.jsx'
 import CarDetails from './pages/CarDetails.jsx'
 import MaintenancePage from './pages/MaintenancePage.jsx'
 import ReportsPage from './pages/ReportsPage.jsx'
+import ExpensesPage from './pages/ExpensesPage.jsx'
+import SettingsPage from './pages/SettingsPage.jsx'
 
 function App() {
   const [isLoading, setIsLoading] = useState(true)
@@ -101,6 +103,10 @@ function App() {
         return requireAuth(<MaintenancePage />)
       case '/reports':
         return requireAuth(<ReportsPage />)
+      case '/expenses':
+        return requireAuth(<ExpensesPage />)
+      case '/settings':
+        return requireAuth(<SettingsPage />)
       default:
         if (currentRoute.startsWith('/cars/')) {
           const carId = routeParams.id

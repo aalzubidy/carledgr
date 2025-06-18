@@ -9,9 +9,14 @@ const {
   deleteMaintenanceRecord,
   associateMaintenanceCategories,
   getMaintenanceCategories,
+  getMaintenanceCategoryById,
   createMaintenanceCategory,
   updateMaintenanceCategory,
   deleteMaintenanceCategory,
+  getMaintenanceRecordsByCategoryId,
+  moveMaintenanceRecordsToCategory,
+  deleteMaintenanceRecordsByCategory,
+  getDefaultOtherCategory,
   getMaintenanceStatistics
 } = require('../db/queries/maintenanceQueries');
 const { getCarById } = require('../db/queries/carQueries');
@@ -247,53 +252,141 @@ const deleteMaintenance = async (req, res, next) => {
   }
 };
 
-// Get maintenance categories
+// Get maintenance categories (default + custom for organization)
 const getCategories = async (req, res, next) => {
   try {
-    const categories = await getMaintenanceCategories();
+    const organizationId = req.user.organization_id;
+    const categories = await getMaintenanceCategories(organizationId);
     res.json(categories);
   } catch (error) {
+    logger.error(`Error fetching maintenance categories: ${error.message}`);
     next(error);
   }
 };
 
-// Create maintenance category
+// Create custom maintenance category
 const createCategory = async (req, res, next) => {
   try {
-    const { name } = req.body;
-    const id = uuidv4();
+    const organizationId = req.user.organization_id;
+    const { category_name } = req.body;
     
-    await createMaintenanceCategory({ id, name });
+    if (!category_name) {
+      return res.status(400).json({ error: 'Category name is required' });
+    }
     
-    res.status(201).json({ id, name });
+    const category = await createMaintenanceCategory(organizationId, category_name);
+    res.status(201).json(category);
   } catch (error) {
+    logger.error(`Error creating maintenance category: ${error.message}`);
     next(error);
   }
 };
 
-// Update maintenance category
+// Update custom maintenance category
 const updateCategory = async (req, res, next) => {
   try {
+    const organizationId = req.user.organization_id;
     const { id } = req.params;
-    const { name } = req.body;
+    const { category_name } = req.body;
     
-    await updateMaintenanceCategory(id, name);
+    if (!category_name) {
+      return res.status(400).json({ error: 'Category name is required' });
+    }
     
-    res.json({ id, name });
+    const updated = await updateMaintenanceCategory(id, organizationId, category_name);
+    
+    if (!updated) {
+      return res.status(404).json({ error: 'Category not found or not editable' });
+    }
+    
+    res.json({ message: 'Category updated successfully' });
   } catch (error) {
+    logger.error(`Error updating maintenance category: ${error.message}`);
     next(error);
   }
 };
 
-// Delete maintenance category
+// Delete custom maintenance category
 const deleteCategory = async (req, res, next) => {
   try {
+    const organizationId = req.user.organization_id;
     const { id } = req.params;
+    const { action, target_category_id } = req.body;
     
-    await deleteMaintenanceCategory(id);
+    // Check if category exists and belongs to organization
+    const category = await getMaintenanceCategoryById(id, organizationId);
+    if (!category) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
     
-    res.status(204).end();
+    if (category.is_default) {
+      return res.status(400).json({ error: 'Cannot delete default categories' });
+    }
+    
+    // Check if there are maintenance records using this category
+    const recordCount = await getMaintenanceRecordsByCategoryId(id);
+    
+    if (recordCount > 0) {
+      if (action === 'move' && target_category_id) {
+        // Move records to target category
+        await moveMaintenanceRecordsToCategory(id, target_category_id);
+      } else if (action === 'delete') {
+        // Delete all records in this category
+        await deleteMaintenanceRecordsByCategory(id);
+      } else {
+        return res.status(400).json({ 
+          error: 'Category has maintenance records. Please specify action: move or delete',
+          record_count: recordCount
+        });
+      }
+    }
+    
+    // Delete the category
+    const deleted = await deleteMaintenanceCategory(id, organizationId);
+    
+    if (!deleted) {
+      return res.status(404).json({ error: 'Category not found or not deletable' });
+    }
+    
+    res.json({ message: 'Category deleted successfully' });
   } catch (error) {
+    logger.error(`Error deleting maintenance category: ${error.message}`);
+    next(error);
+  }
+};
+
+// Move maintenance records between categories
+const moveRecordsToCategory = async (req, res, next) => {
+  try {
+    const organizationId = req.user.organization_id;
+    const { id } = req.params;
+    const { target_category_id } = req.body;
+    
+    if (!target_category_id) {
+      return res.status(400).json({ error: 'Target category ID is required' });
+    }
+    
+    // Verify both categories exist and are accessible
+    const sourceCategory = await getMaintenanceCategoryById(id, organizationId);
+    const targetCategory = await getMaintenanceCategoryById(target_category_id, organizationId);
+    
+    if (!sourceCategory) {
+      return res.status(404).json({ error: 'Source category not found' });
+    }
+    
+    if (!targetCategory) {
+      return res.status(404).json({ error: 'Target category not found' });
+    }
+    
+    // Move records
+    const movedCount = await moveMaintenanceRecordsToCategory(id, target_category_id);
+    
+    res.json({ 
+      message: 'Maintenance records moved successfully',
+      moved_count: movedCount
+    });
+  } catch (error) {
+    logger.error(`Error moving maintenance records: ${error.message}`);
     next(error);
   }
 };
@@ -321,5 +414,6 @@ module.exports = {
   createCategory,
   updateCategory,
   deleteCategory,
+  moveRecordsToCategory,
   getStatistics
 }; 

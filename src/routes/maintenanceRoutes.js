@@ -11,6 +11,7 @@ const {
   createCategory,
   updateCategory,
   deleteCategory,
+  moveRecordsToCategory,
   getStatistics
 } = require('../controllers/maintenanceController');
 const { authenticateJWT, isOrgAdminOrAdmin } = require('../middleware/auth');
@@ -30,6 +31,7 @@ router.get('/categories', getCategories);
 router.post('/categories', isOrgAdminOrAdmin, createCategory);
 router.put('/categories/:id', isOrgAdminOrAdmin, updateCategory);
 router.delete('/categories/:id', isOrgAdminOrAdmin, deleteCategory);
+router.post('/categories/:id/move', isOrgAdminOrAdmin, moveRecordsToCategory);
 
 // Get maintenance records for a car
 router.get('/car/:carId', getMaintenanceByCarId);

@@ -218,6 +218,34 @@ const api = {
   async getMaintenanceCategories() {
     return makeRequest('/maintenance/categories');
   },
+
+  async createMaintenanceCategory(categoryData) {
+    return makeRequest('/maintenance/categories', {
+      method: 'POST',
+      body: JSON.stringify({ category_name: categoryData.name })
+    });
+  },
+
+  async updateMaintenanceCategory(id, categoryData) {
+    return makeRequest(`/maintenance/categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ category_name: categoryData.name })
+    });
+  },
+
+  async deleteMaintenanceCategory(id, data = {}) {
+    return makeRequest(`/maintenance/categories/${id}`, {
+      method: 'DELETE',
+      body: JSON.stringify(data)
+    });
+  },
+
+  async moveMaintenanceRecordsToCategory(fromCategoryId, toCategoryId) {
+    return makeRequest(`/maintenance/categories/${fromCategoryId}/move`, {
+      method: 'POST',
+      body: JSON.stringify({ target_category_id: toCategoryId })
+    });
+  },
   
   // Reports
   async getInventoryReport(dateRange = {}) {
@@ -247,6 +275,84 @@ const api = {
     if (dateRange.start) params.append('start_date', dateRange.start);
     if (dateRange.end) params.append('end_date', dateRange.end);
     return makeRequest(`/reports/profit${params.toString() ? `?${params.toString()}` : ''}`);
+  },
+
+  // Expense Categories
+  async getExpenseCategories() {
+    return makeRequest('/expenses/categories');
+  },
+
+  async createExpenseCategory(categoryData) {
+    return makeRequest('/expenses/categories', {
+      method: 'POST',
+      body: JSON.stringify(categoryData)
+    });
+  },
+
+  async updateExpenseCategory(id, categoryData) {
+    return makeRequest(`/expenses/categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(categoryData)
+    });
+  },
+
+  async deleteExpenseCategory(id, data = {}) {
+    return makeRequest(`/expenses/categories/${id}`, {
+      method: 'DELETE',
+      body: JSON.stringify(data)
+    });
+  },
+
+  async moveExpensesToCategory(fromCategoryId, toCategoryId) {
+    return makeRequest(`/expenses/categories/${fromCategoryId}/move`, {
+      method: 'POST',
+      body: JSON.stringify({ target_category_id: toCategoryId })
+    });
+  },
+
+  // Expenses
+  async getExpenses(params = {}) {
+    const queryString = new URLSearchParams();
+    Object.keys(params).forEach(key => {
+      if (params[key]) {
+        queryString.append(key, params[key]);
+      }
+    });
+    return makeRequest(`/expenses${queryString.toString() ? `?${queryString.toString()}` : ''}`);
+  },
+
+  async getExpense(id) {
+    return makeRequest(`/expenses/${id}`);
+  },
+
+  async createExpense(expenseData) {
+    return makeRequest('/expenses', {
+      method: 'POST',
+      body: JSON.stringify(expenseData)
+    });
+  },
+
+  async updateExpense(id, expenseData) {
+    return makeRequest(`/expenses/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(expenseData)
+    });
+  },
+
+  async deleteExpense(id) {
+    return makeRequest(`/expenses/${id}`, {
+      method: 'DELETE'
+    });
+  },
+
+  async getExpenseSummary(params = {}) {
+    const queryString = new URLSearchParams();
+    Object.keys(params).forEach(key => {
+      if (params[key]) {
+        queryString.append(key, params[key]);
+      }
+    });
+    return makeRequest(`/expenses/summary${queryString.toString() ? `?${queryString.toString()}` : ''}`);
   }
 };
 
