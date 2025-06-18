@@ -218,6 +218,34 @@ const api = {
   async getMaintenanceCategories() {
     return makeRequest('/maintenance/categories');
   },
+
+  async createMaintenanceCategory(categoryData) {
+    return makeRequest('/maintenance/categories', {
+      method: 'POST',
+      body: JSON.stringify({ category_name: categoryData.name })
+    });
+  },
+
+  async updateMaintenanceCategory(id, categoryData) {
+    return makeRequest(`/maintenance/categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ category_name: categoryData.name })
+    });
+  },
+
+  async deleteMaintenanceCategory(id, data = {}) {
+    return makeRequest(`/maintenance/categories/${id}`, {
+      method: 'DELETE',
+      body: JSON.stringify(data)
+    });
+  },
+
+  async moveMaintenanceRecordsToCategory(fromCategoryId, toCategoryId) {
+    return makeRequest(`/maintenance/categories/${fromCategoryId}/move`, {
+      method: 'POST',
+      body: JSON.stringify({ target_category_id: toCategoryId })
+    });
+  },
   
   // Reports
   async getInventoryReport(dateRange = {}) {

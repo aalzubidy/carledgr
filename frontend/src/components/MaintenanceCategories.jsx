@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import Layout, { Loading, EmptyState } from '../components/Layout.jsx'
-import MaintenanceCategories from '../components/MaintenanceCategories.jsx'
+import { EmptyState } from './Layout.jsx'
 import { t } from '../utils/i18n.js'
 import { api } from '../utils/api.js'
 import { showSuccess, showError } from '../utils/snackbar.js'
 
-function SettingsPage() {
+function MaintenanceCategories() {
   const [categories, setCategories] = useState([])
   const [filteredCategories, setFilteredCategories] = useState([])
   const [loading, setLoading] = useState(true)
@@ -17,13 +16,11 @@ function SettingsPage() {
   const [showMoveModal, setShowMoveModal] = useState(false)
   const [editingCategory, setEditingCategory] = useState(null)
   const [formData, setFormData] = useState({
-    category_name: '',
-    is_recurring: false
+    name: ''
   })
   const [deleteData, setDeleteData] = useState({
     category: null,
-    action: '',
-    uncategorizedCategoryId: ''
+    action: ''
   })
   const [moveData, setMoveData] = useState({
     category: null,
@@ -39,8 +36,8 @@ function SettingsPage() {
     const filtered = categories.filter(category => {
       const term = searchTerm.toLowerCase()
       return (
-        category.category_name.toLowerCase().includes(term) ||
-        (category.is_recurring ? 'recurring' : 'one-time').includes(term)
+        category.name.toLowerCase().includes(term) ||
+        (category.is_default ? 'default' : 'custom').includes(term)
       )
     })
     setFilteredCategories(filtered)
@@ -49,11 +46,11 @@ function SettingsPage() {
   const loadCategories = async () => {
     try {
       setLoading(true)
-      const response = await api.getExpenseCategories()
+      const response = await api.getMaintenanceCategories()
       setCategories(response)
       setFilteredCategories(response)
     } catch (error) {
-      console.error('Error loading categories:', error)
+      console.error('Error loading maintenance categories:', error)
       showError(t('messages.errorOccurred'))
     } finally {
       setLoading(false)
@@ -82,13 +79,13 @@ function SettingsPage() {
       if (bVal == null) bVal = ''
       
       // Special handling for different data types
-      if (column === 'expense_count') {
+      if (column === 'maintenance_count') {
         aVal = parseInt(aVal) || 0
         bVal = parseInt(bVal) || 0
-      } else if (column === 'created_date') {
+      } else if (column === 'created_at') {
         aVal = new Date(aVal)
         bVal = new Date(bVal)
-      } else if (column === 'is_recurring') {
+      } else if (column === 'is_default') {
         aVal = aVal ? 1 : 0
         bVal = bVal ? 1 : 0
       } else {
@@ -115,33 +112,40 @@ function SettingsPage() {
   const handleAddCategory = () => {
     setEditingCategory(null)
     setFormData({
-      category_name: '',
-      is_recurring: false
+      name: ''
     })
     setShowEditModal(true)
   }
 
   const handleEditCategory = (category) => {
+    if (category.is_default) {
+      showError(t('settings.readOnly'))
+      return
+    }
+    
     setEditingCategory(category)
     setFormData({
-      category_name: category.category_name,
-      is_recurring: category.is_recurring
+      name: category.name
     })
     setShowEditModal(true)
   }
 
   const handleDeleteCategory = (category) => {
+    if (category.is_default) {
+      showError(t('settings.readOnly'))
+      return
+    }
+    
     setDeleteData({
       category,
-      action: '',
-      uncategorizedCategoryId: ''
+      action: ''
     })
     setShowDeleteModal(true)
   }
 
-  const handleMoveTransactions = (category) => {
-    if (category.expense_count === 0) {
-      showError(t('settings.categoryEmpty'))
+  const handleMoveRecords = (category) => {
+    if (category.maintenance_count === 0) {
+      showError(t('settings.maintenanceCategoryEmpty'))
       return
     }
     
@@ -153,15 +157,15 @@ function SettingsPage() {
   }
 
   const handleFormChange = (e) => {
-    const { name, value, type, checked } = e.target
+    const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: value
     }))
   }
 
   const handleSaveCategory = async () => {
-    if (!formData.category_name.trim()) {
+    if (!formData.name.trim()) {
       showError(t('settings.categoryName') + ' ' + t('common.required'))
       return
     }
@@ -173,17 +177,17 @@ function SettingsPage() {
 
     try {
       if (editingCategory) {
-        await api.updateExpenseCategory(editingCategory.id, formData)
+        await api.updateMaintenanceCategory(editingCategory.id, formData)
         showSuccess(t('messages.categoryUpdated'))
       } else {
-        await api.createExpenseCategory(formData)
+        await api.createMaintenanceCategory(formData)
         showSuccess(t('messages.categoryAdded'))
       }
       
       setShowEditModal(false)
       loadCategories()
     } catch (error) {
-      console.error('Error saving category:', error)
+      console.error('Error saving maintenance category:', error)
       showError(t('messages.errorOccurred'))
     }
   }
@@ -198,16 +202,12 @@ function SettingsPage() {
         action: deleteData.action
       }
       
-      if (deleteData.action === 'move') {
-        payload.uncategorized_category_id = deleteData.uncategorizedCategoryId
-      }
-
-      await api.deleteExpenseCategory(deleteData.category.id, payload)
+      await api.deleteMaintenanceCategory(deleteData.category.id, payload)
       showSuccess(t('messages.categoryDeleted'))
       setShowDeleteModal(false)
       loadCategories()
     } catch (error) {
-      console.error('Error deleting category:', error)
+      console.error('Error deleting maintenance category:', error)
       showError(t('messages.errorOccurred'))
     }
   }
@@ -218,43 +218,62 @@ function SettingsPage() {
       return
     }
 
-    const targetCategory = categories.find(cat => cat.id == moveData.targetCategoryId)
-    const confirmMessage = `${t('messages.confirmMove')}\n\n${t('settings.sourceCategory')}: ${moveData.category.category_name}\n${t('settings.targetCategory')}: ${targetCategory?.category_name}\n${t('settings.expensesToMove')}: ${moveData.category.expense_count}`
-    
-    if (!confirm(confirmMessage)) {
+    if (!confirm(t('messages.confirmMove'))) {
       return
     }
 
     try {
-      await api.moveExpensesToCategory(moveData.category.id, moveData.targetCategoryId)
-      showSuccess(t('messages.expensesMoved'))
+      await api.moveMaintenanceRecordsToCategory(moveData.category.id, moveData.targetCategoryId)
+      showSuccess(t('messages.recordsMoved'))
       setShowMoveModal(false)
       loadCategories()
     } catch (error) {
-      console.error('Error moving expenses:', error)
+      console.error('Error moving maintenance records:', error)
       showError(t('messages.errorOccurred'))
     }
   }
 
   const renderCategoriesTable = () => {
-    if (filteredCategories.length === 0) {
-      if (categories.length === 0) {
-        return <EmptyState message={t('settings.noCategories')} icon="📁" />
-      } else {
-        return <EmptyState message={t('cars.noResults')} icon="🔍" />
-      }
+    if (loading) {
+      return <div className="text-center p-4">Loading...</div>
     }
+
+    const customCategories = filteredCategories.filter(cat => !cat.is_default)
     
+    if (customCategories.length === 0 && !searchTerm) {
+      return (
+        <EmptyState 
+          message={t('settings.noMaintenanceCategories')}
+          action={
+            <button className="btn btn-primary" onClick={handleAddCategory}>
+              {t('settings.newCategory')}
+            </button>
+          }
+        />
+      )
+    }
+
+    if (filteredCategories.length === 0 && searchTerm) {
+      return (
+        <EmptyState 
+          message={t('common.noResultsFound')}
+        />
+      )
+    }
+
     return (
       <div className="table-wrapper">
         <table className="data-table">
         <thead>
           <tr>
-            <th className="sortable" onClick={() => handleSort('category_name')} style={{ width: '50%' }}>
-              {t('settings.categoryName')} {getSortIcon('category_name')}
+            <th className="sortable" onClick={() => handleSort('name')} style={{ width: '35%' }}>
+              {t('settings.categoryName')} {getSortIcon('name')}
             </th>
-            <th className="sortable" onClick={() => handleSort('expense_count')} style={{ width: '25%' }}>
-              {t('settings.numberOfExpenses')} {getSortIcon('expense_count')}
+            <th className="sortable" onClick={() => handleSort('is_default')} style={{ width: '20%' }}>
+              {t('settings.categoryType')} {getSortIcon('is_default')}
+            </th>
+            <th className="sortable" onClick={() => handleSort('maintenance_count')} style={{ width: '20%' }}>
+              {t('settings.numberOfMaintenance')} {getSortIcon('maintenance_count')}
             </th>
             <th style={{ width: '25%' }}>{t('common.actions')}</th>
           </tr>
@@ -262,40 +281,50 @@ function SettingsPage() {
         <tbody>
           {filteredCategories.map(category => (
             <tr key={category.id}>
-              <td>{category.category_name}</td>
+              <td>{category.name}</td>
               <td>
-                <span className="expense-count">
-                  {category.expense_count || 0}
+                <span className={`badge ${category.is_default ? 'badge-secondary' : 'badge-primary'}`}>
+                  {category.is_default ? t('settings.defaultCategory') : t('settings.customCategory')}
                 </span>
               </td>
               <td>
-                <button 
-                  className="btn btn-sm btn-secondary"
-                  onClick={() => handleEditCategory(category)}
-                  style={{ marginRight: '8px' }}
-                >
-                  {t('common.edit')}
-                </button>
-                <button 
-                  className="btn btn-sm btn-info"
-                  onClick={() => handleMoveTransactions(category)}
-                  style={{ marginRight: '8px' }}
-                >
-                  {t('settings.moveTransactions')}
-                </button>
-                <button 
-                  className="btn btn-sm btn-danger"
-                  onClick={() => handleDeleteCategory(category)}
-                >
-                  {t('common.delete')}
-                </button>
+                <span className="expense-count">
+                  {category.maintenance_count || 0}
+                </span>
+              </td>
+              <td>
+                <div className="btn-group">
+                  <button
+                    className="btn btn-sm btn-secondary"
+                    onClick={() => handleEditCategory(category)}
+                    disabled={category.is_default}
+                    style={{ marginRight: '8px' }}
+                  >
+                    {t('common.edit')}
+                  </button>
+                  <button
+                    className="btn btn-sm btn-info"
+                    onClick={() => handleMoveRecords(category)}
+                    disabled={category.maintenance_count === 0}
+                    style={{ marginRight: '8px' }}
+                  >
+                    {t('settings.moveRecords')}
+                  </button>
+                  <button
+                    className="btn btn-sm btn-danger"
+                    onClick={() => handleDeleteCategory(category)}
+                    disabled={category.is_default}
+                  >
+                    {t('common.delete')}
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
         </tbody>
         <tfoot>
           <tr>
-            <td colSpan="3" style={{ textAlign: 'center', fontWeight: 'bold', padding: '12px', backgroundColor: '#f8f9fa', borderTop: '2px solid #dee2e6' }}>
+            <td colSpan="4" style={{ textAlign: 'center', fontWeight: 'bold', padding: '12px', backgroundColor: '#f8f9fa', borderTop: '2px solid #dee2e6' }}>
               {t('common.total')}: {filteredCategories.length} {filteredCategories.length === 1 ? t('settings.category') : t('settings.categories')}
             </td>
           </tr>
@@ -307,40 +336,35 @@ function SettingsPage() {
 
   const renderEditModal = () => {
     if (!showEditModal) return null
-    
-    const isEdit = editingCategory !== null
-    const modalTitle = isEdit ? t('settings.editCategory') : t('settings.addCategory')
-    
+
     return (
       <div className="modal-overlay">
         <div className="modal">
           <div className="modal-header">
-            <h2>{modalTitle}</h2>
+            <h2>{editingCategory ? t('settings.editCategory') : t('settings.newCategory')}</h2>
             <button className="modal-close" onClick={() => setShowEditModal(false)}>×</button>
           </div>
           <div className="modal-body">
-            <form onSubmit={(e) => e.preventDefault()}>
-              <div className="form-group">
-                <label htmlFor="category_name">{t('settings.categoryName')}</label>
-                <input
-                  type="text"
-                  id="category_name"
-                  name="category_name"
-                  className="form-control"
-                  value={formData.category_name}
-                  onChange={handleFormChange}
-                  required
-                  placeholder="Enter category name"
-                />
-              </div>
-            </form>
+            <div className="form-group">
+              <label htmlFor="name">{t('settings.categoryName')}</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleFormChange}
+                className="form-control"
+                placeholder={t('settings.categoryName')}
+                required
+              />
+            </div>
           </div>
           <div className="modal-footer">
             <button className="btn btn-secondary" onClick={() => setShowEditModal(false)}>
               {t('common.cancel')}
             </button>
             <button className="btn btn-primary" onClick={handleSaveCategory}>
-              {t('common.save')}
+              {editingCategory ? t('common.save') : t('common.add')}
             </button>
           </div>
         </div>
@@ -350,9 +374,9 @@ function SettingsPage() {
 
   const renderDeleteModal = () => {
     if (!showDeleteModal) return null
-    
+
     const category = deleteData.category
-    const hasExpenses = category && category.expense_count > 0
+    const hasRecords = category && category.maintenance_count > 0
     
     return (
       <div className="modal-overlay">
@@ -362,15 +386,15 @@ function SettingsPage() {
             <button className="modal-close" onClick={() => setShowDeleteModal(false)}>×</button>
           </div>
           <div className="modal-body">
-            <p><strong>{t('settings.categoryName')}:</strong> {category?.category_name}</p>
+            <p><strong>{t('settings.categoryName')}:</strong> {category?.name}</p>
             
-            {hasExpenses ? (
+            {hasRecords ? (
               <div>
                 <div className="alert alert-warning">
-                  <strong>{t('settings.categoryHasExpenses')}:</strong> {category.expense_count} {category.expense_count === 1 ? t('expenses.expense') : t('expenses.expenses')}
+                  <strong>{t('settings.categoryHasMaintenance')}:</strong> {category.maintenance_count} {category.maintenance_count === 1 ? t('maintenance.record') : t('maintenance.records')}
                 </div>
                 
-                <p>{t('settings.deleteWarning')}</p>
+                <p>{t('settings.deleteMaintenanceWarning')}</p>
                 
                 <div className="form-group">
                   <label>
@@ -381,7 +405,7 @@ function SettingsPage() {
                       checked={deleteData.action === 'move'}
                       onChange={(e) => setDeleteData({...deleteData, action: e.target.value})}
                     />
-                    <span style={{ marginLeft: '8px' }}>{t('settings.moveExpensesFirst')}</span>
+                    <span style={{ marginLeft: '8px' }}>{t('settings.moveMaintenanceFirst')}</span>
                   </label>
                 </div>
 
@@ -394,7 +418,7 @@ function SettingsPage() {
                       checked={deleteData.action === 'delete'}
                       onChange={(e) => setDeleteData({...deleteData, action: e.target.value})}
                     />
-                    <span style={{ marginLeft: '8px' }}>{t('settings.deleteExpenses')}</span>
+                    <span style={{ marginLeft: '8px' }}>{t('settings.deleteMaintenance')}</span>
                   </label>
                 </div>
               </div>
@@ -406,12 +430,12 @@ function SettingsPage() {
             <button className="btn btn-secondary" onClick={() => setShowDeleteModal(false)}>
               {t('common.cancel')}
             </button>
-            {hasExpenses && deleteData.action === 'move' ? (
+            {hasRecords && deleteData.action === 'move' ? (
               <button 
                 className="btn btn-primary"
                 onClick={() => {
                   setShowDeleteModal(false)
-                  handleMoveTransactions(category)
+                  handleMoveRecords(category)
                 }}
               >
                 {t('settings.openMoveForm')}
@@ -420,7 +444,7 @@ function SettingsPage() {
               <button 
                 className="btn btn-danger"
                 onClick={handleConfirmDelete}
-                disabled={hasExpenses && !deleteData.action}
+                disabled={hasRecords && !deleteData.action}
               >
                 {t('common.delete')}
               </button>
@@ -435,18 +459,18 @@ function SettingsPage() {
     if (!showMoveModal) return null
     
     const category = moveData.category
-    const otherCategories = categories.filter(cat => cat.id != category?.id)
+    const otherCategories = categories.filter(cat => cat.id !== category?.id)
     
     return (
       <div className="modal-overlay">
         <div className="modal">
           <div className="modal-header">
-            <h2>{t('settings.moveTransactions')}</h2>
+            <h2>{t('settings.moveMaintenanceRecords')}</h2>
             <button className="modal-close" onClick={() => setShowMoveModal(false)}>×</button>
           </div>
           <div className="modal-body">
-            <p><strong>{t('settings.sourceCategory')}:</strong> {category?.category_name}</p>
-            <p><strong>{t('settings.expensesToMove')}:</strong> {category?.expense_count} {category?.expense_count === 1 ? t('expenses.expense') : t('expenses.expenses')}</p>
+            <p><strong>{t('settings.sourceCategory')}:</strong> {category?.name}</p>
+            <p><strong>{t('settings.maintenanceToMove')}:</strong> {category?.maintenance_count} {category?.maintenance_count === 1 ? t('maintenance.record') : t('maintenance.records')}</p>
             
             <div className="form-group">
               <label htmlFor="target_category">{t('settings.targetCategory')}</label>
@@ -472,7 +496,7 @@ function SettingsPage() {
               >
                 <option value="">{t('common.select')} ({otherCategories.length} available)</option>
                 {otherCategories.map(cat => (
-                  <option key={cat.id} value={cat.id}>{cat.category_name}</option>
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
                 ))}
               </select>
               {otherCategories.length === 0 && (
@@ -481,7 +505,7 @@ function SettingsPage() {
             </div>
             
             <div className="alert alert-info">
-              <small>{t('settings.moveTransactionsHelp')}</small>
+              <small>{t('settings.moveMaintenanceHelp')}</small>
             </div>
           </div>
           <div className="modal-footer">
@@ -493,7 +517,7 @@ function SettingsPage() {
               onClick={handleConfirmMove}
               disabled={!moveData.targetCategoryId}
             >
-              {t('settings.moveTransactions')}
+              {t('settings.moveMaintenanceRecords')}
             </button>
           </div>
         </div>
@@ -501,57 +525,35 @@ function SettingsPage() {
     )
   }
 
-  if (loading) {
-    return (
-      <Layout activeRoute="settings">
-        <Loading />
-      </Layout>
-    )
-  }
-
   return (
-    <Layout activeRoute="settings">
-      <div className="page-container">
-        <div className="page-header">
-          <h1>{t('settings.title')}</h1>
-        </div>
-
-        <div className="settings-content">
-          <div className="settings-section">
-            <div className="table-container">
-              <div className="table-header">
-                <h2>{t('settings.expenseCategories')}</h2>
-                <div className="table-controls">
-                  <div className="search-box">
-                    <input 
-                      type="text" 
-                      placeholder={t('common.search') + ' ' + t('settings.expenseCategories').toLowerCase()}
-                      value={searchTerm}
-                      onChange={handleSearch}
-                    />
-                  </div>
-                  <button className="btn btn-primary" onClick={handleAddCategory}>
-                    {t('settings.newCategory')}
-                  </button>
-                </div>
-              </div>
-              <div className="table-wrapper">
-                {renderCategoriesTable()}
-              </div>
+    <>
+      <div className="table-container">
+        <div className="table-header">
+          <h2>{t('settings.maintenanceCategories')}</h2>
+          <div className="table-controls">
+            <div className="search-box">
+              <input 
+                type="text" 
+                placeholder={t('common.search') + ' ' + t('settings.maintenanceCategories').toLowerCase()}
+                value={searchTerm}
+                onChange={handleSearch}
+              />
             </div>
-          </div>
-
-          <div className="settings-section" style={{ marginTop: '2rem' }}>
-            <MaintenanceCategories />
+            <button className="btn btn-primary" onClick={handleAddCategory}>
+              {t('settings.newCategory')}
+            </button>
           </div>
         </div>
-
-        {renderEditModal()}
-        {renderDeleteModal()}
-        {renderMoveModal()}
+        <div className="table-wrapper">
+          {renderCategoriesTable()}
+        </div>
       </div>
-    </Layout>
+
+      {renderEditModal()}
+      {renderDeleteModal()}
+      {renderMoveModal()}
+    </>
   )
 }
 
-export default SettingsPage 
+export default MaintenanceCategories 

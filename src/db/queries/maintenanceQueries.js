@@ -1,4 +1,5 @@
 const { query } = require('../connection');
+const { v4: uuidv4 } = require('uuid');
 
 // Get maintenance records for a car
 const getMaintenanceRecordsByCar = async (carId) => {
@@ -84,31 +85,105 @@ const associateMaintenanceCategories = async (maintenanceId, categoryIds) => {
 };
 
 // Get maintenance categories
-const getMaintenanceCategories = async () => {
-  return query('SELECT * FROM maintenance_categories ORDER BY name');
+const getMaintenanceCategories = async (organizationId) => {
+  const sql = `
+    SELECT 
+      id, 
+      name, 
+      organization_id,
+      is_default,
+      created_at,
+      (
+        SELECT COUNT(*) 
+        FROM maintenance_records mr 
+        WHERE mr.category_id = mc.id
+      ) as maintenance_count
+    FROM maintenance_categories mc
+    WHERE (is_default = TRUE AND organization_id IS NULL) 
+       OR (organization_id = ? AND is_default = FALSE)
+    ORDER BY name ASC
+  `;
+  return await query(sql, [organizationId]);
 };
 
-// Create maintenance category
-const createMaintenanceCategory = async (category) => {
-  const { id, name } = category;
-  
-  return query(
-    'INSERT INTO maintenance_categories (id, name) VALUES (?, ?)',
-    [id, name]
-  );
+const getMaintenanceCategoryById = async (id, organizationId) => {
+  const sql = `
+    SELECT id, name, organization_id, is_default, created_at
+    FROM maintenance_categories 
+    WHERE id = ? AND ((is_default = TRUE AND organization_id IS NULL) OR organization_id = ?)
+  `;
+  const result = await query(sql, [id, organizationId]);
+  return result[0];
 };
 
-// Update maintenance category
-const updateMaintenanceCategory = async (id, name) => {
-  return query(
-    'UPDATE maintenance_categories SET name = ? WHERE id = ?',
-    [name, id]
-  );
+const createMaintenanceCategory = async (organizationId, categoryName) => {
+  const id = uuidv4();
+  const sql = `
+    INSERT INTO maintenance_categories (id, name, organization_id, is_default)
+    VALUES (?, ?, ?, FALSE)
+  `;
+  await query(sql, [id, categoryName, organizationId]);
+  return { id, name: categoryName, organization_id: organizationId, is_default: false };
 };
 
-// Delete maintenance category
-const deleteMaintenanceCategory = async (id) => {
-  return query('DELETE FROM maintenance_categories WHERE id = ?', [id]);
+const updateMaintenanceCategory = async (categoryId, organizationId, categoryName) => {
+  const sql = `
+    UPDATE maintenance_categories 
+    SET name = ? 
+    WHERE id = ? AND organization_id = ? AND is_default = FALSE
+  `;
+  const result = await query(sql, [categoryName, categoryId, organizationId]);
+  return result.affectedRows > 0;
+};
+
+const deleteMaintenanceCategory = async (categoryId, organizationId) => {
+  const sql = `
+    DELETE FROM maintenance_categories 
+    WHERE id = ? AND organization_id = ? AND is_default = FALSE
+  `;
+  const result = await query(sql, [categoryId, organizationId]);
+  return result.affectedRows > 0;
+};
+
+const getMaintenanceRecordsByCategoryId = async (categoryId) => {
+  const sql = `
+    SELECT COUNT(*) as count
+    FROM maintenance_records 
+    WHERE category_id = ?
+  `;
+  const result = await query(sql, [categoryId]);
+  return result[0].count;
+};
+
+const moveMaintenanceRecordsToCategory = async (fromCategoryId, toCategoryId) => {
+  const sql = `
+    UPDATE maintenance_records 
+    SET category_id = ?
+    WHERE category_id = ?
+  `;
+  const result = await query(sql, [toCategoryId, fromCategoryId]);
+  return result.affectedRows;
+};
+
+const deleteMaintenanceRecordsByCategory = async (categoryId) => {
+  const sql = `
+    DELETE FROM maintenance_records 
+    WHERE category_id = ?
+  `;
+  const result = await query(sql, [categoryId]);
+  return result.affectedRows;
+};
+
+// Get the "Other" default category for moving records
+const getDefaultOtherCategory = async () => {
+  const sql = `
+    SELECT id, name
+    FROM maintenance_categories 
+    WHERE name = 'Other' AND is_default = TRUE AND organization_id IS NULL
+    LIMIT 1
+  `;
+  const result = await query(sql);
+  return result[0];
 };
 
 // Get maintenance statistics
@@ -153,8 +228,13 @@ module.exports = {
   deleteMaintenanceRecord,
   associateMaintenanceCategories,
   getMaintenanceCategories,
+  getMaintenanceCategoryById,
   createMaintenanceCategory,
   updateMaintenanceCategory,
   deleteMaintenanceCategory,
+  getMaintenanceRecordsByCategoryId,
+  moveMaintenanceRecordsToCategory,
+  deleteMaintenanceRecordsByCategory,
+  getDefaultOtherCategory,
   getMaintenanceStatistics
 }; 

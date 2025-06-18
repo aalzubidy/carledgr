@@ -70,7 +70,9 @@
     "maintenanceRecords": "سجلات الصيانة",
     "addMaintenance": "إضافة صيانة",
     "editMaintenance": "تعديل الصيانة",
-    "totalMaintenanceCost": "إجمالي تكلفة الصيانة"
+    "totalMaintenanceCost": "إجمالي تكلفة الصيانة",
+    "car": "سيارة",
+    "cars": "سيارات"
   },
   "maintenance": {
     "title": "الصيانة",
@@ -219,11 +221,20 @@
   "settings": {
     "title": "الإعدادات",
     "expenseCategories": "فئات المصاريف",
+    "maintenanceCategories": "فئات الصيانة",
+    "numberOfMaintenance": "عدد سجلات الصيانة",
+    "moveRecords": "نقل السجلات",
+    "defaultCategory": "فئة افتراضية",
+    "customCategory": "فئة مخصصة",
+    "readOnly": "للقراءة فقط",
+    "category": "فئة",
+    "categories": "فئات",
     "addCategory": "إضافة فئة",
     "newCategory": "فئة جديدة",
     "editCategory": "تعديل الفئة",
     "deleteCategory": "حذف الفئة",
     "categoryName": "اسم الفئة",
+    "categoryType": "نوع الفئة",
     "allowRecurring": "السماح بالتكرار",
     "allowRecurringHelp": "السماح للمصاريف في هذه الفئة بأن تكون متكررة",
     "categoryHasExpenses": "هذه الفئة تحتوي على مصاريف",

@@ -363,7 +363,8 @@ function ExpensesPage() {
     }
 
     return (
-      <table className="data-table">
+      <div className="table-wrapper">
+        <table className="data-table">
         <thead>
           <tr>
             <th className="sortable" onClick={() => handleSort('expense_date')}>
@@ -406,7 +407,15 @@ function ExpensesPage() {
             </tr>
           ))}
         </tbody>
-      </table>
+        <tfoot>
+          <tr>
+            <td colSpan="5" style={{ textAlign: 'center', fontWeight: 'bold', padding: '12px', backgroundColor: '#f8f9fa', borderTop: '2px solid #dee2e6' }}>
+              {t('common.total')}: {filteredExpenses.length} {filteredExpenses.length === 1 ? t('expenses.expense') : t('expenses.expenses')} | {t('expenses.totalExpenses')}: {formatCurrency(filteredExpenses.reduce((sum, expense) => sum + parseFloat(expense.amount), 0))}
+            </td>
+          </tr>
+        </tfoot>
+        </table>
+      </div>
     )
   }
 

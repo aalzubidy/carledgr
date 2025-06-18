@@ -270,7 +270,8 @@ function CarsPage() {
     }
     
     return (
-      <table className="data-table">
+      <div className="table-wrapper">
+        <table className="data-table">
         <thead>
           <tr>
             <th className="sortable" onClick={() => handleSort('vin')}>
@@ -348,7 +349,15 @@ function CarsPage() {
             </tr>
           ))}
         </tbody>
-      </table>
+        <tfoot>
+          <tr>
+            <td colSpan="10" style={{ textAlign: 'center', fontWeight: 'bold', padding: '12px', backgroundColor: '#f8f9fa', borderTop: '2px solid #dee2e6' }}>
+              {t('common.total')}: {filteredCars.length} {filteredCars.length === 1 ? t('cars.car') : t('cars.cars')}
+            </td>
+          </tr>
+        </tfoot>
+        </table>
+      </div>
     )
   }
 

@@ -54,8 +54,11 @@ const createTableStatements = [
   `CREATE TABLE IF NOT EXISTS maintenance_categories (
     id VARCHAR(36) PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
+    organization_id VARCHAR(36) NULL,
+    is_default BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
   )`,
 
   // Maintenance Records table
@@ -164,12 +167,30 @@ async function initializeSchema() {
       // Insert default maintenance categories
       for (const category of defaultCategories) {
         await connection.execute(
-          'INSERT INTO maintenance_categories (id, name) VALUES (?, ?)',
+          'INSERT INTO maintenance_categories (id, name, organization_id, is_default) VALUES (?, ?, NULL, TRUE)',
           [uuidv4(), category]
         );
       }
       
       logger.info('Default maintenance categories created');
+    } else {
+      // Migration: Check if the new columns exist and update existing categories
+      try {
+        const [existingDefaults] = await connection.execute('SELECT COUNT(*) as count FROM maintenance_categories WHERE is_default = TRUE');
+        
+        if (existingDefaults[0].count === 0) {
+          // Update all existing categories to be default
+          await connection.execute('UPDATE maintenance_categories SET is_default = TRUE, organization_id = NULL WHERE organization_id IS NULL OR organization_id = ""');
+          logger.info('Migrated existing maintenance categories to default status');
+        }
+      } catch (migrationError) {
+        // If the columns don't exist yet, that's fine - they'll be added by the table creation
+        if (migrationError.message.includes('Unknown column')) {
+          logger.info('New columns not yet present, skipping migration');
+        } else {
+          throw migrationError;
+        }
+      }
     }
 
     await connection.commit();

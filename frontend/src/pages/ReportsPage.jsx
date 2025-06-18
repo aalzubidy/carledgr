@@ -1034,7 +1034,7 @@ function ReportsPage() {
               <option value="">{t('reports.allCategories')}</option>
               {categories.map(category => (
                 <option key={category.id} value={category.id}>
-                  {t('categories.' + category.name) || category.name}
+                  {category.name}
                 </option>
               ))}
             </select>

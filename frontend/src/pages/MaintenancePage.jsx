@@ -275,7 +275,8 @@ function MaintenancePage() {
     
     return (
       <>
-        <table className="data-table">
+        <div className="table-wrapper">
+          <table className="data-table">
           <thead>
             <tr>
               <th className="sortable" onClick={() => handleSort('maintenance_date')}>
@@ -313,7 +314,7 @@ function MaintenancePage() {
                 <td>{formatDate(record.maintenance_date)}</td>
                 <td>{record.car_vin}</td>
                 <td>{record.car_year} {record.car_make} {record.car_model}</td>
-                <td>{t('categories.' + record.category_name) || record.category_name}</td>
+                <td>{record.category_name}</td>
                 <td>{record.description}</td>
                 <td>${formatNumber(record.cost)}</td>
                 <td>{record.vendor || '-'}</td>
@@ -351,13 +352,14 @@ function MaintenancePage() {
               </tr>
             ))}
           </tbody>
-        </table>
-        
-        <div className="table-footer">
-          <div className="table-info">
-            {t('common.total')}: {filteredRecords.length} {t('maintenance.noRecords').toLowerCase()}
-            | {t('maintenance.totalCost')}: ${formatNumber(totalCost)}
-          </div>
+          <tfoot>
+            <tr>
+              <td colSpan="8" style={{ textAlign: 'center', fontWeight: 'bold', padding: '12px', backgroundColor: '#f8f9fa', borderTop: '2px solid #dee2e6' }}>
+                {t('common.total')}: {filteredRecords.length} {filteredRecords.length === 1 ? t('maintenance.record') : t('maintenance.records')} | {t('maintenance.totalCost')}: ${formatNumber(totalCost)}
+              </td>
+            </tr>
+          </tfoot>
+          </table>
         </div>
       </>
     )
@@ -407,11 +409,11 @@ function MaintenancePage() {
                   onChange={handleFormChange}
                 >
                   <option value="">{t('common.select')} {t('maintenance.category')}</option>
-                  {categories.map(cat => (
-                    <option key={cat.id} value={cat.id}>
-                      {t('categories.' + cat.name) || cat.name}
-                    </option>
-                  ))}
+                                {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
                 </select>
               </div>
               

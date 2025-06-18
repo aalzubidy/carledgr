@@ -71,7 +71,9 @@
     "maintenanceRecords": "Registros de Mantenimiento",
     "addMaintenance": "Agregar Mantenimiento",
     "editMaintenance": "Editar Mantenimiento",
-    "totalMaintenanceCost": "Costo Total de Mantenimiento"
+    "totalMaintenanceCost": "Costo Total de Mantenimiento",
+    "car": "auto",
+    "cars": "autos"
   },
   "maintenance": {
     "title": "Mantenimiento",
@@ -224,11 +226,20 @@
   "settings": {
     "title": "Configuración",
     "expenseCategories": "Categorías de Gastos",
+    "maintenanceCategories": "Categorías de Mantenimiento",
+    "numberOfMaintenance": "Número de Registros de Mantenimiento",
+    "moveRecords": "Mover Registros",
+    "defaultCategory": "Categoría Predeterminada",
+    "customCategory": "Categoría Personalizada",
+    "readOnly": "Solo Lectura",
+    "category": "categoría",
+    "categories": "categorías",
     "addCategory": "Agregar Categoría",
     "newCategory": "Nueva Categoría",
     "editCategory": "Editar Categoría",
     "deleteCategory": "Eliminar Categoría",
     "categoryName": "Nombre de Categoría",
+    "categoryType": "Tipo de Categoría",
     "allowRecurring": "Permitir Recurrente",
     "allowRecurringHelp": "Permitir que los gastos en esta categoría se marquen como recurrentes",
     "categoryHasExpenses": "Esta categoría tiene gastos",

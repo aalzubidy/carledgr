@@ -725,11 +725,11 @@ function CarDetails({ carId }) {
                     onChange={handleMaintenanceFormChange}
                   >
                     <option value="">{t('common.select')}...</option>
-                    {maintenanceCategories.map(category => (
-                      <option key={category.id} value={category.id}>
-                        {t('categories.' + category.name) || category.name}
-                      </option>
-                    ))}
+                                  {maintenanceCategories.map(category => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
                   </select>
                 </div>
                 <div className="form-group">
