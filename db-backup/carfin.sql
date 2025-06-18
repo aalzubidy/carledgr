@@ -66,7 +66,11 @@ CREATE TABLE `maintenance_categories` (
   `name` varchar(50) NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  `organization_id` varchar(36) DEFAULT NULL,
+  `is_default` tinyint(1) DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `organization_id` (`organization_id`),
+  CONSTRAINT `maintenance_categories_ibfk_1` FOREIGN KEY (`organization_id`) REFERENCES `organizations` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -76,7 +80,7 @@ CREATE TABLE `maintenance_categories` (
 
 LOCK TABLES `maintenance_categories` WRITE;
 /*!40000 ALTER TABLE `maintenance_categories` DISABLE KEYS */;
-INSERT INTO `maintenance_categories` VALUES ('10389d23-be57-4ad9-801c-88566a025011','General Maintenance','2025-05-27 17:13:00','2025-05-27 17:13:00'),('22020294-8bb6-43ca-b7fe-a06ac012ea42','Interior','2025-05-27 17:13:00','2025-05-27 17:13:00'),('415f9500-cdd4-4596-a015-90f7f0ba7770','Transmission','2025-05-27 17:13:00','2025-05-27 17:13:00'),('428f70fd-37be-4e4a-a998-d3c577835589','Tires','2025-05-27 17:13:00','2025-05-27 17:13:00'),('66d5a74a-8583-47e4-86d6-6635cee717bf','Engine','2025-05-27 17:13:00','2025-05-27 17:13:00'),('68b699b5-18d4-42a7-987a-d969bcce0a03','Body','2025-05-27 17:13:00','2025-05-27 17:13:00'),('7e755154-d85c-4993-beab-51d11d033fb9','Brakes','2025-05-27 17:13:00','2025-05-27 17:13:00'),('8e8ac303-493a-11f0-acc9-bcec23c373a5','Taxes','2025-06-14 16:13:49','2025-06-14 16:13:49'),('8e8ac62c-493a-11f0-acc9-bcec23c373a5','Fees','2025-06-14 16:13:49','2025-06-14 16:13:49'),('8e8ac69f-493a-11f0-acc9-bcec23c373a5','In State Tax','2025-06-14 16:13:49','2025-06-14 16:13:49'),('8e8ac715-493a-11f0-acc9-bcec23c373a5','Out of State Tax','2025-06-14 16:13:49','2025-06-14 16:13:49'),('987ece51-59eb-4458-a838-fa033fb67b17','Suspension','2025-05-27 17:13:00','2025-05-27 17:13:00'),('c8df32ab-ef2b-48da-a089-17781d6c7b97','Electrical','2025-05-27 17:13:00','2025-05-27 17:13:00'),('cae24cb3-094a-4ed4-baa0-2a198aa84c19','Other','2025-05-27 17:13:00','2025-05-27 17:13:00'),('d19bfc90-3c11-11f0-ab0b-6479f0559d3f','Gas','2025-05-28 22:19:27','2025-05-28 22:19:27'),('d19c30eb-3c11-11f0-ab0b-6479f0559d3f','Holding Cost','2025-05-28 22:19:27','2025-05-28 22:19:27'),('d19c36dc-3c11-11f0-ab0b-6479f0559d3f','Towing','2025-05-28 22:19:27','2025-05-28 22:19:27'),('d19c3bbe-3c11-11f0-ab0b-6479f0559d3f','Parking','2025-05-28 22:19:27','2025-05-28 22:19:27'),('ecfe82a3-c143-4d23-b331-d55cd9e253cf','Oil Change','2025-05-27 17:13:00','2025-05-27 17:13:00');
+INSERT INTO `maintenance_categories` VALUES ('10389d23-be57-4ad9-801c-88566a025011','General Maintenance','2025-05-27 17:13:00','2025-06-17 23:35:02',NULL,1),('22020294-8bb6-43ca-b7fe-a06ac012ea42','Interior','2025-05-27 17:13:00','2025-06-17 23:35:02',NULL,1),('415f9500-cdd4-4596-a015-90f7f0ba7770','Transmission','2025-05-27 17:13:00','2025-06-17 23:35:02',NULL,1),('428f70fd-37be-4e4a-a998-d3c577835589','Tires','2025-05-27 17:13:00','2025-06-17 23:35:02',NULL,1),('66d5a74a-8583-47e4-86d6-6635cee717bf','Engine','2025-05-27 17:13:00','2025-06-17 23:35:02',NULL,1),('68b699b5-18d4-42a7-987a-d969bcce0a03','Body','2025-05-27 17:13:00','2025-06-17 23:35:02',NULL,1),('722162dc-700c-43a8-9962-61e17a58162d','Custom Engine Work 1','2025-06-17 23:36:37','2025-06-17 23:45:14','36debc90-59df-4db4-af5d-78ef4c001ae2',0),('7e755154-d85c-4993-beab-51d11d033fb9','Brakes','2025-05-27 17:13:00','2025-06-17 23:35:02',NULL,1),('85ea4c05-f95c-48bb-84bc-10e674419315','Test Category 2','2025-06-17 23:45:25','2025-06-17 23:45:25','36debc90-59df-4db4-af5d-78ef4c001ae2',0),('8e8ac303-493a-11f0-acc9-bcec23c373a5','Taxes','2025-06-14 16:13:49','2025-06-17 23:35:02',NULL,1),('8e8ac62c-493a-11f0-acc9-bcec23c373a5','Fees','2025-06-14 16:13:49','2025-06-17 23:35:02',NULL,1),('8e8ac69f-493a-11f0-acc9-bcec23c373a5','In State Tax','2025-06-14 16:13:49','2025-06-17 23:35:02',NULL,1),('8e8ac715-493a-11f0-acc9-bcec23c373a5','Out of State Tax','2025-06-14 16:13:49','2025-06-17 23:35:02',NULL,1),('987ece51-59eb-4458-a838-fa033fb67b17','Suspension','2025-05-27 17:13:00','2025-06-17 23:35:02',NULL,1),('c8df32ab-ef2b-48da-a089-17781d6c7b97','Electrical','2025-05-27 17:13:00','2025-06-17 23:35:02',NULL,1),('cae24cb3-094a-4ed4-baa0-2a198aa84c19','Other','2025-05-27 17:13:00','2025-06-17 23:35:02',NULL,1),('d19bfc90-3c11-11f0-ab0b-6479f0559d3f','Gas','2025-05-28 22:19:27','2025-06-17 23:35:02',NULL,1),('d19c30eb-3c11-11f0-ab0b-6479f0559d3f','Holding Cost','2025-05-28 22:19:27','2025-06-17 23:35:02',NULL,1),('d19c36dc-3c11-11f0-ab0b-6479f0559d3f','Towing','2025-05-28 22:19:27','2025-06-17 23:35:02',NULL,1),('d19c3bbe-3c11-11f0-ab0b-6479f0559d3f','Parking','2025-05-28 22:19:27','2025-06-17 23:35:02',NULL,1),('e2084313-7212-45cc-8e0f-d65db5ca8189','Test Category 3','2025-06-17 23:57:57','2025-06-17 23:57:57','36debc90-59df-4db4-af5d-78ef4c001ae2',0),('ecfe82a3-c143-4d23-b331-d55cd9e253cf','Oil Change','2025-05-27 17:13:00','2025-06-17 23:35:02',NULL,1);
 /*!40000 ALTER TABLE `maintenance_categories` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -112,8 +116,76 @@ CREATE TABLE `maintenance_records` (
 
 LOCK TABLES `maintenance_records` WRITE;
 /*!40000 ALTER TABLE `maintenance_records` DISABLE KEYS */;
-INSERT INTO `maintenance_records` VALUES ('192007d5-3bcf-11f0-ab0b-6479f0559d3f','c3306a8c-3bce-11f0-ab0b-6479f0559d3f','ecfe82a3-c143-4d23-b331-d55cd9e253cf','Oil Change',45.99,'2025-03-20','Quick Lube','Regular maintenance','2025-05-28 14:21:51','2025-05-28 14:21:51'),('19200ba0-3bcf-11f0-ab0b-6479f0559d3f','c339a74c-3bce-11f0-ab0b-6479f0559d3f','7e755154-d85c-4993-beab-51d11d033fb9','Brake Pads Replacement',189.50,'2025-03-15','Auto Parts Plus','Front brake pads','2025-05-28 14:21:51','2025-05-28 14:21:51'),('19200c83-3bcf-11f0-ab0b-6479f0559d3f','c339a9a1-3bce-11f0-ab0b-6479f0559d3f','428f70fd-37be-4e4a-a998-d3c577835589','Tire Rotation',35.00,'2025-03-25','Tire Center','Routine tire rotation','2025-05-28 14:21:51','2025-05-28 14:21:51'),('192a5284-3bcf-11f0-ab0b-6479f0559d3f','c339e0be-3bce-11f0-ab0b-6479f0559d3f','ecfe82a3-c143-4d23-b331-d55cd9e253cf','Oil Change',52.99,'2025-04-01','Express Oil','Synthetic oil','2025-05-28 14:21:51','2025-05-28 14:21:51'),('192a53da-3bcf-11f0-ab0b-6479f0559d3f','c33a0d9e-3bce-11f0-ab0b-6479f0559d3f','10389d23-be57-4ad9-801c-88566a025011','Air Filter Replacement',25.99,'2025-04-10','Auto Zone','Engine air filter','2025-05-28 14:21:51','2025-05-28 14:21:51'),('2b6f1cac-3bcf-11f0-ab0b-6479f0559d3f','ca4b3be8-3bce-11f0-ab0b-6479f0559d3f','ecfe82a3-c143-4d23-b331-d55cd9e253cf','Oil Change',48.99,'2025-04-15','Valvoline Instant','Full synthetic','2025-05-28 14:22:22','2025-05-28 14:22:22'),('2b6f21fd-3bcf-11f0-ab0b-6479f0559d3f','ca4b615d-3bce-11f0-ab0b-6479f0559d3f','987ece51-59eb-4458-a838-fa033fb67b17','Shock Absorber Check',75.00,'2025-04-20','Suspension Pro','Inspection only','2025-05-28 14:22:22','2025-05-28 14:22:22'),('2b6f234f-3bcf-11f0-ab0b-6479f0559d3f','ca4b8aba-3bce-11f0-ab0b-6479f0559d3f','428f70fd-37be-4e4a-a998-d3c577835589','Tire Balancing',60.00,'2025-04-25','Discount Tire','All four tires','2025-05-28 14:22:22','2025-05-28 14:22:22'),('2b78848d-3bcf-11f0-ab0b-6479f0559d3f','ca4cd307-3bce-11f0-ab0b-6479f0559d3f','ecfe82a3-c143-4d23-b331-d55cd9e253cf','Oil Change',55.99,'2025-05-01','Jiffy Lube','High mileage oil','2025-05-28 14:22:22','2025-05-28 14:22:22'),('2b788780-3bcf-11f0-ab0b-6479f0559d3f','f02e727f-3bce-11f0-ab0b-6479f0559d3f','66d5a74a-8583-47e4-86d6-6635cee717bf','Spark Plug Replacement',125.00,'2025-05-05','Engine Works','All 8 plugs','2025-05-28 14:22:22','2025-05-28 14:22:22'),('33fbbc27-3bcf-11f0-ab0b-6479f0559d3f','f02e99fc-3bce-11f0-ab0b-6479f0559d3f','7e755154-d85c-4993-beab-51d11d033fb9','Brake Fluid Change',89.99,'2025-05-10','Brake Masters','DOT 4 fluid','2025-05-28 14:22:36','2025-05-28 14:22:36'),('33fbc0a3-3bcf-11f0-ab0b-6479f0559d3f','f02eacbb-3bce-11f0-ab0b-6479f0559d3f','ecfe82a3-c143-4d23-b331-d55cd9e253cf','Oil Change',42.99,'2025-05-15','Quick Change','Conventional oil','2025-05-28 14:22:36','2025-05-28 14:22:36'),('33fbc1a4-3bcf-11f0-ab0b-6479f0559d3f','f02eb1f4-3bce-11f0-ab0b-6479f0559d3f','22020294-8bb6-43ca-b7fe-a06ac012ea42','Cabin Air Filter',29.99,'2025-05-20','Filter Pro','HEPA filter','2025-05-28 14:22:36','2025-05-28 14:22:36'),('33fbc23c-3bcf-11f0-ab0b-6479f0559d3f','f02eca5a-3bce-11f0-ab0b-6479f0559d3f','428f70fd-37be-4e4a-a998-d3c577835589','Tire Pressure Check',15.00,'2025-05-25','Gas Station Pro','All tires adjusted','2025-05-28 14:22:36','2025-05-28 14:22:36'),('33fbc2d0-3bcf-11f0-ab0b-6479f0559d3f','fd20314e-3bce-11f0-ab0b-6479f0559d3f','c8df32ab-ef2b-48da-a089-17781d6c7b97','Battery Test',25.00,'2025-05-30','Battery Plus','Load test passed','2025-05-28 14:22:36','2025-05-28 14:22:36'),('417d8e68-4b0d-4207-a1b6-683c32824702','bcb8f8ee-0489-4509-a8d8-ac5404440090','c8df32ab-ef2b-48da-a089-17781d6c7b97','New headlights',1200.00,'2025-05-28','In Home','New headlights installed','2025-05-28 11:05:12','2025-05-28 11:05:12'),('5b31a924-3bcf-11f0-ab0b-6479f0559d3f','fd205280-3bce-11f0-ab0b-6479f0559d3f','ecfe82a3-c143-4d23-b331-d55cd9e253cf','Oil Change',39.99,'2025-06-01','Economy Lube','Basic oil change','2025-05-28 14:23:42','2025-05-28 14:23:42'),('5b31ae76-3bcf-11f0-ab0b-6479f0559d3f','fd209ab0-3bce-11f0-ab0b-6479f0559d3f','7e755154-d85c-4993-beab-51d11d033fb9','Brake Inspection',50.00,'2025-06-15','Safety First','Annual inspection','2025-05-28 14:23:42','2025-06-15 21:37:48'),('811fba57-1f72-4c66-a1ff-2f66a2d8b450','2cc31065-0fb7-4609-8d08-51da64d5c4cc','ecfe82a3-c143-4d23-b331-d55cd9e253cf','Oil change',110.00,'2025-06-14','In home','test','2025-06-14 16:07:00','2025-06-14 16:07:00'),('9278ec4d-e4f6-47b1-851f-3dca18a704ae','6b2de218-ba50-4c64-ae13-d874915ab5dd','68b699b5-18d4-42a7-987a-d969bcce0a03','Front bumper',500.00,'2025-05-28','In home','replaced front bumper','2025-05-28 12:12:11','2025-05-28 12:12:11'),('a51d7616-c932-4231-a0e3-162730450f04','fd209ab0-3bce-11f0-ab0b-6479f0559d3f','cae24cb3-094a-4ed4-baa0-2a198aa84c19','Gas',50.00,'2025-05-28','Gas','Gas','2025-05-28 22:15:42','2025-05-28 22:15:42'),('b1df37f5-f5ec-4a0c-a26f-e181f4cb2d1b','12fe0221-fd19-4fe5-9b14-b37926742470','10389d23-be57-4ad9-801c-88566a025011','Oil change',65.00,'2023-05-20','Quick Lube',NULL,'2025-05-28 11:56:07','2025-05-28 11:56:07'),('b53a216d-3684-4e54-810d-b73f76ab55ab','2cc31065-0fb7-4609-8d08-51da64d5c4cc','68b699b5-18d4-42a7-987a-d969bcce0a03','Replaced back bumper',1500.00,'2025-06-02','In home','It had a dent','2025-06-02 16:48:47','2025-06-14 16:07:15'),('c538a018-9e92-4e49-93c7-b7a30d99dccb','fd20314e-3bce-11f0-ab0b-6479f0559d3f','cae24cb3-094a-4ed4-baa0-2a198aa84c19','Gas',35.00,'2025-05-28','Gas','Gas','2025-05-28 22:07:24','2025-05-28 22:07:24');
+INSERT INTO `maintenance_records` VALUES ('192007d5-3bcf-11f0-ab0b-6479f0559d3f','c3306a8c-3bce-11f0-ab0b-6479f0559d3f','ecfe82a3-c143-4d23-b331-d55cd9e253cf','Oil Change',45.99,'2025-03-20','Quick Lube','Regular maintenance','2025-05-28 14:21:51','2025-05-28 14:21:51'),('19200ba0-3bcf-11f0-ab0b-6479f0559d3f','c339a74c-3bce-11f0-ab0b-6479f0559d3f','7e755154-d85c-4993-beab-51d11d033fb9','Brake Pads Replacement',189.50,'2025-03-15','Auto Parts Plus','Front brake pads','2025-05-28 14:21:51','2025-05-28 14:21:51'),('19200c83-3bcf-11f0-ab0b-6479f0559d3f','c339a9a1-3bce-11f0-ab0b-6479f0559d3f','428f70fd-37be-4e4a-a998-d3c577835589','Tire Rotation',35.00,'2025-03-25','Tire Center','Routine tire rotation','2025-05-28 14:21:51','2025-05-28 14:21:51'),('192a5284-3bcf-11f0-ab0b-6479f0559d3f','c339e0be-3bce-11f0-ab0b-6479f0559d3f','ecfe82a3-c143-4d23-b331-d55cd9e253cf','Oil Change',52.99,'2025-04-01','Express Oil','Synthetic oil','2025-05-28 14:21:51','2025-05-28 14:21:51'),('192a53da-3bcf-11f0-ab0b-6479f0559d3f','c33a0d9e-3bce-11f0-ab0b-6479f0559d3f','10389d23-be57-4ad9-801c-88566a025011','Air Filter Replacement',25.99,'2025-04-10','Auto Zone','Engine air filter','2025-05-28 14:21:51','2025-05-28 14:21:51'),('2b6f1cac-3bcf-11f0-ab0b-6479f0559d3f','ca4b3be8-3bce-11f0-ab0b-6479f0559d3f','ecfe82a3-c143-4d23-b331-d55cd9e253cf','Oil Change',48.99,'2025-04-15','Valvoline Instant','Full synthetic','2025-05-28 14:22:22','2025-05-28 14:22:22'),('2b6f21fd-3bcf-11f0-ab0b-6479f0559d3f','ca4b615d-3bce-11f0-ab0b-6479f0559d3f','987ece51-59eb-4458-a838-fa033fb67b17','Shock Absorber Check',75.00,'2025-04-20','Suspension Pro','Inspection only','2025-05-28 14:22:22','2025-05-28 14:22:22'),('2b6f234f-3bcf-11f0-ab0b-6479f0559d3f','ca4b8aba-3bce-11f0-ab0b-6479f0559d3f','428f70fd-37be-4e4a-a998-d3c577835589','Tire Balancing',60.00,'2025-04-25','Discount Tire','All four tires','2025-05-28 14:22:22','2025-05-28 14:22:22'),('2b78848d-3bcf-11f0-ab0b-6479f0559d3f','ca4cd307-3bce-11f0-ab0b-6479f0559d3f','ecfe82a3-c143-4d23-b331-d55cd9e253cf','Oil Change',55.99,'2025-05-01','Jiffy Lube','High mileage oil','2025-05-28 14:22:22','2025-05-28 14:22:22'),('2b788780-3bcf-11f0-ab0b-6479f0559d3f','f02e727f-3bce-11f0-ab0b-6479f0559d3f','66d5a74a-8583-47e4-86d6-6635cee717bf','Spark Plug Replacement',125.00,'2025-05-05','Engine Works','All 8 plugs','2025-05-28 14:22:22','2025-05-28 14:22:22'),('33fbbc27-3bcf-11f0-ab0b-6479f0559d3f','f02e99fc-3bce-11f0-ab0b-6479f0559d3f','7e755154-d85c-4993-beab-51d11d033fb9','Brake Fluid Change',89.99,'2025-05-10','Brake Masters','DOT 4 fluid','2025-05-28 14:22:36','2025-05-28 14:22:36'),('33fbc0a3-3bcf-11f0-ab0b-6479f0559d3f','f02eacbb-3bce-11f0-ab0b-6479f0559d3f','ecfe82a3-c143-4d23-b331-d55cd9e253cf','Oil Change',42.99,'2025-05-15','Quick Change','Conventional oil','2025-05-28 14:22:36','2025-05-28 14:22:36'),('33fbc1a4-3bcf-11f0-ab0b-6479f0559d3f','f02eb1f4-3bce-11f0-ab0b-6479f0559d3f','22020294-8bb6-43ca-b7fe-a06ac012ea42','Cabin Air Filter',29.99,'2025-05-20','Filter Pro','HEPA filter','2025-05-28 14:22:36','2025-05-28 14:22:36'),('33fbc23c-3bcf-11f0-ab0b-6479f0559d3f','f02eca5a-3bce-11f0-ab0b-6479f0559d3f','428f70fd-37be-4e4a-a998-d3c577835589','Tire Pressure Check',15.00,'2025-05-25','Gas Station Pro','All tires adjusted','2025-05-28 14:22:36','2025-05-28 14:22:36'),('33fbc2d0-3bcf-11f0-ab0b-6479f0559d3f','fd20314e-3bce-11f0-ab0b-6479f0559d3f','c8df32ab-ef2b-48da-a089-17781d6c7b97','Battery Test',25.00,'2025-05-30','Battery Plus','Load test passed','2025-05-28 14:22:36','2025-05-28 14:22:36'),('417d8e68-4b0d-4207-a1b6-683c32824702','bcb8f8ee-0489-4509-a8d8-ac5404440090','c8df32ab-ef2b-48da-a089-17781d6c7b97','New headlights',1200.00,'2025-05-28','In Home','New headlights installed','2025-05-28 11:05:12','2025-05-28 11:05:12'),('5b31a924-3bcf-11f0-ab0b-6479f0559d3f','fd205280-3bce-11f0-ab0b-6479f0559d3f','ecfe82a3-c143-4d23-b331-d55cd9e253cf','Oil Change',39.99,'2025-06-01','Economy Lube','Basic oil change','2025-05-28 14:23:42','2025-05-28 14:23:42'),('5b31ae76-3bcf-11f0-ab0b-6479f0559d3f','fd209ab0-3bce-11f0-ab0b-6479f0559d3f','7e755154-d85c-4993-beab-51d11d033fb9','Brake Inspection',50.00,'2025-06-15','Safety First','Annual inspection','2025-05-28 14:23:42','2025-06-15 21:37:48'),('811fba57-1f72-4c66-a1ff-2f66a2d8b450','2cc31065-0fb7-4609-8d08-51da64d5c4cc','ecfe82a3-c143-4d23-b331-d55cd9e253cf','Oil change',110.00,'2025-06-14','In home','test','2025-06-14 16:07:00','2025-06-14 16:07:00'),('9278ec4d-e4f6-47b1-851f-3dca18a704ae','6b2de218-ba50-4c64-ae13-d874915ab5dd','68b699b5-18d4-42a7-987a-d969bcce0a03','Front bumper',500.00,'2025-05-28','In home','replaced front bumper','2025-05-28 12:12:11','2025-05-28 12:12:11'),('a51d7616-c932-4231-a0e3-162730450f04','fd209ab0-3bce-11f0-ab0b-6479f0559d3f','cae24cb3-094a-4ed4-baa0-2a198aa84c19','Gas',50.00,'2025-05-28','Gas','Gas','2025-05-28 22:15:42','2025-05-28 22:15:42'),('b1df37f5-f5ec-4a0c-a26f-e181f4cb2d1b','12fe0221-fd19-4fe5-9b14-b37926742470','10389d23-be57-4ad9-801c-88566a025011','Oil change',65.00,'2023-05-20','Quick Lube',NULL,'2025-05-28 11:56:07','2025-05-28 11:56:07'),('b53a216d-3684-4e54-810d-b73f76ab55ab','2cc31065-0fb7-4609-8d08-51da64d5c4cc','68b699b5-18d4-42a7-987a-d969bcce0a03','Replaced back bumper',1500.00,'2025-06-02','In home','It had a dent','2025-06-02 16:48:47','2025-06-14 16:07:15'),('c538a018-9e92-4e49-93c7-b7a30d99dccb','fd20314e-3bce-11f0-ab0b-6479f0559d3f','cae24cb3-094a-4ed4-baa0-2a198aa84c19','Gas',35.00,'2025-05-28','Gas','Gas','2025-05-28 22:07:24','2025-05-28 22:07:24'),('c637f4d9-4b95-4133-8b69-225830eda5d3','fd205280-3bce-11f0-ab0b-6479f0559d3f','722162dc-700c-43a8-9962-61e17a58162d','Test custom work',120.00,'2025-06-18','In Home','Testing new custom category','2025-06-18 00:02:24','2025-06-18 00:02:24');
 /*!40000 ALTER TABLE `maintenance_records` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `organization_expense_categories`
+--
+
+DROP TABLE IF EXISTS `organization_expense_categories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `organization_expense_categories` (
+  `id` varchar(36) NOT NULL,
+  `organization_id` varchar(36) NOT NULL,
+  `category_name` varchar(100) NOT NULL,
+  `is_recurring` tinyint(1) DEFAULT '0',
+  `created_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `organization_id` (`organization_id`),
+  CONSTRAINT `organization_expense_categories_ibfk_1` FOREIGN KEY (`organization_id`) REFERENCES `organizations` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `organization_expense_categories`
+--
+
+LOCK TABLES `organization_expense_categories` WRITE;
+/*!40000 ALTER TABLE `organization_expense_categories` DISABLE KEYS */;
+INSERT INTO `organization_expense_categories` VALUES ('2d9f6eb4-2936-4618-a2b3-93fefb8d6838','36debc90-59df-4db4-af5d-78ef4c001ae2','Utilities',1,'2025-06-16 22:48:52'),('71b5be56-d683-4df0-8efe-65fe250f6134','36debc90-59df-4db4-af5d-78ef4c001ae2','Phone',0,'2025-06-18 02:10:11'),('886fcbc9-f9e3-4d34-b61e-c64f141a6d09','36debc90-59df-4db4-af5d-78ef4c001ae2','Office Rent',1,'2025-06-16 22:48:44'),('946db259-a55f-454d-9a72-64e6897a1fcf','36debc90-59df-4db4-af5d-78ef4c001ae2','Marketing',1,'2025-06-17 01:58:21'),('ba752ef1-f356-4125-a19c-62243499881f','36debc90-59df-4db4-af5d-78ef4c001ae2','Internet',1,'2025-06-17 02:39:27');
+/*!40000 ALTER TABLE `organization_expense_categories` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `organization_expenses`
+--
+
+DROP TABLE IF EXISTS `organization_expenses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `organization_expenses` (
+  `id` varchar(36) NOT NULL,
+  `organization_id` varchar(36) NOT NULL,
+  `category_id` varchar(36) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `description` text,
+  `expense_date` date NOT NULL,
+  `is_recurring` tinyint(1) DEFAULT '0',
+  `recurring_frequency` enum('monthly','quarterly','annually') DEFAULT NULL,
+  `created_by_user_id` varchar(36) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `organization_id` (`organization_id`),
+  KEY `category_id` (`category_id`),
+  KEY `created_by_user_id` (`created_by_user_id`),
+  CONSTRAINT `organization_expenses_ibfk_1` FOREIGN KEY (`organization_id`) REFERENCES `organizations` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `organization_expenses_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `organization_expense_categories` (`id`),
+  CONSTRAINT `organization_expenses_ibfk_3` FOREIGN KEY (`created_by_user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `organization_expenses`
+--
+
+LOCK TABLES `organization_expenses` WRITE;
+/*!40000 ALTER TABLE `organization_expenses` DISABLE KEYS */;
+INSERT INTO `organization_expenses` VALUES ('2da258aa-c537-4e18-8c11-45979bc12622','36debc90-59df-4db4-af5d-78ef4c001ae2','ba752ef1-f356-4125-a19c-62243499881f',50.00,'internet','2025-06-17',0,NULL,'b39334f8-e129-4949-8fd6-eb628bffdbd5','2025-06-17 04:51:45','2025-06-17 04:51:45'),('39f58cc6-47d2-468e-9411-63b3a8ebc340','36debc90-59df-4db4-af5d-78ef4c001ae2','ba752ef1-f356-4125-a19c-62243499881f',40.00,'phone 2','2025-06-17',0,NULL,'b39334f8-e129-4949-8fd6-eb628bffdbd5','2025-06-17 04:54:31','2025-06-17 05:01:06'),('6d6d5302-8bfe-4346-a9d7-83853ea82f33','36debc90-59df-4db4-af5d-78ef4c001ae2','946db259-a55f-454d-9a72-64e6897a1fcf',30.00,'test 1','2025-06-17',0,NULL,'b39334f8-e129-4949-8fd6-eb628bffdbd5','2025-06-17 04:54:03','2025-06-17 04:54:03'),('8f0da733-11ba-4c83-b4e4-cbdf7f2699ba','36debc90-59df-4db4-af5d-78ef4c001ae2','2d9f6eb4-2936-4618-a2b3-93fefb8d6838',20.00,'test','2025-06-17',0,NULL,'b39334f8-e129-4949-8fd6-eb628bffdbd5','2025-06-17 04:53:47','2025-06-17 04:53:47'),('ee696326-26d3-4d7f-a42c-00b191c4f7c1','36debc90-59df-4db4-af5d-78ef4c001ae2','ba752ef1-f356-4125-a19c-62243499881f',10.00,'','2025-06-17',0,NULL,'b39334f8-e129-4949-8fd6-eb628bffdbd5','2025-06-17 02:42:54','2025-06-17 04:56:01'),('f6c4e2c7-74de-4f5e-914a-0767a172a1ac','36debc90-59df-4db4-af5d-78ef4c001ae2','886fcbc9-f9e3-4d34-b61e-c64f141a6d09',2500.00,'Monthly office rent payment','2025-06-16',1,'monthly','b39334f8-e129-4949-8fd6-eb628bffdbd5','2025-06-16 22:49:17','2025-06-16 22:49:17');
+/*!40000 ALTER TABLE `organization_expenses` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -146,6 +218,32 @@ INSERT INTO `organizations` VALUES ('36debc90-59df-4db4-af5d-78ef4c001ae2','Admi
 UNLOCK TABLES;
 
 --
+-- Table structure for table `user_roles`
+--
+
+DROP TABLE IF EXISTS `user_roles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user_roles` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `role_name` varchar(20) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `role_name` (`role_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_roles`
+--
+
+LOCK TABLES `user_roles` WRITE;
+/*!40000 ALTER TABLE `user_roles` DISABLE KEYS */;
+INSERT INTO `user_roles` VALUES (1,'owner','2025-06-18 00:45:07'),(2,'manager','2025-06-18 00:45:07'),(3,'operator','2025-06-18 00:45:07');
+/*!40000 ALTER TABLE `user_roles` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `users`
 --
 
@@ -159,13 +257,15 @@ CREATE TABLE `users` (
   `password` varchar(100) NOT NULL,
   `first_name` varchar(50) DEFAULT NULL,
   `last_name` varchar(50) DEFAULT NULL,
-  `role` varchar(20) DEFAULT 'user',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `role_id` int DEFAULT '3',
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   KEY `organization_id` (`organization_id`),
-  CONSTRAINT `users_ibfk_1` FOREIGN KEY (`organization_id`) REFERENCES `organizations` (`id`)
+  KEY `role_id` (`role_id`),
+  CONSTRAINT `users_ibfk_1` FOREIGN KEY (`organization_id`) REFERENCES `organizations` (`id`),
+  CONSTRAINT `users_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `user_roles` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -175,7 +275,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES ('b39334f8-e129-4949-8fd6-eb628bffdbd5','36debc90-59df-4db4-af5d-78ef4c001ae2','admin@carfin.com','$2b$10$mUFkQJaHjtiVgWAlSIh.V.xa4qoTopVW1K3J5TdatgknanOZuXH.O','Admin','User','admin','2025-05-27 17:13:00','2025-05-27 17:13:00');
+INSERT INTO `users` VALUES ('1289b2c8-5228-4da3-b6ed-04ab534b3c27','36debc90-59df-4db4-af5d-78ef4c001ae2','ma@carfin.com','$2b$10$mUFkQJaHjtiVgWAlSIh.V.xa4qoTopVW1K3J5TdatgknanOZuXH.O','Manager','User','2025-05-27 17:13:00','2025-06-18 02:08:08',2),('84259fc4-0cfd-4585-a1fa-8a6d36be427b','36debc90-59df-4db4-af5d-78ef4c001ae2','op@carfin.com','$2b$10$mUFkQJaHjtiVgWAlSIh.V.xa4qoTopVW1K3J5TdatgknanOZuXH.O','Operator','User','2025-05-27 17:13:00','2025-06-18 02:08:08',3),('b39334f8-e129-4949-8fd6-eb628bffdbd5','36debc90-59df-4db4-af5d-78ef4c001ae2','admin@carfin.com','$2b$10$VvJMSLVl6Eso/E1alp63J.Tpw7lO3IKeO0QQoOQkwcEeFaddaWQDG','Admin','User','2025-05-27 17:13:00','2025-06-18 22:42:45',1);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -188,4 +288,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-16  2:21:06
+-- Dump completed on 2025-06-18 15:42:53

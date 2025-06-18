@@ -126,7 +126,12 @@
     "first": "الأول",
     "last": "الأخير",
     "all": "الكل",
-    "required": "مطلوب"
+    "required": "مطلوب",
+    "firstName": "الاسم الأول",
+    "lastName": "اسم العائلة",
+    "email": "البريد الإلكتروني",
+    "saving": "جاري الحفظ...",
+    "updating": "جاري التحديث..."
   },
   "status": {
     "in_stock": "في المخزون",
@@ -275,5 +280,25 @@
     "confirmAdd": "هل أنت متأكد من أنك تريد إضافة هذا العنصر؟",
     "confirmMove": "هل أنت متأكد من أنك تريد نقل هذه المصاريف؟",
     "expensesMoved": "تم نقل المصاريف بنجاح"
+  },
+  "profile": {
+    "updateAccount": "تحديث الحساب",
+    "profileInfo": "معلومات الملف الشخصي",
+    "changePassword": "تغيير كلمة المرور",
+    "currentPassword": "كلمة المرور الحالية",
+    "newPassword": "كلمة المرور الجديدة",
+    "confirmPassword": "تأكيد كلمة المرور الجديدة",
+    "updatePassword": "تحديث كلمة المرور",
+    "emailNotEditable": "لا يمكن تغيير عنوان البريد الإلكتروني",
+    "updateSuccess": "تم تحديث الملف الشخصي بنجاح",
+    "passwordUpdateSuccess": "تم تحديث كلمة المرور بنجاح",
+    "confirmProfileUpdate": "هل أنت متأكد من أنك تريد تحديث معلومات ملفك الشخصي؟",
+    "confirmPasswordUpdate": "هل أنت متأكد من أنك تريد تغيير كلمة المرور؟"
+  },
+  "validation": {
+    "nameRequired": "الاسم الأول والأخير مطلوبان",
+    "allPasswordFieldsRequired": "جميع حقول كلمة المرور مطلوبة",
+    "passwordMismatch": "كلمات المرور الجديدة غير متطابقة",
+    "passwordMinLength": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل"
   }
 } 

@@ -10,17 +10,36 @@ import {
   getUserRoleDisplayName,
   getRoleBadgeColor
 } from '../utils/permissions.js'
+import UserProfileModal from './UserProfileModal.jsx'
 
 function Layout({ children, activeRoute = '' }) {
   const [currentLanguage, setCurrentLanguage] = useState('en')
   const [user, setUser] = useState(null)
   const [visibleNavItems, setVisibleNavItems] = useState([])
+  const [showProfileModal, setShowProfileModal] = useState(false)
+  const [showUserDropdown, setShowUserDropdown] = useState(false)
+  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false)
 
   useEffect(() => {
     setCurrentLanguage(getCurrentLanguage())
     setupMobileSidebar()
     loadUserData()
   }, [])
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showUserDropdown && !event.target.closest('.user-dropdown')) {
+        setShowUserDropdown(false)
+      }
+      if (showLanguageDropdown && !event.target.closest('.floating-language-selector')) {
+        setShowLanguageDropdown(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showUserDropdown, showLanguageDropdown])
 
   const loadUserData = async () => {
     try {
@@ -44,8 +63,8 @@ function Layout({ children, activeRoute = '' }) {
     }
   }
 
-  const handleLanguageChange = async (e) => {
-    const newLanguage = e.target.value
+  const handleLanguageSelect = async (newLanguage) => {
+    setShowLanguageDropdown(false)
     await setLanguage(newLanguage)
     setCurrentLanguage(newLanguage)
     // Reload the current page with new language
@@ -60,6 +79,7 @@ function Layout({ children, activeRoute = '' }) {
 
   const handleLogout = async (e) => {
     e.preventDefault()
+    setShowUserDropdown(false)
     
     try {
       await api.logout()
@@ -76,6 +96,16 @@ function Layout({ children, activeRoute = '' }) {
         window.navigate('/login')
       }
     }
+  }
+
+  const handleUserUpdate = (updatedUser) => {
+    setUser(updatedUser)
+    setCurrentUser(updatedUser)
+  }
+
+  const handleProfileClick = () => {
+    setShowUserDropdown(false)
+    setShowProfileModal(true)
   }
 
   const setupMobileSidebar = () => {
@@ -114,32 +144,53 @@ function Layout({ children, activeRoute = '' }) {
 
   return (
     <div className="app-container">
-      <aside className="sidebar" id="sidebar">
-        <div className="sidebar-header">
+      {/* Header */}
+      <header className="app-header">
+        <div className="header-left">
           <h1>{t('app.name')}</h1>
-          {user && (
-            <div style={{ marginBottom: '10px', fontSize: '12px', color: '#666' }}>
-              <div>{user.firstName} {user.lastName}</div>
-              <div>
-                <span className={`badge badge-${getRoleBadgeColor(user.roleId)}`}>
-                  {getUserRoleDisplayName()}
-                </span>
-              </div>
-            </div>
-          )}
-          <div className="language-selector">
-            <select 
-              id="languageSelect" 
-              value={currentLanguage} 
-              onChange={handleLanguageChange}
-            >
-              <option value="en">English</option>
-              <option value="es">Español</option>
-              <option value="ar">العربية</option>
-            </select>
-          </div>
         </div>
         
+        <div className="header-right">
+          {user && (
+            <div className="user-dropdown">
+              <button 
+                className="user-dropdown-toggle"
+                onClick={() => setShowUserDropdown(!showUserDropdown)}
+              >
+                <div className="user-info">
+                  <div className="user-name">{user.firstName} {user.lastName}</div>
+                  <span className={`badge badge-${getRoleBadgeColor(user.roleId)}`}>
+                    {getUserRoleDisplayName()}
+                  </span>
+                </div>
+                <i className="fas fa-chevron-down"></i>
+              </button>
+              
+              {showUserDropdown && (
+                <div className="user-dropdown-menu">
+                  <button 
+                    className="dropdown-item"
+                    onClick={handleProfileClick}
+                  >
+                    <i className="fas fa-user-edit"></i>
+                    {t('profile.updateAccount')}
+                  </button>
+                  <hr className="dropdown-divider" />
+                  <button 
+                    className="dropdown-item text-danger"
+                    onClick={handleLogout}
+                  >
+                    <i className="fas fa-sign-out-alt"></i>
+                    {t('auth.logout')}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </header>
+
+      <aside className="sidebar" id="sidebar">
         <nav className="sidebar-nav">
           {visibleNavItems.map((item) => (
             <a 
@@ -154,19 +205,53 @@ function Layout({ children, activeRoute = '' }) {
               {t(`navigation.${item.key}`)}
             </a>
           ))}
-          <a 
-            href="#" 
-            className="nav-item" 
-            onClick={handleLogout}
-          >
-            {t('auth.logout')}
-          </a>
         </nav>
       </aside>
       
       <main className="main-content">
         {children}
       </main>
+
+      {/* User Profile Modal */}
+      <UserProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        user={user}
+        onUserUpdate={handleUserUpdate}
+      />
+
+      {/* Floating Language Selector */}
+      <div className="floating-language-selector">
+        <button 
+          className="floating-language-toggle"
+          onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
+        >
+          🌐
+        </button>
+        
+        {showLanguageDropdown && (
+          <div className="floating-language-menu">
+            <button 
+              className={`language-option ${currentLanguage === 'en' ? 'active' : ''}`}
+              onClick={() => handleLanguageSelect('en')}
+            >
+              English
+            </button>
+            <button 
+              className={`language-option ${currentLanguage === 'es' ? 'active' : ''}`}
+              onClick={() => handleLanguageSelect('es')}
+            >
+              Español
+            </button>
+            <button 
+              className={`language-option ${currentLanguage === 'ar' ? 'active' : ''}`}
+              onClick={() => handleLanguageSelect('ar')}
+            >
+              العربية
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

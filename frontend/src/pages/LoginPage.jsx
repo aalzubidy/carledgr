@@ -12,13 +12,26 @@ function LoginPage({ onLogin }) {
     password: ''
   })
   const [isLoading, setIsLoading] = useState(false)
+  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false)
 
   useEffect(() => {
     setCurrentLanguage(getCurrentLanguage())
   }, [])
 
-  const handleLanguageChange = async (e) => {
-    const newLanguage = e.target.value
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showLanguageDropdown && !event.target.closest('.floating-language-selector')) {
+        setShowLanguageDropdown(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showLanguageDropdown])
+
+  const handleLanguageSelect = async (newLanguage) => {
+    setShowLanguageDropdown(false)
     await setLanguage(newLanguage)
     setCurrentLanguage(newLanguage)
     // Force re-render to update translations
@@ -90,17 +103,6 @@ function LoginPage({ onLogin }) {
 
   return (
     <div className="login-container">
-      <div className="language-selector">
-        <select 
-          id="languageSelect" 
-          value={currentLanguage} 
-          onChange={handleLanguageChange}
-        >
-          <option value="en">English</option>
-          <option value="es">Español</option>
-          <option value="ar">العربية</option>
-        </select>
-      </div>
       
       <form className="login-form" onSubmit={handleLogin}>
         <h1>{t('app.title')}</h1>
@@ -152,6 +154,39 @@ function LoginPage({ onLogin }) {
           {isLoading ? t('common.loading') : t('auth.loginButton')}
         </button>
       </form>
+
+      {/* Floating Language Selector */}
+      <div className="floating-language-selector">
+        <button 
+          className="floating-language-toggle"
+          onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
+        >
+          🌐
+        </button>
+        
+        {showLanguageDropdown && (
+          <div className="floating-language-menu">
+            <button 
+              className={`language-option ${currentLanguage === 'en' ? 'active' : ''}`}
+              onClick={() => handleLanguageSelect('en')}
+            >
+              English
+            </button>
+            <button 
+              className={`language-option ${currentLanguage === 'es' ? 'active' : ''}`}
+              onClick={() => handleLanguageSelect('es')}
+            >
+              Español
+            </button>
+            <button 
+              className={`language-option ${currentLanguage === 'ar' ? 'active' : ''}`}
+              onClick={() => handleLanguageSelect('ar')}
+            >
+              العربية
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

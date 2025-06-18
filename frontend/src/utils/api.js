@@ -373,6 +373,20 @@ const api = {
       method: 'POST',
       body: JSON.stringify(userData)
     });
+  },
+
+  async updateProfile(profileData) {
+    return makeRequest('/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(profileData)
+    });
+  },
+
+  async updatePassword(passwordData) {
+    return makeRequest('/auth/password', {
+      method: 'PUT',
+      body: JSON.stringify(passwordData)
+    });
   }
 };
 
