@@ -353,6 +353,40 @@ const api = {
       }
     });
     return makeRequest(`/expenses/summary${queryString.toString() ? `?${queryString.toString()}` : ''}`);
+  },
+
+  // User management and roles
+  async getCurrentUser() {
+    return makeRequest('/auth/me');
+  },
+
+  async getRoles() {
+    return makeRequest('/auth/roles');
+  },
+
+  async getOrganizations() {
+    return makeRequest('/auth/organizations');
+  },
+
+  async createUser(userData) {
+    return makeRequest('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(userData)
+    });
+  },
+
+  async updateProfile(profileData) {
+    return makeRequest('/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(profileData)
+    });
+  },
+
+  async updatePassword(passwordData) {
+    return makeRequest('/auth/password', {
+      method: 'PUT',
+      body: JSON.stringify(passwordData)
+    });
   }
 };
 

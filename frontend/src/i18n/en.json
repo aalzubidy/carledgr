@@ -115,6 +115,7 @@
     "total": "Total",
     "date": "Date",
     "actions": "Actions",
+    "accessDenied": "Access Denied",
     "retry": "Retry",
     "select": "Select",
     "clear": "Clear",
@@ -128,7 +129,12 @@
     "first": "First",
     "last": "Last",
     "all": "All",
-    "required": "is required"
+    "required": "is required",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "saving": "Saving...",
+    "updating": "Updating..."
   },
   "status": {
     "in_stock": "In Stock",
@@ -292,5 +298,25 @@
     "confirmAdd": "Are you sure you want to add this item?",
     "confirmMove": "Are you sure you want to move these expenses?",
     "expensesMoved": "Expenses moved successfully"
+  },
+  "profile": {
+    "updateAccount": "Update Account",
+    "profileInfo": "Profile Information",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "updatePassword": "Update Password",
+    "emailNotEditable": "Email address cannot be changed",
+    "updateSuccess": "Profile updated successfully",
+    "passwordUpdateSuccess": "Password updated successfully",
+    "confirmProfileUpdate": "Are you sure you want to update your profile information?",
+    "confirmPasswordUpdate": "Are you sure you want to change your password?"
+  },
+  "validation": {
+    "nameRequired": "First name and last name are required",
+    "allPasswordFieldsRequired": "All password fields are required",
+    "passwordMismatch": "New passwords do not match",
+    "passwordMinLength": "Password must be at least 6 characters long"
   }
 } 

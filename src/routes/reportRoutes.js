@@ -7,10 +7,12 @@ const {
   getProfitReportHandler
 } = require('../controllers/reportController');
 const { authenticateJWT } = require('../middleware/auth');
+const { requireOrganization } = require('../middleware/roleAuth');
 const { validate, rules } = require('../middleware/validation');
 
-// All report routes require authentication
+// All report routes require authentication and organization isolation
 router.use(authenticateJWT);
+router.use(requireOrganization);
 
 // Inventory report
 router.get('/inventory', rules.report.generate, validate, getInventoryReportHandler);

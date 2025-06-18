@@ -2,17 +2,69 @@ import React, { useState, useEffect } from 'react'
 import { t, setLanguage, getCurrentLanguage } from '../utils/i18n.js'
 import { api } from '../utils/api.js'
 import { showSuccess } from '../utils/snackbar.js'
+import { 
+  getCurrentUser, 
+  setCurrentUser, 
+  removeCurrentUser,
+  getVisibleNavigationItems,
+  getUserRoleDisplayName,
+  getRoleBadgeColor
+} from '../utils/permissions.js'
+import UserProfileModal from './UserProfileModal.jsx'
 
 function Layout({ children, activeRoute = '' }) {
   const [currentLanguage, setCurrentLanguage] = useState('en')
+  const [user, setUser] = useState(null)
+  const [visibleNavItems, setVisibleNavItems] = useState([])
+  const [showProfileModal, setShowProfileModal] = useState(false)
+  const [showUserDropdown, setShowUserDropdown] = useState(false)
+  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false)
 
   useEffect(() => {
     setCurrentLanguage(getCurrentLanguage())
     setupMobileSidebar()
+    loadUserData()
   }, [])
 
-  const handleLanguageChange = async (e) => {
-    const newLanguage = e.target.value
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showUserDropdown && !event.target.closest('.user-dropdown')) {
+        setShowUserDropdown(false)
+      }
+      if (showLanguageDropdown && !event.target.closest('.floating-language-selector')) {
+        setShowLanguageDropdown(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showUserDropdown, showLanguageDropdown])
+
+  const loadUserData = async () => {
+    try {
+      // First check localStorage
+      let userData = getCurrentUser()
+      
+      // If no user data in localStorage, fetch from API
+      if (!userData) {
+        userData = await api.getCurrentUser()
+        if (userData) {
+          setCurrentUser(userData)
+        }
+      }
+      
+      setUser(userData)
+      setVisibleNavItems(getVisibleNavigationItems())
+    } catch (error) {
+      console.error('Error loading user data:', error)
+      // If API call fails, user might be logged out
+      removeCurrentUser()
+    }
+  }
+
+  const handleLanguageSelect = async (newLanguage) => {
+    setShowLanguageDropdown(false)
     await setLanguage(newLanguage)
     setCurrentLanguage(newLanguage)
     // Reload the current page with new language
@@ -27,9 +79,11 @@ function Layout({ children, activeRoute = '' }) {
 
   const handleLogout = async (e) => {
     e.preventDefault()
+    setShowUserDropdown(false)
     
     try {
       await api.logout()
+      removeCurrentUser()
       showSuccess(t('auth.logout') + ' ' + t('common.success'))
       if (window.navigate) {
         window.navigate('/login')
@@ -37,10 +91,21 @@ function Layout({ children, activeRoute = '' }) {
     } catch (error) {
       console.error('Logout error:', error)
       // Even if logout fails on server, clear local storage and redirect
+      removeCurrentUser()
       if (window.navigate) {
         window.navigate('/login')
       }
     }
+  }
+
+  const handleUserUpdate = (updatedUser) => {
+    setUser(updatedUser)
+    setCurrentUser(updatedUser)
+  }
+
+  const handleProfileClick = () => {
+    setShowUserDropdown(false)
+    setShowProfileModal(true)
   }
 
   const setupMobileSidebar = () => {
@@ -79,96 +144,114 @@ function Layout({ children, activeRoute = '' }) {
 
   return (
     <div className="app-container">
-      <aside className="sidebar" id="sidebar">
-        <div className="sidebar-header">
+      {/* Header */}
+      <header className="app-header">
+        <div className="header-left">
           <h1>{t('app.name')}</h1>
-          <div className="language-selector">
-            <select 
-              id="languageSelect" 
-              value={currentLanguage} 
-              onChange={handleLanguageChange}
-            >
-              <option value="en">English</option>
-              <option value="es">Español</option>
-              <option value="ar">العربية</option>
-            </select>
-          </div>
         </div>
         
+        <div className="header-right">
+          {user && (
+            <div className="user-dropdown">
+              <button 
+                className="user-dropdown-toggle"
+                onClick={() => setShowUserDropdown(!showUserDropdown)}
+              >
+                <div className="user-info">
+                  <div className="user-name">{user.firstName} {user.lastName}</div>
+                  <span className={`badge badge-${getRoleBadgeColor(user.roleId)}`}>
+                    {getUserRoleDisplayName()}
+                  </span>
+                </div>
+                <i className="fas fa-chevron-down"></i>
+              </button>
+              
+              {showUserDropdown && (
+                <div className="user-dropdown-menu">
+                  <button 
+                    className="dropdown-item"
+                    onClick={handleProfileClick}
+                  >
+                    <i className="fas fa-user-edit"></i>
+                    {t('profile.updateAccount')}
+                  </button>
+                  <hr className="dropdown-divider" />
+                  <button 
+                    className="dropdown-item text-danger"
+                    onClick={handleLogout}
+                  >
+                    <i className="fas fa-sign-out-alt"></i>
+                    {t('auth.logout')}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </header>
+
+      <aside className="sidebar" id="sidebar">
         <nav className="sidebar-nav">
-          <a 
-            href="/dashboard" 
-            className={`nav-item ${activeRoute === 'dashboard' ? 'active' : ''}`}
-            onClick={(e) => {
-              e.preventDefault()
-              handleNavigation('/dashboard')
-            }}
-          >
-            {t('navigation.dashboard')}
-          </a>
-          <a 
-            href="/cars" 
-            className={`nav-item ${activeRoute === 'cars' ? 'active' : ''}`}
-            onClick={(e) => {
-              e.preventDefault()
-              handleNavigation('/cars')
-            }}
-          >
-            {t('navigation.cars')}
-          </a>
-          <a 
-            href="/maintenance" 
-            className={`nav-item ${activeRoute === 'maintenance' ? 'active' : ''}`}
-            onClick={(e) => {
-              e.preventDefault()
-              handleNavigation('/maintenance')
-            }}
-          >
-            {t('navigation.maintenance')}
-          </a>
-          <a 
-            href="/reports" 
-            className={`nav-item ${activeRoute === 'reports' ? 'active' : ''}`}
-            onClick={(e) => {
-              e.preventDefault()
-              handleNavigation('/reports')
-            }}
-          >
-            {t('navigation.reports')}
-          </a>
-          <a 
-            href="/expenses" 
-            className={`nav-item ${activeRoute === 'expenses' ? 'active' : ''}`}
-            onClick={(e) => {
-              e.preventDefault()
-              handleNavigation('/expenses')
-            }}
-          >
-            {t('navigation.expenses')}
-          </a>
-          <a 
-            href="/settings" 
-            className={`nav-item ${activeRoute === 'settings' ? 'active' : ''}`}
-            onClick={(e) => {
-              e.preventDefault()
-              handleNavigation('/settings')
-            }}
-          >
-            {t('navigation.settings')}
-          </a>
-          <a 
-            href="#" 
-            className="nav-item" 
-            onClick={handleLogout}
-          >
-            {t('auth.logout')}
-          </a>
+          {visibleNavItems.map((item) => (
+            <a 
+              key={item.key}
+              href={item.path} 
+              className={`nav-item ${activeRoute === item.key ? 'active' : ''}`}
+              onClick={(e) => {
+                e.preventDefault()
+                handleNavigation(item.path)
+              }}
+            >
+              {t(`navigation.${item.key}`)}
+            </a>
+          ))}
         </nav>
       </aside>
       
       <main className="main-content">
         {children}
       </main>
+
+      {/* User Profile Modal */}
+      <UserProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        user={user}
+        onUserUpdate={handleUserUpdate}
+      />
+
+      {/* Floating Language Selector */}
+      <div className="floating-language-selector">
+        <button 
+          className="floating-language-toggle"
+          onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
+        >
+          🌐
+        </button>
+        
+        {showLanguageDropdown && (
+          <div className="floating-language-menu">
+            <button 
+              className={`language-option ${currentLanguage === 'en' ? 'active' : ''}`}
+              onClick={() => handleLanguageSelect('en')}
+            >
+              English
+            </button>
+            <button 
+              className={`language-option ${currentLanguage === 'es' ? 'active' : ''}`}
+              onClick={() => handleLanguageSelect('es')}
+            >
+              Español
+            </button>
+            <button 
+              className={`language-option ${currentLanguage === 'ar' ? 'active' : ''}`}
+              onClick={() => handleLanguageSelect('ar')}
+            >
+              العربية
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

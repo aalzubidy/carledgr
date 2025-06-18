@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { login, register, getOrganizations, getCurrentUser } = require('../controllers/authController');
-const { authenticateJWT, isOrgAdminOrAdmin } = require('../middleware/auth');
+const { login, register, getOrganizations, getCurrentUser, getRoles, updateProfile, updatePassword } = require('../controllers/authController');
+const { authenticateJWT, isOwner } = require('../middleware/auth');
+const { requireOwner } = require('../middleware/roleAuth');
 const { validate, rules } = require('../middleware/validation');
 
 // Public routes
@@ -10,6 +11,9 @@ router.post('/login', rules.user.login, validate, login);
 
 // Protected routes
 router.get('/me', authenticateJWT, getCurrentUser);
-router.post('/register', authenticateJWT, isOrgAdminOrAdmin, rules.user.create, validate, register);
+router.post('/register', authenticateJWT, requireOwner, rules.user.create, validate, register);
+router.get('/roles', authenticateJWT, requireOwner, getRoles);
+router.put('/profile', authenticateJWT, updateProfile);
+router.put('/password', authenticateJWT, updatePassword);
 
 module.exports = router; 

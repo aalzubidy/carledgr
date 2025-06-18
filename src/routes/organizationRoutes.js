@@ -7,25 +7,26 @@ const {
   update, 
   remove 
 } = require('../controllers/organizationController');
-const { authenticateJWT, isAdmin, isSameOrganizationOrAdmin } = require('../middleware/auth');
+const { authenticateJWT, isOwner } = require('../middleware/auth');
+const { requireOwner, requireOrganization } = require('../middleware/roleAuth');
 const { validate, rules } = require('../middleware/validation');
 
 // All organization routes require authentication
 router.use(authenticateJWT);
 
-// Get all organizations (admin only)
-router.get('/', isAdmin, getAll);
+// Get all organizations (owner only)
+router.get('/', requireOwner, getAll);
 
-// Get organization by ID (admin or same organization)
-router.get('/:id', isSameOrganizationOrAdmin, getById);
+// Get organization by ID (owner only)
+router.get('/:id', requireOwner, getById);
 
-// Create organization (admin only)
-router.post('/', isAdmin, rules.organization.create, validate, create);
+// Create organization (owner only)
+router.post('/', requireOwner, rules.organization.create, validate, create);
 
-// Update organization (admin or same organization)
-router.put('/:id', isSameOrganizationOrAdmin, rules.organization.update, validate, update);
+// Update organization (owner only)
+router.put('/:id', requireOwner, rules.organization.update, validate, update);
 
-// Delete organization (admin only)
-router.delete('/:id', isAdmin, remove);
+// Delete organization (owner only)
+router.delete('/:id', requireOwner, remove);
 
 module.exports = router; 

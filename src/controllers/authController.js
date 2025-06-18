@@ -6,7 +6,9 @@ const logger = require('../utils/logger');
 const { 
   getOrganizationByName,
   getUserByEmailAndOrganization,
-  getAllOrganizations 
+  getAllOrganizations,
+  getAllRoles,
+  getUserById
 } = require('../db/queries/authQueries');
 const { query } = require('../db/connection');
 const { ValidationError, UnauthorizedError, NotFoundError } = require('../middleware/errorHandler');
@@ -46,7 +48,8 @@ const login = async (req, res, next) => {
       { 
         id: user.id, 
         email: user.email,
-        role: user.role,
+        role: user.role_name,
+        role_id: user.role_id,
         organization_id: user.organization_id 
       }, 
       config.app.jwtSecret, 
@@ -60,7 +63,8 @@ const login = async (req, res, next) => {
         email: user.email,
         firstName: user.first_name,
         lastName: user.last_name,
-        role: user.role,
+        role: user.role_name,
+        roleId: user.role_id,
         organizationId: user.organization_id
       },
       token
@@ -74,7 +78,7 @@ const login = async (req, res, next) => {
 // Register new user (for admin/org admin use)
 const register = async (req, res, next) => {
   try {
-    const { organization_id, email, password, first_name, last_name, role = 'user' } = req.body;
+    const { organization_id, email, password, first_name, last_name, role_id = 3 } = req.body;
     
     // Check if user already exists
     const existingUsers = await getUserByEmailAndOrganization(email, organization_id);
@@ -89,12 +93,12 @@ const register = async (req, res, next) => {
     // Create new user
     const userId = uuidv4();
     await query(
-      'INSERT INTO users (id, organization_id, email, password, first_name, last_name, role) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [userId, organization_id, email, hashedPassword, first_name, last_name, role]
+      'INSERT INTO users (id, organization_id, email, password, first_name, last_name, role_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [userId, organization_id, email, hashedPassword, first_name, last_name, role_id]
     );
     
-    // Get the created user
-    const users = await query('SELECT * FROM users WHERE id = ?', [userId]);
+    // Get the created user with role information
+    const users = await getUserById(userId);
     
     if (users.length === 0) {
       throw new Error('Failed to create user');
@@ -108,7 +112,8 @@ const register = async (req, res, next) => {
       email: user.email,
       firstName: user.first_name,
       lastName: user.last_name,
-      role: user.role,
+      role: user.role_name,
+      roleId: user.role_id,
       organizationId: user.organization_id,
       createdAt: user.created_at
     });
@@ -136,16 +141,117 @@ const getCurrentUser = async (req, res, next) => {
       throw new UnauthorizedError();
     }
     
+    // Get fresh user data with role information
+    const users = await getUserById(req.user.id);
+    
+    if (users.length === 0) {
+      throw new NotFoundError('User not found');
+    }
+    
+    const user = users[0];
+    
     // Return user info
     res.json({
-      id: req.user.id,
-      email: req.user.email,
-      firstName: req.user.first_name,
-      lastName: req.user.last_name,
-      role: req.user.role,
-      organizationId: req.user.organization_id
+      id: user.id,
+      email: user.email,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      role: user.role_name,
+      roleId: user.role_id,
+      organizationId: user.organization_id
     });
     
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Get all roles (for admin use)
+const getRoles = async (req, res, next) => {
+  try {
+    const roles = await getAllRoles();
+    res.json(roles);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Update user profile
+const updateProfile = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { first_name, last_name } = req.body;
+    
+    if (!first_name || !last_name) {
+      throw new ValidationError('First name and last name are required');
+    }
+
+    await query(
+      'UPDATE users SET first_name = ?, last_name = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      [first_name, last_name, userId]
+    );
+
+    // Get updated user data
+    const users = await getUserById(userId);
+    
+    if (users.length === 0) {
+      throw new NotFoundError('User not found');
+    }
+
+    const user = users[0];
+
+    res.json({
+      id: user.id,
+      email: user.email,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      role: user.role_name,
+      roleId: user.role_id,
+      organizationId: user.organization_id
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Update user password
+const updatePassword = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { current_password, new_password } = req.body;
+    
+    if (!current_password || !new_password) {
+      throw new ValidationError('Current password and new password are required');
+    }
+
+    // Get current user data
+    const users = await getUserById(userId);
+    
+    if (users.length === 0) {
+      throw new NotFoundError('User not found');
+    }
+
+    const user = users[0];
+
+    // Verify current password
+    const passwordMatch = await bcrypt.compare(current_password, user.password);
+    
+    if (!passwordMatch) {
+      throw new UnauthorizedError('Current password is incorrect');
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(new_password, 10);
+
+    // Update password
+    await query(
+      'UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      [hashedPassword, userId]
+    );
+
+    res.json({ message: 'Password updated successfully' });
+
   } catch (error) {
     next(error);
   }
@@ -155,5 +261,8 @@ module.exports = {
   login,
   register,
   getOrganizations,
-  getCurrentUser
+  getCurrentUser,
+  getRoles,
+  updateProfile,
+  updatePassword
 }; 

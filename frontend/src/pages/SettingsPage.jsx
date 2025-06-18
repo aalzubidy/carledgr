@@ -4,11 +4,29 @@ import MaintenanceCategories from '../components/MaintenanceCategories.jsx'
 import { t } from '../utils/i18n.js'
 import { api } from '../utils/api.js'
 import { showSuccess, showError } from '../utils/snackbar.js'
+import { canAccessSettings, getPermissionErrorMessage } from '../utils/permissions.js'
 
 function SettingsPage() {
   const [categories, setCategories] = useState([])
   const [filteredCategories, setFilteredCategories] = useState([])
   const [loading, setLoading] = useState(true)
+
+  // Check permissions
+  if (!canAccessSettings()) {
+    return (
+      <Layout activeRoute="settings">
+        <div className="page-container">
+          <div className="page-header">
+            <h1>{t('settings.title')}</h1>
+          </div>
+          <div className="alert alert-warning">
+            <h3>{t('common.accessDenied')}</h3>
+            <p>{getPermissionErrorMessage('settings')}</p>
+          </div>
+        </div>
+      </Layout>
+    )
+  }
   const [searchTerm, setSearchTerm] = useState('')
   const [sortColumn, setSortColumn] = useState('')
   const [sortDirection, setSortDirection] = useState('asc')

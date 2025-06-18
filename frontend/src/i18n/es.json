@@ -113,6 +113,7 @@
     "total": "Total",
     "date": "Fecha",
     "actions": "Acciones",
+    "accessDenied": "Acceso Denegado",
     "retry": "Reintentar",
     "select": "Seleccionar",
     "clear": "Limpiar",
@@ -126,7 +127,12 @@
     "first": "Primero",
     "last": "Último",
     "all": "Todo",
-    "required": "es requerido"
+    "required": "es requerido",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "email": "Correo Electrónico",
+    "saving": "Guardando...",
+    "updating": "Actualizando..."
   },
   "status": {
     "in_stock": "En Stock",
@@ -279,5 +285,25 @@
     "confirmAdd": "¿Está seguro de que desea agregar este elemento?",
     "confirmMove": "¿Está seguro de que desea mover estos gastos?",
     "expensesMoved": "Gastos movidos exitosamente"
+  },
+  "profile": {
+    "updateAccount": "Actualizar Cuenta",
+    "profileInfo": "Información del Perfil",
+    "changePassword": "Cambiar Contraseña",
+    "currentPassword": "Contraseña Actual",
+    "newPassword": "Nueva Contraseña",
+    "confirmPassword": "Confirmar Nueva Contraseña",
+    "updatePassword": "Actualizar Contraseña",
+    "emailNotEditable": "La dirección de correo electrónico no se puede cambiar",
+    "updateSuccess": "Perfil actualizado exitosamente",
+    "passwordUpdateSuccess": "Contraseña actualizada exitosamente",
+    "confirmProfileUpdate": "¿Está seguro de que desea actualizar la información de su perfil?",
+    "confirmPasswordUpdate": "¿Está seguro de que desea cambiar su contraseña?"
+  },
+  "validation": {
+    "nameRequired": "El nombre y apellido son obligatorios",
+    "allPasswordFieldsRequired": "Todos los campos de contraseña son obligatorios",
+    "passwordMismatch": "Las nuevas contraseñas no coinciden",
+    "passwordMinLength": "La contraseña debe tener al menos 6 caracteres"
   }
 } 

@@ -5,6 +5,13 @@ const bcrypt = require('bcrypt');
 
 // SQL statements to create the database schema
 const createTableStatements = [
+  // User Roles table
+  `CREATE TABLE IF NOT EXISTS user_roles (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    role_name VARCHAR(20) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )`,
+
   // Organizations table
   `CREATE TABLE IF NOT EXISTS organizations (
     id VARCHAR(36) PRIMARY KEY,
@@ -24,10 +31,11 @@ const createTableStatements = [
     password VARCHAR(100) NOT NULL,
     first_name VARCHAR(50),
     last_name VARCHAR(50),
-    role VARCHAR(20) DEFAULT 'user',
+    role_id INT DEFAULT 3,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (organization_id) REFERENCES organizations(id)
+    FOREIGN KEY (organization_id) REFERENCES organizations(id),
+    FOREIGN KEY (role_id) REFERENCES user_roles(id)
   )`,
 
   // Cars table
@@ -138,6 +146,18 @@ async function initializeSchema() {
       logger.info('Table created successfully');
     }
 
+    // Check if default roles exist
+    const [roles] = await connection.execute('SELECT * FROM user_roles LIMIT 1');
+    
+    if (roles.length === 0) {
+      // Create default roles
+      await connection.execute('INSERT INTO user_roles (id, role_name) VALUES (1, "owner")');
+      await connection.execute('INSERT INTO user_roles (id, role_name) VALUES (2, "manager")');
+      await connection.execute('INSERT INTO user_roles (id, role_name) VALUES (3, "operator")');
+      
+      logger.info('Default user roles created');
+    }
+
     // Check if default admin organization exists
     const [organizations] = await connection.execute('SELECT * FROM organizations LIMIT 1');
     
@@ -149,15 +169,37 @@ async function initializeSchema() {
         [adminOrgId, 'Admin Organization', 'admin@carfin.com']
       );
       
-      // Create default admin user
+      // Create default admin user with owner role
       const adminId = uuidv4();
       const hashedPassword = await bcrypt.hash('admin123', 10);
       await connection.execute(
-        'INSERT INTO users (id, organization_id, email, password, first_name, last_name, role) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [adminId, adminOrgId, 'admin@carfin.com', hashedPassword, 'Admin', 'User', 'admin']
+        'INSERT INTO users (id, organization_id, email, password, first_name, last_name, role_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [adminId, adminOrgId, 'admin@carfin.com', hashedPassword, 'Admin', 'User', 1]
       );
       
       logger.info('Default admin organization and user created');
+    } else {
+      // Migration: Update existing users to use role_id instead of role
+      try {
+        // Check if role_id column exists
+        const [columns] = await connection.execute('DESCRIBE users');
+        const hasRoleId = columns.some(col => col.Field === 'role_id');
+        const hasOldRole = columns.some(col => col.Field === 'role');
+        
+        if (hasOldRole && hasRoleId) {
+          // Migrate existing users from role to role_id
+          await connection.execute('UPDATE users SET role_id = 1 WHERE role IN ("admin", "owner")');
+          await connection.execute('UPDATE users SET role_id = 2 WHERE role = "manager"');
+          await connection.execute('UPDATE users SET role_id = 3 WHERE role IN ("user", "operator")');
+          
+          // Drop the old role column
+          await connection.execute('ALTER TABLE users DROP COLUMN role');
+          
+          logger.info('Migrated users from role to role_id system');
+        }
+      } catch (migrationError) {
+        logger.error(`Migration error: ${migrationError.message}`);
+      }
     }
 
     // Check if default maintenance categories exist
