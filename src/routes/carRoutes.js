@@ -10,10 +10,12 @@ const {
   getStatistics
 } = require('../controllers/carController');
 const { authenticateJWT } = require('../middleware/auth');
+const { requireOrganization } = require('../middleware/roleAuth');
 const { validate, rules } = require('../middleware/validation');
 
-// All car routes require authentication
+// All car routes require authentication and organization isolation
 router.use(authenticateJWT);
+router.use(requireOrganization);
 
 // Get car statistics
 router.get('/statistics', getStatistics);

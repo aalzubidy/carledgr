@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { t, setLanguage, getCurrentLanguage } from '../utils/i18n.js'
 import { api } from '../utils/api.js'
 import { showSuccess, showError } from '../utils/snackbar.js'
+import { setCurrentUser } from '../utils/permissions.js'
 
 function LoginPage({ onLogin }) {
   const [currentLanguage, setCurrentLanguage] = useState('en')
@@ -62,6 +63,11 @@ function LoginPage({ onLogin }) {
       })
       
       if (response && response.token) {
+        // Save user data to localStorage for role-based access
+        if (response.user) {
+          setCurrentUser(response.user)
+        }
+        
         showSuccess(t('auth.loginSuccess'))
         // Small delay to show success message before navigation
         setTimeout(() => {

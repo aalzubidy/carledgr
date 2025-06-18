@@ -3,8 +3,26 @@ import Layout, { Loading, EmptyState } from '../components/Layout.jsx'
 import { t } from '../utils/i18n.js'
 import { api } from '../utils/api.js'
 import { showSuccess, showError } from '../utils/snackbar.js'
+import { canAccessExpenses, getPermissionErrorMessage } from '../utils/permissions.js'
 
 function ExpensesPage() {
+  // Check permissions first
+  if (!canAccessExpenses()) {
+    return (
+      <Layout activeRoute="expenses">
+        <div className="page-container">
+          <div className="page-header">
+            <h1>{t('expenses.title')}</h1>
+          </div>
+          <div className="alert alert-warning">
+            <h3>{t('common.accessDenied')}</h3>
+            <p>{getPermissionErrorMessage('expenses')}</p>
+          </div>
+        </div>
+      </Layout>
+    )
+  }
+
   const [expenses, setExpenses] = useState([])
   const [filteredExpenses, setFilteredExpenses] = useState([])
   const [categories, setCategories] = useState([])

@@ -115,6 +115,7 @@
     "total": "Total",
     "date": "Date",
     "actions": "Actions",
+    "accessDenied": "Access Denied",
     "retry": "Retry",
     "select": "Select",
     "clear": "Clear",

@@ -14,11 +14,13 @@ const {
   moveRecordsToCategory,
   getStatistics
 } = require('../controllers/maintenanceController');
-const { authenticateJWT, isOrgAdminOrAdmin } = require('../middleware/auth');
+const { authenticateJWT } = require('../middleware/auth');
+const { requireSettings, requireOrganization } = require('../middleware/roleAuth');
 const { validate, rules } = require('../middleware/validation');
 
-// All maintenance routes require authentication
+// All maintenance routes require authentication and organization isolation
 router.use(authenticateJWT);
+router.use(requireOrganization);
 
 // Get all maintenance records for organization
 router.get('/', getAllMaintenance);
@@ -26,12 +28,12 @@ router.get('/', getAllMaintenance);
 // Maintenance statistics
 router.get('/statistics', getStatistics);
 
-// Maintenance categories
+// Maintenance categories (Settings - Owners only for management, all roles can view)
 router.get('/categories', getCategories);
-router.post('/categories', isOrgAdminOrAdmin, createCategory);
-router.put('/categories/:id', isOrgAdminOrAdmin, updateCategory);
-router.delete('/categories/:id', isOrgAdminOrAdmin, deleteCategory);
-router.post('/categories/:id/move', isOrgAdminOrAdmin, moveRecordsToCategory);
+router.post('/categories', requireSettings, createCategory);
+router.put('/categories/:id', requireSettings, updateCategory);
+router.delete('/categories/:id', requireSettings, deleteCategory);
+router.post('/categories/:id/move', requireSettings, moveRecordsToCategory);
 
 // Get maintenance records for a car
 router.get('/car/:carId', getMaintenanceByCarId);

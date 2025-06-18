@@ -7,9 +7,11 @@ const {
   getTopSoldModelsHandler
 } = require('../controllers/dashboardController');
 const { authenticateJWT } = require('../middleware/auth');
+const { requireOrganization } = require('../middleware/roleAuth');
 
-// All dashboard routes require authentication
+// All dashboard routes require authentication and organization isolation
 router.use(authenticateJWT);
+router.use(requireOrganization);
 
 // Dashboard summary
 router.get('/summary', getDashboardSummaryHandler);

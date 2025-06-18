@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const config = require('../../config');
 const logger = require('../utils/logger');
-const { query } = require('../db/connection');
+const { getUserById } = require('../db/queries/authQueries');
 
 // Verify JWT token middleware
 const authenticateJWT = (req, res, next) => {
@@ -20,14 +20,14 @@ const authenticateJWT = (req, res, next) => {
     }
     
     try {
-      // Check if user still exists and is active
-      const users = await query('SELECT * FROM users WHERE id = ?', [user.id]);
+      // Check if user still exists and is active, get role information
+      const users = await getUserById(user.id);
       
       if (users.length === 0) {
         return res.status(403).json({ error: 'User no longer exists' });
       }
       
-      // Attach user information to request
+      // Attach user information to request with role data
       req.user = users[0];
       next();
     } catch (error) {
@@ -37,22 +37,18 @@ const authenticateJWT = (req, res, next) => {
   });
 };
 
-// Check if user is admin
-const isAdmin = (req, res, next) => {
-  if (!req.user || req.user.role !== 'admin') {
-    return res.status(403).json({ error: 'Admin access required' });
+// Check if user is owner (replaces admin check)
+const isOwner = (req, res, next) => {
+  if (!req.user || req.user.role_id !== 1) {
+    return res.status(403).json({ error: 'Owner access required' });
   }
   next();
 };
 
-// Check if user belongs to the same organization or is admin
-const isSameOrganizationOrAdmin = (req, res, next) => {
+// Check if user belongs to the same organization
+const isSameOrganization = (req, res, next) => {
   if (!req.user) {
     return res.status(401).json({ error: 'Authentication required' });
-  }
-  
-  if (req.user.role === 'admin') {
-    return next();
   }
   
   const requestedOrgId = req.params.organizationId || req.body.organization_id;
@@ -64,22 +60,17 @@ const isSameOrganizationOrAdmin = (req, res, next) => {
   next();
 };
 
-// Check if user is organization admin or admin
-const isOrgAdminOrAdmin = (req, res, next) => {
-  if (!req.user) {
-    return res.status(401).json({ error: 'Authentication required' });
+// Legacy admin check (for backward compatibility)
+const isAdmin = (req, res, next) => {
+  if (!req.user || req.user.role_id !== 1) {
+    return res.status(403).json({ error: 'Admin access required' });
   }
-  
-  if (req.user.role === 'admin' || req.user.role === 'org_admin') {
-    return next();
-  }
-  
-  return res.status(403).json({ error: 'Organization admin or admin access required' });
+  next();
 };
 
 module.exports = {
   authenticateJWT,
   isAdmin,
-  isSameOrganizationOrAdmin,
-  isOrgAdminOrAdmin
+  isOwner,
+  isSameOrganization
 }; 

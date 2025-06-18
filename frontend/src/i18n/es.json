@@ -113,6 +113,7 @@
     "total": "Total",
     "date": "Fecha",
     "actions": "Acciones",
+    "accessDenied": "Acceso Denegado",
     "retry": "Reintentar",
     "select": "Seleccionar",
     "clear": "Limpiar",

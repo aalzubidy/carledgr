@@ -2,14 +2,47 @@ import React, { useState, useEffect } from 'react'
 import { t, setLanguage, getCurrentLanguage } from '../utils/i18n.js'
 import { api } from '../utils/api.js'
 import { showSuccess } from '../utils/snackbar.js'
+import { 
+  getCurrentUser, 
+  setCurrentUser, 
+  removeCurrentUser,
+  getVisibleNavigationItems,
+  getUserRoleDisplayName,
+  getRoleBadgeColor
+} from '../utils/permissions.js'
 
 function Layout({ children, activeRoute = '' }) {
   const [currentLanguage, setCurrentLanguage] = useState('en')
+  const [user, setUser] = useState(null)
+  const [visibleNavItems, setVisibleNavItems] = useState([])
 
   useEffect(() => {
     setCurrentLanguage(getCurrentLanguage())
     setupMobileSidebar()
+    loadUserData()
   }, [])
+
+  const loadUserData = async () => {
+    try {
+      // First check localStorage
+      let userData = getCurrentUser()
+      
+      // If no user data in localStorage, fetch from API
+      if (!userData) {
+        userData = await api.getCurrentUser()
+        if (userData) {
+          setCurrentUser(userData)
+        }
+      }
+      
+      setUser(userData)
+      setVisibleNavItems(getVisibleNavigationItems())
+    } catch (error) {
+      console.error('Error loading user data:', error)
+      // If API call fails, user might be logged out
+      removeCurrentUser()
+    }
+  }
 
   const handleLanguageChange = async (e) => {
     const newLanguage = e.target.value
@@ -30,6 +63,7 @@ function Layout({ children, activeRoute = '' }) {
     
     try {
       await api.logout()
+      removeCurrentUser()
       showSuccess(t('auth.logout') + ' ' + t('common.success'))
       if (window.navigate) {
         window.navigate('/login')
@@ -37,6 +71,7 @@ function Layout({ children, activeRoute = '' }) {
     } catch (error) {
       console.error('Logout error:', error)
       // Even if logout fails on server, clear local storage and redirect
+      removeCurrentUser()
       if (window.navigate) {
         window.navigate('/login')
       }
@@ -82,6 +117,16 @@ function Layout({ children, activeRoute = '' }) {
       <aside className="sidebar" id="sidebar">
         <div className="sidebar-header">
           <h1>{t('app.name')}</h1>
+          {user && (
+            <div style={{ marginBottom: '10px', fontSize: '12px', color: '#666' }}>
+              <div>{user.firstName} {user.lastName}</div>
+              <div>
+                <span className={`badge badge-${getRoleBadgeColor(user.roleId)}`}>
+                  {getUserRoleDisplayName()}
+                </span>
+              </div>
+            </div>
+          )}
           <div className="language-selector">
             <select 
               id="languageSelect" 
@@ -96,66 +141,19 @@ function Layout({ children, activeRoute = '' }) {
         </div>
         
         <nav className="sidebar-nav">
-          <a 
-            href="/dashboard" 
-            className={`nav-item ${activeRoute === 'dashboard' ? 'active' : ''}`}
-            onClick={(e) => {
-              e.preventDefault()
-              handleNavigation('/dashboard')
-            }}
-          >
-            {t('navigation.dashboard')}
-          </a>
-          <a 
-            href="/cars" 
-            className={`nav-item ${activeRoute === 'cars' ? 'active' : ''}`}
-            onClick={(e) => {
-              e.preventDefault()
-              handleNavigation('/cars')
-            }}
-          >
-            {t('navigation.cars')}
-          </a>
-          <a 
-            href="/maintenance" 
-            className={`nav-item ${activeRoute === 'maintenance' ? 'active' : ''}`}
-            onClick={(e) => {
-              e.preventDefault()
-              handleNavigation('/maintenance')
-            }}
-          >
-            {t('navigation.maintenance')}
-          </a>
-          <a 
-            href="/reports" 
-            className={`nav-item ${activeRoute === 'reports' ? 'active' : ''}`}
-            onClick={(e) => {
-              e.preventDefault()
-              handleNavigation('/reports')
-            }}
-          >
-            {t('navigation.reports')}
-          </a>
-          <a 
-            href="/expenses" 
-            className={`nav-item ${activeRoute === 'expenses' ? 'active' : ''}`}
-            onClick={(e) => {
-              e.preventDefault()
-              handleNavigation('/expenses')
-            }}
-          >
-            {t('navigation.expenses')}
-          </a>
-          <a 
-            href="/settings" 
-            className={`nav-item ${activeRoute === 'settings' ? 'active' : ''}`}
-            onClick={(e) => {
-              e.preventDefault()
-              handleNavigation('/settings')
-            }}
-          >
-            {t('navigation.settings')}
-          </a>
+          {visibleNavItems.map((item) => (
+            <a 
+              key={item.key}
+              href={item.path} 
+              className={`nav-item ${activeRoute === item.key ? 'active' : ''}`}
+              onClick={(e) => {
+                e.preventDefault()
+                handleNavigation(item.path)
+              }}
+            >
+              {t(`navigation.${item.key}`)}
+            </a>
+          ))}
           <a 
             href="#" 
             className="nav-item" 
