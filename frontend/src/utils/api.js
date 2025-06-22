@@ -387,6 +387,35 @@ const api = {
       method: 'PUT',
       body: JSON.stringify(passwordData)
     });
+  },
+
+  // User Management (Owner only)
+  async getOrganizationUsers() {
+    return makeRequest('/users');
+  },
+
+  async getUserRoles() {
+    return makeRequest('/users/roles');
+  },
+
+  async createOrganizationUser(userData) {
+    return makeRequest('/users', {
+      method: 'POST',
+      body: JSON.stringify(userData)
+    });
+  },
+
+  async updateOrganizationUser(id, userData) {
+    return makeRequest(`/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(userData)
+    });
+  },
+
+  async deleteOrganizationUser(id) {
+    return makeRequest(`/users/${id}`, {
+      method: 'DELETE'
+    });
   }
 };
 

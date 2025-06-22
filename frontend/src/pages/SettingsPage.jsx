@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Layout, { Loading, EmptyState } from '../components/Layout.jsx'
 import MaintenanceCategories from '../components/MaintenanceCategories.jsx'
 import { t } from '../utils/i18n.js'
-import { api } from '../utils/api.js'
+import { api, getAuthToken } from '../utils/api.js'
 import { showSuccess, showError } from '../utils/snackbar.js'
 import { canAccessSettings, getPermissionErrorMessage } from '../utils/permissions.js'
 
@@ -10,6 +10,27 @@ function SettingsPage() {
   const [categories, setCategories] = useState([])
   const [filteredCategories, setFilteredCategories] = useState([])
   const [loading, setLoading] = useState(true)
+  
+  // User management state
+  const [users, setUsers] = useState([])
+  const [filteredUsers, setFilteredUsers] = useState([])
+  const [userRoles, setUserRoles] = useState([])
+  const [userSearchTerm, setUserSearchTerm] = useState('')
+  const [userSortColumn, setUserSortColumn] = useState('')
+  const [userSortDirection, setUserSortDirection] = useState('asc')
+  const [showUserEditModal, setShowUserEditModal] = useState(false)
+  const [showUserDeleteModal, setShowUserDeleteModal] = useState(false)
+  const [editingUser, setEditingUser] = useState(null)
+  const [userFormData, setUserFormData] = useState({
+    email: '',
+    first_name: '',
+    last_name: '',
+    password: '',
+    confirmPassword: '',
+    role_id: ''
+  })
+  const [currentUser, setCurrentUser] = useState(null)
+  const [isOwner, setIsOwner] = useState(false)
 
   // Check permissions
   if (!canAccessSettings()) {
@@ -50,6 +71,7 @@ function SettingsPage() {
 
   useEffect(() => {
     loadCategories()
+    loadCurrentUser()
   }, [])
 
   useEffect(() => {
@@ -63,6 +85,20 @@ function SettingsPage() {
     })
     setFilteredCategories(filtered)
   }, [searchTerm, categories])
+
+  useEffect(() => {
+    // Filter users when search term changes
+    const filtered = users.filter(user => {
+      const term = userSearchTerm.toLowerCase()
+      return (
+        user.email.toLowerCase().includes(term) ||
+        user.firstName.toLowerCase().includes(term) ||
+        user.lastName.toLowerCase().includes(term) ||
+        user.role.toLowerCase().includes(term)
+      )
+    })
+    setFilteredUsers(filtered)
+  }, [userSearchTerm, users])
 
   const loadCategories = async () => {
     try {
@@ -251,6 +287,206 @@ function SettingsPage() {
     } catch (error) {
       console.error('Error moving expenses:', error)
       showError(t('messages.errorOccurred'))
+    }
+  }
+
+  // User Management Functions
+  const loadCurrentUser = async () => {
+    try {
+      const user = await api.getCurrentUser()
+      setCurrentUser(user)
+      setIsOwner(user.roleId === 1)
+      
+      if (user.roleId === 1) {
+        loadUsers()
+        loadUserRoles()
+      }
+    } catch (error) {
+      console.error('Error loading current user:', error)
+    }
+  }
+
+  const loadUsers = async () => {
+    try {
+      const response = await api.getOrganizationUsers()
+      setUsers(response)
+      setFilteredUsers(response)
+    } catch (error) {
+      console.error('Error loading users:', error)
+      showError(t('messages.errorOccurred'))
+    }
+  }
+
+  const loadUserRoles = async () => {
+    try {
+      const response = await api.getUserRoles()
+      setUserRoles(response)
+    } catch (error) {
+      console.error('Error loading user roles:', error)
+      // Fallback to default roles if API fails
+      setUserRoles([
+        { id: 1, role_name: 'owner' },
+        { id: 2, role_name: 'manager' },
+        { id: 3, role_name: 'operator' }
+      ])
+    }
+  }
+
+  const handleUserSearch = (e) => {
+    setUserSearchTerm(e.target.value)
+  }
+
+  const handleUserSort = (column) => {
+    let newDirection = 'asc'
+    if (userSortColumn === column && userSortDirection === 'asc') {
+      newDirection = 'desc'
+    }
+    
+    setUserSortColumn(column)
+    setUserSortDirection(newDirection)
+    
+    const sorted = [...filteredUsers].sort((a, b) => {
+      let aVal = a[column]
+      let bVal = b[column]
+      
+      if (aVal == null) aVal = ''
+      if (bVal == null) bVal = ''
+      
+      if (column === 'createdAt') {
+        aVal = new Date(aVal)
+        bVal = new Date(bVal)
+      } else {
+        aVal = aVal.toString().toLowerCase()
+        bVal = bVal.toString().toLowerCase()
+      }
+      
+      if (newDirection === 'asc') {
+        return aVal > bVal ? 1 : aVal < bVal ? -1 : 0
+      } else {
+        return aVal < bVal ? 1 : aVal > bVal ? -1 : 0
+      }
+    })
+    
+    setFilteredUsers(sorted)
+  }
+
+  const getUserSortIcon = (column) => {
+    if (userSortColumn !== column) return ''
+    return userSortDirection === 'asc' ? '↑' : '↓'
+  }
+
+  const handleAddUser = () => {
+    setEditingUser(null)
+    setUserFormData({
+      email: '',
+      first_name: '',
+      last_name: '',
+      password: '',
+      confirmPassword: '',
+      role_id: ''
+    })
+    setShowUserEditModal(true)
+  }
+
+  const handleEditUser = (user) => {
+    setEditingUser(user)
+    setUserFormData({
+      email: user.email,
+      first_name: user.firstName,
+      last_name: user.lastName,
+      password: '', // Don't populate password for editing
+      confirmPassword: '',
+      role_id: user.roleId
+    })
+    setShowUserEditModal(true)
+  }
+
+  const handleDeleteUser = (user) => {
+    if (user.id === currentUser?.id) {
+      showError(t('settings.cannotDeleteSelf'))
+      return
+    }
+    setEditingUser(user)
+    setShowUserDeleteModal(true)
+  }
+
+  const handleUserFormChange = (e) => {
+    const { name, value } = e.target
+    setUserFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const handleSaveUser = async () => {
+    if (!userFormData.email.trim() || !userFormData.first_name.trim() || !userFormData.last_name.trim() || !userFormData.role_id) {
+      showError(t('common.firstName') + ', ' + t('common.lastName') + ', ' + t('common.email') + ', ' + t('settings.userRole') + ' ' + t('common.required'))
+      return
+    }
+
+    if (!editingUser && !userFormData.password.trim()) {
+      showError(t('settings.userPassword') + ' ' + t('common.required'))
+      return
+    }
+
+    if (!editingUser && userFormData.password !== userFormData.confirmPassword) {
+      showError(t('validation.passwordMismatch'))
+      return
+    }
+
+    if (editingUser && editingUser.id === currentUser?.id && parseInt(userFormData.role_id) !== 1) {
+      showError(t('settings.cannotChangeSelfRole'))
+      return
+    }
+
+    const confirmMessage = editingUser ? t('messages.confirmEdit') : t('messages.confirmAdd')
+    if (!confirm(confirmMessage)) {
+      return
+    }
+
+    try {
+      if (editingUser) {
+        await api.updateOrganizationUser(editingUser.id, {
+          email: userFormData.email,
+          first_name: userFormData.first_name,
+          last_name: userFormData.last_name,
+          role_id: parseInt(userFormData.role_id)
+        })
+        showSuccess(t('settings.userUpdated'))
+      } else {
+        await api.createOrganizationUser({
+          email: userFormData.email,
+          first_name: userFormData.first_name,
+          last_name: userFormData.last_name,
+          password: userFormData.password,
+          role_id: parseInt(userFormData.role_id)
+        })
+        showSuccess(t('settings.userAdded'))
+      }
+      
+      setShowUserEditModal(false)
+      loadUsers()
+    } catch (error) {
+      console.error('Error saving user:', error)
+      showError(error.message || t('messages.errorOccurred'))
+    }
+  }
+
+  const handleConfirmDeleteUser = async () => {
+    if (!editingUser) return
+
+    if (!confirm(t('settings.confirmDeleteUser'))) {
+      return
+    }
+
+    try {
+      await api.deleteOrganizationUser(editingUser.id)
+      showSuccess(t('settings.userDeleted'))
+      setShowUserDeleteModal(false)
+      loadUsers()
+    } catch (error) {
+      console.error('Error deleting user:', error)
+      showError(error.message || t('messages.errorOccurred'))
     }
   }
 
@@ -519,6 +755,253 @@ function SettingsPage() {
     )
   }
 
+  // User Management Render Functions
+  const renderUsersTable = () => {
+    if (filteredUsers.length === 0) {
+      if (users.length === 0) {
+        return <EmptyState message={t('settings.noUsers')} icon="👥" />
+      } else {
+        return <EmptyState message={t('cars.noResults')} icon="🔍" />
+      }
+    }
+    
+    return (
+      <div className="table-wrapper">
+        <table className="data-table">
+        <thead>
+          <tr>
+            <th className="sortable" onClick={() => handleUserSort('email')} style={{ width: '25%' }}>
+              {t('settings.userEmail')} {getUserSortIcon('email')}
+            </th>
+            <th className="sortable" onClick={() => handleUserSort('firstName')} style={{ width: '18%' }}>
+              {t('settings.userFirstName')} {getUserSortIcon('firstName')}
+            </th>
+            <th className="sortable" onClick={() => handleUserSort('lastName')} style={{ width: '18%' }}>
+              {t('settings.userLastName')} {getUserSortIcon('lastName')}
+            </th>
+            <th className="sortable" onClick={() => handleUserSort('role')} style={{ width: '14%' }}>
+              {t('settings.userRole')} {getUserSortIcon('role')}
+            </th>
+            <th className="sortable" onClick={() => handleUserSort('createdAt')} style={{ width: '15%' }}>
+              {t('settings.userCreatedAt')} {getUserSortIcon('createdAt')}
+            </th>
+            <th style={{ width: '10%' }}>{t('common.actions')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredUsers.map(user => (
+            <tr key={user.id}>
+              <td>{user.email}</td>
+              <td>{user.firstName}</td>
+              <td>{user.lastName}</td>
+              <td>
+                <span className={`role-badge role-${user.role.toLowerCase()}`}>
+                  {t(`settings.${user.role.toLowerCase()}`)}
+                </span>
+              </td>
+              <td>{new Date(user.createdAt).toLocaleDateString()}</td>
+              <td>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <button 
+                    className="btn btn-sm btn-secondary"
+                    onClick={() => handleEditUser(user)}
+                  >
+                    {t('common.edit')}
+                  </button>
+                  <button 
+                    className="btn btn-sm btn-danger"
+                    onClick={() => handleDeleteUser(user)}
+                    disabled={user.id === currentUser?.id}
+                  >
+                    {t('common.delete')}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colSpan="6" style={{ textAlign: 'center', fontWeight: 'bold', padding: '12px', backgroundColor: '#f8f9fa', borderTop: '2px solid #dee2e6' }}>
+              {t('common.total')}: {filteredUsers.length} {filteredUsers.length === 1 ? t('settings.user') : t('settings.users')}
+            </td>
+          </tr>
+        </tfoot>
+        </table>
+      </div>
+    )
+  }
+
+  const renderUserEditModal = () => {
+    if (!showUserEditModal) return null
+    
+    const isEdit = editingUser !== null
+    const modalTitle = isEdit ? t('settings.editUser') : t('settings.addUser')
+    
+    return (
+      <div className="modal-overlay">
+        <div className="modal" style={{ maxWidth: '600px', width: '90%' }}>
+          <div className="modal-header">
+            <h2>{modalTitle}</h2>
+            <button className="modal-close" onClick={() => setShowUserEditModal(false)}>×</button>
+          </div>
+          <div className="modal-body" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+            <form onSubmit={(e) => e.preventDefault()}>
+              <div className="form-group">
+                <label htmlFor="user_email">{t('settings.userEmail')}</label>
+                <input
+                  type="email"
+                  id="user_email"
+                  name="email"
+                  className="form-control"
+                  value={userFormData.email}
+                  onChange={handleUserFormChange}
+                  required
+                  placeholder="Enter email address"
+                />
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="user_first_name">{t('settings.userFirstName')}</label>
+                <input
+                  type="text"
+                  id="user_first_name"
+                  name="first_name"
+                  className="form-control"
+                  value={userFormData.first_name}
+                  onChange={handleUserFormChange}
+                  required
+                  placeholder="Enter first name"
+                />
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="user_last_name">{t('settings.userLastName')}</label>
+                <input
+                  type="text"
+                  id="user_last_name"
+                  name="last_name"
+                  className="form-control"
+                  value={userFormData.last_name}
+                  onChange={handleUserFormChange}
+                  required
+                  placeholder="Enter last name"
+                />
+              </div>
+              
+              {!isEdit && (
+                <>
+                  <div className="form-group">
+                    <label htmlFor="user_password">{t('settings.userPassword')}</label>
+                    <input
+                      type="password"
+                      id="user_password"
+                      name="password"
+                      className="form-control"
+                      value={userFormData.password}
+                      onChange={handleUserFormChange}
+                      required
+                      placeholder="Enter password (min 6 characters)"
+                      minLength="6"
+                    />
+                  </div>
+                  
+                  <div className="form-group">
+                    <label htmlFor="user_confirm_password">{t('profile.confirmPassword')}</label>
+                    <input
+                      type="password"
+                      id="user_confirm_password"
+                      name="confirmPassword"
+                      className="form-control"
+                      value={userFormData.confirmPassword}
+                      onChange={handleUserFormChange}
+                      required
+                      placeholder="Confirm password"
+                      minLength="6"
+                    />
+                  </div>
+                </>
+              )}
+              
+              <div className="form-group" style={{ marginBottom: '20px' }}>
+                <label htmlFor="user_role" style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+                  Role *
+                </label>
+                <select
+                  id="user_role"
+                  name="role_id"
+                  value={userFormData.role_id || ''}
+                  onChange={handleUserFormChange}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    border: '2px solid #ddd',
+                    borderRadius: '6px',
+                    fontSize: '16px',
+                    backgroundColor: '#fff',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <option value="">-- Select Role --</option>
+                  <option value="1">Owner</option>
+                  <option value="2">Manager</option>
+                  <option value="3">Operator</option>
+                </select>
+              </div>
+            </form>
+          </div>
+          <div className="modal-footer">
+            <button className="btn btn-secondary" onClick={() => setShowUserEditModal(false)}>
+              {t('common.cancel')}
+            </button>
+            <button className="btn btn-primary" onClick={handleSaveUser}>
+              {t('common.save')}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const renderUserDeleteModal = () => {
+    if (!showUserDeleteModal) return null
+    
+    const user = editingUser
+    
+    return (
+      <div className="modal-overlay">
+        <div className="modal">
+          <div className="modal-header">
+            <h2>{t('settings.deleteUser')}</h2>
+            <button className="modal-close" onClick={() => setShowUserDeleteModal(false)}>×</button>
+          </div>
+          <div className="modal-body">
+            <p><strong>{t('settings.userEmail')}:</strong> {user?.email}</p>
+            <p><strong>{t('settings.userFirstName')}:</strong> {user?.firstName}</p>
+            <p><strong>{t('settings.userLastName')}:</strong> {user?.lastName}</p>
+            <p><strong>{t('settings.userRole')}:</strong> {t(`settings.${user?.role?.toLowerCase()}`)}</p>
+            
+            <div className="alert alert-warning">
+              <p>{t('settings.confirmDeleteUser')}</p>
+            </div>
+          </div>
+          <div className="modal-footer">
+            <button className="btn btn-secondary" onClick={() => setShowUserDeleteModal(false)}>
+              {t('common.cancel')}
+            </button>
+            <button 
+              className="btn btn-danger"
+              onClick={handleConfirmDeleteUser}
+            >
+              {t('common.delete')}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (loading) {
     return (
       <Layout activeRoute="settings">
@@ -562,11 +1045,40 @@ function SettingsPage() {
           <div className="settings-section" style={{ marginTop: '2rem' }}>
             <MaintenanceCategories />
           </div>
+
+          {/* User Management Section - Only for Owner role */}
+          {isOwner && (
+            <div className="settings-section" style={{ marginTop: '2rem' }}>
+              <div className="table-container">
+                <div className="table-header">
+                  <h2>{t('settings.userManagement')}</h2>
+                  <div className="table-controls">
+                    <div className="search-box">
+                      <input 
+                        type="text" 
+                        placeholder={t('common.search') + ' ' + t('settings.users').toLowerCase()}
+                        value={userSearchTerm}
+                        onChange={handleUserSearch}
+                      />
+                    </div>
+                    <button className="btn btn-primary" onClick={handleAddUser}>
+                      {t('settings.newUser')}
+                    </button>
+                  </div>
+                </div>
+                <div className="table-wrapper">
+                  {renderUsersTable()}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {renderEditModal()}
         {renderDeleteModal()}
         {renderMoveModal()}
+        {renderUserEditModal()}
+        {renderUserDeleteModal()}
       </div>
     </Layout>
   )
