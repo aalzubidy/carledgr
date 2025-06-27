@@ -244,6 +244,26 @@ const deleteMaintenance = async (req, res, next) => {
       throw new ForbiddenError('You do not have access to this maintenance record');
     }
     
+    // Clean up attachments first
+    try {
+      const attachmentQueries = require('../db/queries/attachmentQueries');
+      const storageService = require('../utils/storageService');
+      
+      const storageKeys = await attachmentQueries.deleteMaintenanceAttachmentsByMaintenanceId(id);
+      
+      // Delete files from storage (don't fail if storage deletion fails)
+      for (const storageKey of storageKeys) {
+        try {
+          await storageService.deleteFile(storageKey);
+        } catch (storageError) {
+          logger.error(`Storage deletion failed for ${storageKey}: ${storageError.message}`);
+        }
+      }
+    } catch (attachmentError) {
+      logger.error(`Attachment cleanup failed for maintenance ${id}: ${attachmentError.message}`);
+      // Continue with maintenance deletion even if attachment cleanup fails
+    }
+    
     await deleteMaintenanceRecord(id);
     
     res.status(204).end();

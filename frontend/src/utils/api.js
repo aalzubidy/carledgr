@@ -64,9 +64,18 @@ async function makeRequest(endpoint, options = {}) {
     if (!response.ok) {
       let errorData = {};
       try {
-        errorData = await response.json();
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          errorData = await response.json();
+        } else {
+          // If it's not JSON, try to get the text response
+          const textResponse = await response.text();
+          console.warn('Non-JSON error response:', textResponse);
+          errorData = { message: textResponse || `HTTP ${response.status}: ${response.statusText}` };
+        }
       } catch (parseError) {
         console.error('Failed to parse error response:', parseError);
+        errorData = { message: `HTTP ${response.status}: ${response.statusText}` };
       }
       
       // Handle authentication errors specifically
@@ -90,13 +99,19 @@ async function makeRequest(endpoint, options = {}) {
       throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
     }
     
-    // Handle empty responses
+    // Handle successful responses
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {
-      return await response.json();
+      try {
+        return await response.json();
+      } catch (parseError) {
+        console.warn('Failed to parse JSON response:', parseError);
+        return { success: true };
+      }
     }
     
-    return null;
+    // For non-JSON responses, return a simple success indicator
+    return { success: true };
   } catch (error) {
     if (error.name === 'AbortError') {
       throw new Error('Request timeout');
@@ -416,6 +431,143 @@ const api = {
     return makeRequest(`/users/${id}`, {
       method: 'DELETE'
     });
+  },
+
+  // Attachments
+  async uploadExpenseAttachment(expenseId, file) {
+    const formData = new FormData();
+    formData.append('attachment', file);
+    
+    // For FormData, we need to handle the request differently
+    const config = await getApiConfig();
+    const token = getAuthToken();
+    const url = `${config.baseUrl}/attachments/expenses/${expenseId}/upload`;
+    
+    const headers = {};
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+    // Don't set Content-Type - let browser set it for FormData with boundary
+    
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: headers,
+        body: formData
+      });
+      
+      if (!response.ok) {
+        let errorData = {};
+        try {
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            errorData = await response.json();
+          } else {
+            const textResponse = await response.text();
+            errorData = { message: textResponse || `HTTP ${response.status}: ${response.statusText}` };
+          }
+        } catch (parseError) {
+          errorData = { message: `HTTP ${response.status}: ${response.statusText}` };
+        }
+        throw new Error(errorData.message || 'Upload failed');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      if (error.message.includes('401') || error.message.includes('403')) {
+        removeAuthToken();
+        showWarning('Your session has expired. Please login again.');
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000);
+        return;
+      }
+      throw error;
+    }
+  },
+
+  async getExpenseAttachments(expenseId) {
+    const response = await makeRequest(`/attachments/expenses/${expenseId}/attachments`);
+    return response.data;
+  },
+
+  async deleteExpenseAttachment(attachmentId) {
+    return makeRequest(`/attachments/expenses/attachments/${attachmentId}`, {
+      method: 'DELETE'
+    });
+  },
+
+  async uploadMaintenanceAttachment(maintenanceId, file) {
+    const formData = new FormData();
+    formData.append('attachment', file);
+    
+    // For FormData, we need to handle the request differently
+    const config = await getApiConfig();
+    const token = getAuthToken();
+    const url = `${config.baseUrl}/attachments/maintenance/${maintenanceId}/upload`;
+    
+    const headers = {};
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+    // Don't set Content-Type - let browser set it for FormData with boundary
+    
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: headers,
+        body: formData
+      });
+      
+      if (!response.ok) {
+        let errorData = {};
+        try {
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            errorData = await response.json();
+          } else {
+            const textResponse = await response.text();
+            errorData = { message: textResponse || `HTTP ${response.status}: ${response.statusText}` };
+          }
+        } catch (parseError) {
+          errorData = { message: `HTTP ${response.status}: ${response.statusText}` };
+        }
+        throw new Error(errorData.message || 'Upload failed');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      if (error.message.includes('401') || error.message.includes('403')) {
+        removeAuthToken();
+        showWarning('Your session has expired. Please login again.');
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000);
+        return;
+      }
+      throw error;
+    }
+  },
+
+  async getMaintenanceAttachments(maintenanceId) {
+    const response = await makeRequest(`/attachments/maintenance/${maintenanceId}/attachments`);
+    return response.data;
+  },
+
+  async deleteMaintenanceAttachment(attachmentId) {
+    return makeRequest(`/attachments/maintenance/attachments/${attachmentId}`, {
+      method: 'DELETE'
+    });
+  },
+
+  async getRecordsWithAttachments(type) {
+    const response = await makeRequest(`/attachments/indicators/${type}`);
+    return response.data;
+  },
+
+  async downloadAttachment(type, recordId, attachmentId) {
+    const response = await makeRequest(`/attachments/download/${type}/${recordId}/${attachmentId}`);
+    return response.data;
   }
 };
 

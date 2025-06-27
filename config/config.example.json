@@ -3,7 +3,7 @@
     "port": 3030,
     "environment": "development",
     "jwtSecret": "@avkcoffeeshop",
-    "jwtExpiration": "1h"
+    "jwtExpiration": "6h"
   },
   "database": {
     "host": "localhost",
@@ -11,7 +11,18 @@
     "user": "root",
     "password": "rootpass",
     "database": "carfin",
-    "connectionLimit": 10
+    "connectionLimit": 2
+  },
+    "storage": {
+    "provider": "digitalocean",
+    "endpoint": "https://nyc3.digitaloceanspaces.com",
+    "bucket": "",
+    "accessKeyId": "",
+    "secretAccessKey": "",
+    "region": "nyc3",
+    "cdnEndpoint": "",
+    "maxFileSize": 8388608,
+    "allowedFileTypes": ["image/jpeg", "image/png", "image/webp", "application/pdf"]
   },
   "logging": {
     "level": "info",
