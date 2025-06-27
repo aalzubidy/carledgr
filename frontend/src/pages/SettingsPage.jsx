@@ -523,26 +523,44 @@ function SettingsPage() {
                 </span>
               </td>
               <td>
-                <button 
-                  className="btn btn-sm btn-secondary"
-                  onClick={() => handleEditCategory(category)}
-                  style={{ marginRight: '8px' }}
-                >
-                  {t('common.edit')}
-                </button>
-                <button 
-                  className="btn btn-sm btn-info"
-                  onClick={() => handleMoveTransactions(category)}
-                  style={{ marginRight: '8px' }}
-                >
-                  {t('settings.moveTransactions')}
-                </button>
-                <button 
-                  className="btn btn-sm btn-danger"
-                  onClick={() => handleDeleteCategory(category)}
-                >
-                  {t('common.delete')}
-                </button>
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                  <button 
+                    onClick={() => handleEditCategory(category)}
+                    title={t('common.edit')}
+                    style={{ 
+                      background: 'none', 
+                      border: 'none', 
+                      fontSize: '18px', 
+                      cursor: 'pointer',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      transition: 'background-color 0.2s',
+                      color: '#6c757d'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  >
+                    ✏️
+                  </button>
+                  <button 
+                    onClick={() => handleDeleteCategory(category)}
+                    title={t('common.delete')}
+                    style={{ 
+                      background: 'none', 
+                      border: 'none', 
+                      fontSize: '18px', 
+                      cursor: 'pointer',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      transition: 'background-color 0.2s',
+                      color: '#dc3545'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#f8d7da'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  >
+                    🗑️
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
@@ -587,6 +605,28 @@ function SettingsPage() {
                   placeholder="Enter category name"
                 />
               </div>
+              
+              {isEdit && editingCategory && editingCategory.expense_count > 0 && (
+                <div className="form-group" style={{ marginTop: '20px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #dee2e6' }}>
+                  <h4 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#495057' }}>
+                    📊 Expense Management
+                  </h4>
+                  <p style={{ margin: '0 0 15px 0', fontSize: '14px', color: '#6c757d' }}>
+                    {t('settings.categoryHasExpenses')}: <strong>{editingCategory.expense_count}</strong> {editingCategory.expense_count === 1 ? t('expenses.expense') : t('expenses.expenses')}
+                  </p>
+                  <button 
+                    type="button"
+                    className="btn btn-info btn-sm"
+                    onClick={() => {
+                      setShowEditModal(false)
+                      handleMoveTransactions(editingCategory)
+                    }}
+                    style={{ fontSize: '14px' }}
+                  >
+                    📤 {t('settings.moveTransactions')}
+                  </button>
+                </div>
+              )}
             </form>
           </div>
           <div className="modal-footer">
@@ -801,19 +841,48 @@ function SettingsPage() {
               </td>
               <td>{new Date(user.createdAt).toLocaleDateString()}</td>
               <td>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                   <button 
-                    className="btn btn-sm btn-secondary"
                     onClick={() => handleEditUser(user)}
+                    title={t('common.edit')}
+                    style={{ 
+                      background: 'none', 
+                      border: 'none', 
+                      fontSize: '18px', 
+                      cursor: 'pointer',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      transition: 'background-color 0.2s',
+                      color: '#6c757d'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                   >
-                    {t('common.edit')}
+                    ✏️
                   </button>
                   <button 
-                    className="btn btn-sm btn-danger"
                     onClick={() => handleDeleteUser(user)}
                     disabled={user.id === currentUser?.id}
+                    title={t('common.delete')}
+                    style={{ 
+                      background: 'none', 
+                      border: 'none', 
+                      fontSize: '18px', 
+                      cursor: 'pointer',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      transition: 'background-color 0.2s',
+                      color: user.id === currentUser?.id ? '#adb5bd' : '#dc3545',
+                      opacity: user.id === currentUser?.id ? 0.5 : 1
+                    }}
+                    onMouseEnter={(e) => {
+                      if (user.id !== currentUser?.id) {
+                        e.target.style.backgroundColor = '#f8d7da'
+                      }
+                    }}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                   >
-                    {t('common.delete')}
+                    🗑️
                   </button>
                 </div>
               </td>

@@ -293,29 +293,54 @@ function MaintenanceCategories() {
                 </span>
               </td>
               <td>
-                <div className="btn-group">
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                   <button
-                    className="btn btn-sm btn-secondary"
                     onClick={() => handleEditCategory(category)}
                     disabled={category.is_default}
-                    style={{ marginRight: '8px' }}
+                    title={category.is_default ? t('settings.readOnly') : t('common.edit')}
+                    style={{ 
+                      background: 'none', 
+                      border: 'none', 
+                      fontSize: '18px', 
+                      cursor: category.is_default ? 'not-allowed' : 'pointer',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      transition: 'background-color 0.2s',
+                      color: category.is_default ? '#adb5bd' : '#6c757d',
+                      opacity: category.is_default ? 0.5 : 1
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!category.is_default) {
+                        e.target.style.backgroundColor = '#f8f9fa'
+                      }
+                    }}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                   >
-                    {t('common.edit')}
+                    ✏️
                   </button>
                   <button
-                    className="btn btn-sm btn-info"
-                    onClick={() => handleMoveRecords(category)}
-                    disabled={category.maintenance_count === 0}
-                    style={{ marginRight: '8px' }}
-                  >
-                    {t('settings.moveRecords')}
-                  </button>
-                  <button
-                    className="btn btn-sm btn-danger"
                     onClick={() => handleDeleteCategory(category)}
                     disabled={category.is_default}
+                    title={category.is_default ? t('settings.readOnly') : t('common.delete')}
+                    style={{ 
+                      background: 'none', 
+                      border: 'none', 
+                      fontSize: '18px', 
+                      cursor: category.is_default ? 'not-allowed' : 'pointer',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      transition: 'background-color 0.2s',
+                      color: category.is_default ? '#adb5bd' : '#dc3545',
+                      opacity: category.is_default ? 0.5 : 1
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!category.is_default) {
+                        e.target.style.backgroundColor = '#f8d7da'
+                      }
+                    }}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                   >
-                    {t('common.delete')}
+                    🗑️
                   </button>
                 </div>
               </td>
@@ -336,6 +361,8 @@ function MaintenanceCategories() {
 
   const renderEditModal = () => {
     if (!showEditModal) return null
+    
+    const isEdit = editingCategory !== null
 
     return (
       <div className="modal-overlay">
@@ -358,6 +385,28 @@ function MaintenanceCategories() {
                 required
               />
             </div>
+            
+            {isEdit && editingCategory && editingCategory.maintenance_count > 0 && (
+              <div className="form-group" style={{ marginTop: '20px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #dee2e6' }}>
+                <h4 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#495057' }}>
+                  🔧 Maintenance Records Management
+                </h4>
+                <p style={{ margin: '0 0 15px 0', fontSize: '14px', color: '#6c757d' }}>
+                  {t('settings.categoryHasMaintenance')}: <strong>{editingCategory.maintenance_count}</strong> {editingCategory.maintenance_count === 1 ? t('maintenance.record') : t('maintenance.records')}
+                </p>
+                <button 
+                  type="button"
+                  className="btn btn-info btn-sm"
+                  onClick={() => {
+                    setShowEditModal(false)
+                    handleMoveRecords(editingCategory)
+                  }}
+                  style={{ fontSize: '14px' }}
+                >
+                  📤 {t('settings.moveRecords')}
+                </button>
+              </div>
+            )}
           </div>
           <div className="modal-footer">
             <button className="btn btn-secondary" onClick={() => setShowEditModal(false)}>

@@ -319,35 +319,71 @@ function MaintenancePage() {
                 <td>${formatNumber(record.cost)}</td>
                 <td>{record.vendor || '-'}</td>
                 <td>
-                  <button 
-                    className="btn btn-sm btn-primary" 
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleViewCar(record.car_id)
-                    }}
-                  >
-                    {t('cars.carDetails')}
-                  </button>
-                  <button 
-                    className="btn btn-sm btn-secondary" 
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleEditMaintenance(record)
-                    }}
-                    style={{ marginLeft: '5px' }}
-                  >
-                    {t('common.edit')}
-                  </button>
-                  <button 
-                    className="btn btn-sm btn-danger" 
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleDeleteMaintenance(record.id)
-                    }}
-                    style={{ marginLeft: '5px' }}
-                  >
-                    {t('common.delete')}
-                  </button>
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleViewCar(record.car_id)
+                      }}
+                      title={t('cars.carDetails')}
+                      style={{ 
+                        background: 'none', 
+                        border: 'none', 
+                        fontSize: '18px', 
+                        cursor: 'pointer',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        transition: 'background-color 0.2s',
+                        color: '#0d6efd'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = '#e7f1ff'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    >
+                      👁️
+                    </button>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleEditMaintenance(record)
+                      }}
+                      title={t('common.edit')}
+                      style={{ 
+                        background: 'none', 
+                        border: 'none', 
+                        fontSize: '18px', 
+                        cursor: 'pointer',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        transition: 'background-color 0.2s',
+                        color: '#6c757d'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    >
+                      ✏️
+                    </button>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleDeleteMaintenance(record.id)
+                      }}
+                      title={t('common.delete')}
+                      style={{ 
+                        background: 'none', 
+                        border: 'none', 
+                        fontSize: '18px', 
+                        cursor: 'pointer',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        transition: 'background-color 0.2s',
+                        color: '#dc3545'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = '#f8d7da'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    >
+                      🗑️
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

@@ -6,6 +6,9 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+# Configs
+config/config.json
+
 # Dependency directories
 node_modules/
 jspm_packages/
