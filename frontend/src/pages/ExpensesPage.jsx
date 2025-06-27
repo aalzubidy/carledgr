@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Layout, { Loading, EmptyState } from '../components/Layout.jsx'
+import FileUpload from '../components/FileUpload.jsx'
+import AttachmentList from '../components/AttachmentList.jsx'
 import { t } from '../utils/i18n.js'
 import { api } from '../utils/api.js'
 import { showSuccess, showError } from '../utils/snackbar.js'
@@ -49,6 +51,12 @@ function ExpensesPage() {
     categories_breakdown: [],
     monthly_breakdown: []
   })
+  
+  // Attachment-related state
+  const [attachments, setAttachments] = useState([])
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [uploadingFile, setUploadingFile] = useState(false)
+  const [recordsWithAttachments, setRecordsWithAttachments] = useState({})
 
   useEffect(() => {
     loadData()
@@ -81,7 +89,8 @@ function ExpensesPage() {
       await Promise.all([
         loadCategories(),
         loadExpenses(),
-        loadSummary()
+        loadSummary(),
+        loadAttachmentIndicators()
       ])
     } catch (error) {
       console.error('Error loading data:', error)
@@ -120,6 +129,88 @@ function ExpensesPage() {
       setSummary(response)
     } catch (error) {
       console.error('Error loading summary:', error)
+    }
+  }
+
+  const loadAttachmentIndicators = async () => {
+    try {
+      const response = await api.getRecordsWithAttachments('expense')
+      setRecordsWithAttachments(response)
+    } catch (error) {
+      console.error('Error loading attachment indicators:', error)
+      // Don't show error for this as it's not critical
+    }
+  }
+
+  const loadAttachments = async (expenseId) => {
+    try {
+      const response = await api.getExpenseAttachments(expenseId)
+      setAttachments(response)
+    } catch (error) {
+      console.error('Error loading attachments:', error)
+      showError('Failed to load attachments')
+    }
+  }
+
+  const handleFileSelect = (file) => {
+    setSelectedFile(file)
+  }
+
+  const handleFileUpload = async (expenseId) => {
+    if (!selectedFile) return
+
+    setUploadingFile(true)
+    try {
+      await api.uploadExpenseAttachment(expenseId, selectedFile)
+      setSelectedFile(null)
+      await loadAttachments(expenseId)
+      await loadAttachmentIndicators()
+      showSuccess('File uploaded successfully')
+    } catch (error) {
+      console.error('Error uploading file:', error)
+      // Check if it's a storage unavailable error
+      if (error.message && error.message.includes('temporarily unavailable')) {
+        showError(error.message)
+      } else {
+        showError('Failed to upload file: ' + (error.message || 'Unknown error'))
+      }
+    } finally {
+      setUploadingFile(false)
+    }
+  }
+
+  const handleAttachmentDelete = async (attachmentId) => {
+    // This function is called by AttachmentList after successful API deletion
+    // Only handle UI state updates here
+    setAttachments(attachments.filter(att => att.id !== attachmentId))
+    await loadAttachmentIndicators()
+    showSuccess('Attachment deleted successfully')
+  }
+
+  const handleDownloadAttachment = async (expenseId) => {
+    try {
+      // Load attachments for this expense
+      const expenseAttachments = await api.getExpenseAttachments(expenseId)
+      
+      if (expenseAttachments.length === 0) {
+        showWarning('No attachments found for this expense')
+        return
+      }
+      
+      // If only one attachment, download it directly
+      if (expenseAttachments.length === 1) {
+        const attachment = expenseAttachments[0]
+        const downloadData = await api.downloadAttachment('expense', expenseId, attachment.id)
+        window.open(downloadData.downloadUrl, '_blank')
+      } else {
+        // If multiple attachments, show a selection
+        const attachment = expenseAttachments[0] // For now, download the first one
+        const downloadData = await api.downloadAttachment('expense', expenseId, attachment.id)
+        window.open(downloadData.downloadUrl, '_blank')
+      }
+    } catch (error) {
+      console.error('Error downloading attachment:', error)
+      showError('Failed to download attachment: ' + (error.message || 'Unknown error'))
     }
   }
 
@@ -183,7 +274,7 @@ function ExpensesPage() {
     setShowEditModal(true)
   }
 
-  const handleEditExpense = (expense) => {
+  const handleEditExpense = async (expense) => {
     setEditingExpense(expense)
     setFormData({
       category_id: expense.category_id ? expense.category_id.toString() : '',
@@ -191,6 +282,8 @@ function ExpensesPage() {
       description: expense.description || '',
       expense_date: expense.expense_date.split('T')[0]
     })
+    setSelectedFile(null)
+    await loadAttachments(expense.id)
     setShowEditModal(true)
   }
 
@@ -240,17 +333,32 @@ function ExpensesPage() {
         amount: parseFloat(formData.amount)
       }
 
+      let savedExpenseId
       if (editingExpense) {
         await api.updateExpense(editingExpense.id, submitData)
+        savedExpenseId = editingExpense.id
         showSuccess(t('messages.expenseUpdated'))
       } else {
-        await api.createExpense(submitData)
+        const response = await api.createExpense(submitData)
+        savedExpenseId = response.id
         showSuccess(t('messages.expenseAdded'))
       }
 
+      // Upload file if one is selected
+      if (selectedFile && savedExpenseId) {
+        try {
+          await handleFileUpload(savedExpenseId)
+        } catch (uploadError) {
+          // Don't fail the whole operation if file upload fails
+          console.error('File upload failed:', uploadError)
+        }
+      }
+
       setShowEditModal(false)
+      setSelectedFile(null)
       loadExpenses()
       loadSummary()
+      loadAttachmentIndicators()
     } catch (error) {
       console.error('Error saving expense:', error)
       showError(t('messages.errorOccurred'))
@@ -397,6 +505,7 @@ function ExpensesPage() {
             <th className="sortable" onClick={() => handleSort('amount')}>
               {t('expenses.amount')} {getSortIcon('amount')}
             </th>
+            <th style={{ width: '50px', textAlign: 'center' }} title="Attachments">📎</th>
             <th>{t('common.actions')}</th>
           </tr>
         </thead>
@@ -407,6 +516,28 @@ function ExpensesPage() {
               <td>{expense.category_name}</td>
               <td>{expense.description || '-'}</td>
               <td className="amount">{formatCurrency(expense.amount)}</td>
+              <td style={{ textAlign: 'center' }}>
+                {recordsWithAttachments[expense.id] && (
+                  <button
+                    onClick={() => handleDownloadAttachment(expense.id)}
+                    title={`Download attachment(s) (${recordsWithAttachments[expense.id]} file(s))`}
+                    style={{ 
+                      background: 'none', 
+                      border: 'none', 
+                      fontSize: '16px', 
+                      cursor: 'pointer',
+                      padding: '4px',
+                      borderRadius: '4px',
+                      transition: 'background-color 0.2s',
+                      color: '#007bff'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#e3f2fd'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  >
+                    📎
+                  </button>
+                )}
+              </td>
               <td>
                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                   <button
@@ -452,7 +583,7 @@ function ExpensesPage() {
         </tbody>
         <tfoot>
           <tr>
-            <td colSpan="5" style={{ textAlign: 'center', fontWeight: 'bold', padding: '12px', backgroundColor: '#f8f9fa', borderTop: '2px solid #dee2e6' }}>
+            <td colSpan="6" style={{ textAlign: 'center', fontWeight: 'bold', padding: '12px', backgroundColor: '#f8f9fa', borderTop: '2px solid #dee2e6' }}>
               {t('common.total')}: {filteredExpenses.length} {filteredExpenses.length === 1 ? t('expenses.expense') : t('expenses.expenses')} | {t('expenses.totalExpenses')}: {formatCurrency(filteredExpenses.reduce((sum, expense) => sum + parseFloat(expense.amount), 0))}
             </td>
           </tr>
@@ -566,15 +697,92 @@ function ExpensesPage() {
                   }}
                 />
               </div>
+
+              {/* Attachments Section */}
+              {isEdit && (
+                <div className="form-group">
+                  <label>Attachments</label>
+                  <AttachmentList 
+                    attachments={attachments}
+                    onDelete={handleAttachmentDelete}
+                  />
+                </div>
+              )}
+
+              <div className="form-group">
+                <label>Upload Receipt/Document</label>
+                {/* Only show upload if no attachment exists or we're adding new expense */}
+                {(!isEdit || attachments.length === 0) && (
+                  <FileUpload 
+                    onFileSelect={handleFileSelect}
+                    disabled={uploadingFile}
+                  />
+                )}
+                
+                {isEdit && attachments.length > 0 && (
+                  <div style={{ 
+                    padding: '12px', 
+                    backgroundColor: '#f8f9fa', 
+                    borderRadius: '4px', 
+                    fontSize: '14px', 
+                    color: '#6c757d',
+                    textAlign: 'center'
+                  }}>
+                    Maximum one attachment per expense. Delete the existing attachment to add a new one.
+                  </div>
+                )}
+                {selectedFile && (
+                  <div style={{ 
+                    marginTop: '10px', 
+                    padding: '10px', 
+                    backgroundColor: '#f8f9fa', 
+                    borderRadius: '4px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <span style={{ fontSize: '14px' }}>
+                      Selected: {selectedFile.name} ({Math.round(selectedFile.size / 1024)}KB)
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedFile(null)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#dc3545',
+                        cursor: 'pointer',
+                        fontSize: '16px'
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+              </div>
             </form>
           </div>
           <div className="modal-footer">
             <button className="btn btn-secondary" onClick={() => setShowEditModal(false)}>
               {t('common.cancel')}
             </button>
-            <button className="btn btn-primary" onClick={handleSaveExpense}>
-              {t('common.save')}
+            <button 
+              className="btn btn-primary" 
+              onClick={handleSaveExpense}
+              disabled={uploadingFile}
+            >
+              {uploadingFile ? 'Uploading...' : t('common.save')}
             </button>
+            {selectedFile && isEdit && (
+              <button 
+                className="btn btn-info" 
+                onClick={() => handleFileUpload(editingExpense.id)}
+                disabled={uploadingFile}
+                style={{ marginLeft: '8px' }}
+              >
+                {uploadingFile ? 'Uploading...' : 'Upload File'}
+              </button>
+            )}
           </div>
         </div>
       </div>

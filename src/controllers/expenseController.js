@@ -223,6 +223,26 @@ const deleteExpense = async (req, res) => {
     const organizationId = req.user.organization_id;
     const { id } = req.params;
 
+    // Clean up attachments first
+    try {
+      const attachmentQueries = require('../db/queries/attachmentQueries');
+      const storageService = require('../utils/storageService');
+      
+      const storageKeys = await attachmentQueries.deleteExpenseAttachmentsByExpenseId(id);
+      
+      // Delete files from storage (don't fail if storage deletion fails)
+      for (const storageKey of storageKeys) {
+        try {
+          await storageService.deleteFile(storageKey);
+        } catch (storageError) {
+          logger.error(`Storage deletion failed for ${storageKey}: ${storageError.message}`);
+        }
+      }
+    } catch (attachmentError) {
+      logger.error(`Attachment cleanup failed for expense ${id}: ${attachmentError.message}`);
+      // Continue with expense deletion even if attachment cleanup fails
+    }
+
     const deleted = await expenseQueries.deleteExpense(id, organizationId);
 
     if (!deleted) {
