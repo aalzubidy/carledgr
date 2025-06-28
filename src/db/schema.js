@@ -2,6 +2,7 @@ const { pool } = require('./connection');
 const logger = require('../utils/logger');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
+const { migrateLicensing } = require('./migrations/add-licensing');
 
 // SQL statements to create the database schema
 const createTableStatements = [
@@ -237,6 +238,10 @@ async function initializeSchema() {
 
     await connection.commit();
     logger.info('Database schema initialized successfully');
+    
+    // Run licensing migration
+    logger.info('Running licensing migration...');
+    await migrateLicensing();
     
   } catch (error) {
     await connection.rollback();

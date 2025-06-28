@@ -13,6 +13,24 @@
     "database": "carfin",
     "connectionLimit": 2
   },
+  "stripe": {
+    "secretKey": "",
+    "webhookSecret": "",
+    "starterPriceId": "",
+    "professionalPriceId": "", 
+    "businessPriceId": "",
+    "enterprisePriceId": ""
+  },
+  "email": {
+    "provider": "smtp",
+    "host": "",
+    "port": 465,
+    "secure": true,
+    "user": "",
+    "password": "",
+    "fromEmail": "",
+    "fromName": "CarLedgr Dev Team"
+  },
     "storage": {
     "provider": "digitalocean",
     "endpoint": "https://nyc3.digitaloceanspaces.com",
