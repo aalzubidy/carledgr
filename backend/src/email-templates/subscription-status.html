@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{SUBJECT}}</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; background-color: #f4f4f4; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .header { text-align: center; margin-bottom: 30px; }
+        .logo { font-size: 28px; font-weight: bold; color: #2c3e50; margin-bottom: 10px; }
+        .footer { text-align: center; margin-top: 30px; color: #6c757d; font-size: 14px; }
+        .reason { background: #fff3cd; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🚗 {{APP_NAME}}</div>
+            <h2>{{SUBJECT}}</h2>
+        </div>
+
+        <p>Hello {{ORGANIZATION_NAME}},</p>
+        
+        <p>{{MESSAGE}}</p>
+
+        {{#if REASON}}
+        <div class="reason">
+            <p><strong>Reason:</strong> {{REASON}}</p>
+        </div>
+        {{/if}}
+
+        <p>If you have any questions, please contact our support team at {{SUPPORT_EMAIL}}.</p>
+
+        <div class="footer">
+            <p>Best regards,<br>The {{APP_NAME}} Team</p>
+        </div>
+    </div>
+</body>
+</html> 
