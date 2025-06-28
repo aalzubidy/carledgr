@@ -21,6 +21,24 @@ const config = {
     database: process.env.DB_NAME || configJson.database.database,
     connectionLimit: process.env.DB_CONNECTION_LIMIT || configJson.database.connectionLimit
   },
+  stripe: {
+    secretKey: process.env.STRIPE_SECRET_KEY || configJson.stripe?.secretKey,
+    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || configJson.stripe?.webhookSecret,
+    starterPriceId: process.env.STRIPE_STARTER_PRICE_ID || configJson.stripe?.starterPriceId,
+    professionalPriceId: process.env.STRIPE_PROFESSIONAL_PRICE_ID || configJson.stripe?.professionalPriceId,
+    businessPriceId: process.env.STRIPE_BUSINESS_PRICE_ID || configJson.stripe?.businessPriceId,
+    enterprisePriceId: process.env.STRIPE_ENTERPRISE_PRICE_ID || configJson.stripe?.enterprisePriceId
+  },
+  email: {
+    provider: process.env.EMAIL_PROVIDER || configJson.email?.provider || 'smtp',
+    host: process.env.EMAIL_HOST || configJson.email?.host,
+    port: process.env.EMAIL_PORT || configJson.email?.port || 587,
+    secure: process.env.EMAIL_SECURE === 'true' || configJson.email?.secure || false,
+    user: process.env.EMAIL_USER || configJson.email?.user,
+    password: process.env.EMAIL_PASSWORD || configJson.email?.password,
+    fromEmail: process.env.EMAIL_FROM || configJson.email?.fromEmail,
+    fromName: process.env.EMAIL_FROM_NAME || configJson.email?.fromName
+  },
   storage: {
     provider: process.env.STORAGE_PROVIDER || configJson.storage?.provider || 'digitalocean',
     endpoint: process.env.STORAGE_ENDPOINT || configJson.storage?.endpoint,
