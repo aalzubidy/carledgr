@@ -34,7 +34,7 @@ async function loadConfig() {
         timeout: 10000
       },
       app: {
-        name: import.meta.env.VITE_APP_NAME || 'CarFin',
+        name: import.meta.env.VITE_APP_NAME || 'CarLedgr',
         version: '1.0.0',
         defaultLanguage: import.meta.env.VITE_DEFAULT_LANGUAGE || 'en',
         supportedLanguages: ['en', 'ar']

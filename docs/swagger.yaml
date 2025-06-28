@@ -1,10 +1,10 @@
 openapi: 3.0.0
 info:
-  title: CarFin API
+  title: CarLedgr API
   description: Car Finance Management System API
   version: 1.0.0
   contact:
-    name: CarFin API Support
+    name: CarLedgr API Support
 servers:
   - url: http://localhost:3000/api
     description: Development server

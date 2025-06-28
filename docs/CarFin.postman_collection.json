@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "CarFin API",
-    "description": "API collection for CarFin backend - Car dealership management system",
+    "name": "CarLedgr API",
+    "description": "API collection for CarLedgr backend - Car dealership management system",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -30,7 +30,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"organization\": \"Admin Organization\",\n    \"email\": \"admin@carfin.com\",\n    \"password\": \"admin123\"\n}",
+              "raw": "{\n    \"organization\": \"Admin Organization\",\n    \"email\": \"admin@carledgr.com\",\n    \"password\": \"admin123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

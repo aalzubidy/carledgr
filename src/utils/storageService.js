@@ -100,7 +100,7 @@ class StorageService {
         ACL: 'private', // Keep files private
         Metadata: {
           'original-name': file.originalname,
-          'uploaded-by': 'carfin-app',
+          'uploaded-by': 'carledgr-app',
           'record-type': recordType,
           'record-id': recordId
         }

@@ -1,10 +1,10 @@
-# CarFin Stripe Integration
+# CarLedgr Stripe Integration
 
-This document outlines the complete Stripe integration for CarFin's subscription-based licensing system.
+This document outlines the complete Stripe integration for CarLedgr's subscription-based licensing system.
 
 ## Overview
 
-CarFin uses Stripe to handle monthly subscriptions for salvage car dealerships. The system automatically:
+CarLedgr uses Stripe to handle monthly subscriptions for salvage car dealerships. The system automatically:
 - Creates organizations and user accounts when subscriptions are purchased
 - Manages license limits based on subscription tiers
 - Handles subscription status changes and payment failures
@@ -134,20 +134,20 @@ Handles Stripe webhook events. Must include valid Stripe signature.
 
 ```bash
 # Stripe Configuration
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
+CL_BACKEND_STRIPE_SECRET_KEY=sk_test_...
+CL_BACKEND_STRIPE_WEBHOOK_SECRET=whsec_...
 
 # Email Configuration
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_SECURE=false
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASSWORD=your-app-password
-EMAIL_FROM_NAME=CarFin Team
-EMAIL_FROM_EMAIL=noreply@carfin.com
+CL_BACKEND_EMAIL_HOST=smtp.gmail.com
+CL_BACKEND_EMAIL_PORT=587
+CL_BACKEND_EMAIL_SECURE=false
+CL_BACKEND_EMAIL_USER=your-email@gmail.com
+CL_BACKEND_EMAIL_PASSWORD=your-app-password
+CL_BACKEND_EMAIL_FROM_NAME=CarLedgr Team
+CL_BACKEND_EMAIL_FROM=noreply@carfin.com
 
 # Frontend URL (for email links)
-FRONTEND_URL=https://app.carfin.com
+CL_BACKEND_FRONTEND_URL=https://app.carfin.com
 ```
 
 ### Config File (`config/config.json`)
@@ -170,7 +170,7 @@ FRONTEND_URL=https://app.carfin.com
     "secure": false,
     "user": "your-email@gmail.com",
     "password": "your-app-password",
-    "fromName": "CarFin Team",
+    "fromName": "CarLedgr Team",
     "fromEmail": "noreply@carfin.com"
   }
 }
@@ -335,11 +335,11 @@ JOIN organization_licenses ol ON o.id = ol.organization_id;
 ### Environment Setup
 ```bash
 # Production environment variables
-STRIPE_SECRET_KEY=sk_live_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-EMAIL_HOST=your-production-smtp.com
-FRONTEND_URL=https://app.carfin.com
-NODE_ENV=production
+CL_BACKEND_STRIPE_SECRET_KEY=sk_live_...
+CL_BACKEND_STRIPE_WEBHOOK_SECRET=whsec_...
+CL_BACKEND_EMAIL_HOST=your-production-smtp.com
+CL_BACKEND_FRONTEND_URL=https://app.carfin.com
+CL_BACKEND_NODE_ENV=production
 ```
 
 ## Support

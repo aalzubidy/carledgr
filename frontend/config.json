@@ -4,10 +4,10 @@
     "timeout": 10000
   },
   "app": {
-    "name": "CarFin",
+    "name": "CarLedgr",
     "version": "1.0.0",
     "defaultLanguage": "en",
-    "supportedLanguages": ["en", "ar"]
+    "supportedLanguages": ["en", "ar", "es"]
   },
   "ui": {
     "itemsPerPage": 10,
