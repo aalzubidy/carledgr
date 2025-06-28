@@ -159,48 +159,26 @@ async function initializeSchema() {
       logger.info('Default user roles created');
     }
 
-    // Check if default admin organization exists
-    const [organizations] = await connection.execute('SELECT * FROM organizations LIMIT 1');
-    
-    if (organizations.length === 0) {
-      // Create default admin organization
-      const adminOrgId = uuidv4();
-      await connection.execute(
-        'INSERT INTO organizations (id, name, email) VALUES (?, ?, ?)',
-        [adminOrgId, 'Admin Organization', 'admin@carfin.com']
-      );
+    // Migration: Update existing users to use role_id instead of role (if needed)
+    try {
+      // Check if role_id column exists
+      const [columns] = await connection.execute('DESCRIBE users');
+      const hasRoleId = columns.some(col => col.Field === 'role_id');
+      const hasOldRole = columns.some(col => col.Field === 'role');
       
-      // Create default admin user with owner role
-      const adminId = uuidv4();
-      const hashedPassword = await bcrypt.hash('admin123', 10);
-      await connection.execute(
-        'INSERT INTO users (id, organization_id, email, password, first_name, last_name, role_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [adminId, adminOrgId, 'admin@carfin.com', hashedPassword, 'Admin', 'User', 1]
-      );
-      
-      logger.info('Default admin organization and user created');
-    } else {
-      // Migration: Update existing users to use role_id instead of role
-      try {
-        // Check if role_id column exists
-        const [columns] = await connection.execute('DESCRIBE users');
-        const hasRoleId = columns.some(col => col.Field === 'role_id');
-        const hasOldRole = columns.some(col => col.Field === 'role');
+      if (hasOldRole && hasRoleId) {
+        // Migrate existing users from role to role_id
+        await connection.execute('UPDATE users SET role_id = 1 WHERE role IN ("admin", "owner")');
+        await connection.execute('UPDATE users SET role_id = 2 WHERE role = "manager"');
+        await connection.execute('UPDATE users SET role_id = 3 WHERE role IN ("user", "operator")');
         
-        if (hasOldRole && hasRoleId) {
-          // Migrate existing users from role to role_id
-          await connection.execute('UPDATE users SET role_id = 1 WHERE role IN ("admin", "owner")');
-          await connection.execute('UPDATE users SET role_id = 2 WHERE role = "manager"');
-          await connection.execute('UPDATE users SET role_id = 3 WHERE role IN ("user", "operator")');
-          
-          // Drop the old role column
-          await connection.execute('ALTER TABLE users DROP COLUMN role');
-          
-          logger.info('Migrated users from role to role_id system');
-        }
-      } catch (migrationError) {
-        logger.error(`Migration error: ${migrationError.message}`);
+        // Drop the old role column
+        await connection.execute('ALTER TABLE users DROP COLUMN role');
+        
+        logger.info('Migrated users from role to role_id system');
       }
+    } catch (migrationError) {
+      logger.error(`Migration error: ${migrationError.message}`);
     }
 
     // Check if default maintenance categories exist

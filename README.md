@@ -1,4 +1,4 @@
-# CarFin Backend
+# CarLedgr Backend
 
 A NodeJS backend application for car dealerships to track inventory, maintenance, and financial information.
 
@@ -30,8 +30,8 @@ A NodeJS backend application for car dealerships to track inventory, maintenance
 
 1. Clone the repository
 ```
-git clone https://github.com/yourusername/carfin-backend.git
-cd carfin-backend
+git clone https://github.com/yourusername/carledgr-backend.git
+cd carledgr-backend
 ```
 
 2. Install dependencies
@@ -49,7 +49,7 @@ cp .env.example .env
 5. Create the MySQL database
 ```
 mysql -u root -p
-CREATE DATABASE carfin;
+CREATE DATABASE carledgr;
 exit
 ```
 

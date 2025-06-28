@@ -19,7 +19,7 @@ const logger = winston.createLogger({
     winston.format.splat(),
     winston.format.json()
   ),
-  defaultMeta: { service: 'carfin-backend' },
+  defaultMeta: { service: 'carledgr-backend' },
   transports: [
     new winston.transports.File({ filename: config.logging.file }),
     new winston.transports.Console({

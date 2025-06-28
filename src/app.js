@@ -17,6 +17,7 @@ const licenseRoutes = require('./routes/licenseRoutes');
 const licenseTierRoutes = require('./routes/licenseTierRoutes');
 const stripeRoutes = require('./routes/stripeRoutes');
 const subscriptionRoutes = require('./routes/subscriptionRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 // Create Express app
 const app = express();
@@ -50,6 +51,7 @@ app.use('/api/attachments', attachmentRoutes);
 app.use('/api/licenses', licenseRoutes);
 app.use('/api/license-tiers', licenseTierRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

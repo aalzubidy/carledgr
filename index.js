@@ -22,7 +22,7 @@ const startServer = async () => {
     // Start the server
     const PORT = config.app.port;
     app.listen(PORT, () => {
-      logger.info(`CarFin backend server running on port ${PORT}`);
+      logger.info(`CarLedgr backend server running on port ${PORT}`);
       logger.info(`Environment: ${config.app.environment}`);
     });
   } catch (error) {

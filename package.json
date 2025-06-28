@@ -1,13 +1,12 @@
 {
-  "name": "carfin-backend",
+  "name": "carledgr-backend",
   "version": "1.0.0",
   "description": "Backend for car dealership financial tracking",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "npm i && nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "restore-dev-db": "mysql -u root -p carfin < ./db-backup/carfin.sql"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "car",
