@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarLedgr - Smart Dealership Management Platform</title>
+    <meta name="description" content="Comprehensive dealership management system built specifically for vehicle repair and resale businesses. Track expenses, manage inventory, and maximize profitability with precision.">
+    <link rel="icon" type="image/png" href="img/cl-logo.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="img/cl-logo.png" alt="CarLedgr Logo" class="logo-img">
+                <h2>CarLedgr</h2>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="#features" class="nav-link" data-translate="nav_features">Features</a>
+                <a href="#advantages" class="nav-link" data-translate="nav_why_choose">Why Choose Us</a>
+                <a href="#pricing" class="nav-link" data-translate="nav_pricing">Pricing</a>
+                <a href="#contact" class="nav-link" data-translate="nav_contact">Contact</a>
+                <div class="language-switcher">
+                    <select id="language-select">
+                        <option value="en">English</option>
+                        <option value="es">Español</option>
+                    </select>
+                </div>
+                <a href="#" class="nav-demo-btn" data-translate="nav_demo">Try Our Live Demo</a>
+            </div>
+            <div class="nav-toggle" id="nav-toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title" data-translate="hero_title">Smart Dealership <span class="highlight">Management Platform</span></h1>
+                <p class="hero-description" data-translate="hero_description">
+                    Built specifically for dealerships specializing in vehicle repair and resale operations. 
+                    Track comprehensive expenses, monitor inventory status, and maximize profit margins with precision analytics.
+                </p>
+                <div class="hero-buttons">
+                    <a href="#" class="btn btn-primary" data-translate="hero_demo_btn">Try Our Live Demo</a>
+                    <a href="#features" class="btn btn-secondary" data-translate="hero_learn_btn">Learn More</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="hero-visual">
+                    <img src="img/cl-homepage.png" alt="CarLedgr Dashboard" class="homepage-screenshot">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2 data-translate="features_title">Comprehensive dealership management features</h2>
+                <p data-translate="features_subtitle">Purpose-built for vehicle repair and resale business operations</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 7H4C2.9 7 2 7.9 2 9V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V9C22 7.9 21.1 7 20 7Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M16 3H8V7H16V3Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 12V16" stroke="currentColor" stroke-width="2"/>
+                            <path d="M8 12H16" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3 data-translate="feature1_title">Complete Inventory Management</h3>
+                    <p data-translate="feature1_desc">Track vehicles through their entire lifecycle from acquisition to sale. Know exactly what's in stock, under repair, or sold with VIN-based search and auto-population.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 1V3" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 21V23" stroke="currentColor" stroke-width="2"/>
+                            <path d="M4.22 4.22L5.64 5.64" stroke="currentColor" stroke-width="2"/>
+                            <path d="M18.36 18.36L19.78 19.78" stroke="currentColor" stroke-width="2"/>
+                            <path d="M1 12H3" stroke="currentColor" stroke-width="2"/>
+                            <path d="M21 12H23" stroke="currentColor" stroke-width="2"/>
+                            <path d="M4.22 19.78L5.64 18.36" stroke="currentColor" stroke-width="2"/>
+                            <path d="M18.36 5.64L19.78 4.22" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3 data-translate="feature2_title">Detailed Repair Tracking</h3>
+                    <p data-translate="feature2_desc">Log every maintenance record - oil changes, brake replacements, body work. Each repair automatically adds to vehicle cost with receipt attachments and categorization.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 3V21H21" stroke="currentColor" stroke-width="2"/>
+                            <path d="M9 9L12 6L16 10L21 5" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3 data-translate="feature3_title">Three Powerful Report Types</h3>
+                    <p data-translate="feature3_desc">Generate Inventory reports, Maintenance reports, and Profit reports with flexible date range filters.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 21V19C16 17.9 15.1 17 14 17H5C3.9 17 3 17.9 3 19V21" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="8.5" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
+                            <path d="M20 8V6C20 5.4 19.6 5 19 5H17" stroke="currentColor" stroke-width="2"/>
+                            <path d="M22 12H20C19.4 12 19 11.6 19 11V9" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3 data-translate="feature4_title">Role-Based Access Control</h3>
+                    <p data-translate="feature4_desc">Three user roles: Owner, Manager, and Operator. Secure team collaboration with proper permissions.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 16V8C21 6.9 20.1 6 19 6H5C3.9 6 3 6.9 3 8V16C3 17.1 3.9 18 5 18H19C20.1 18 21 17.1 21 16Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M7 10L12 13L17 10" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3 data-translate="feature5_title">Smart Attachments & Backup</h3>
+                    <p data-translate="feature5_desc">Attach receipts, photos, and PDFs to every maintenance record and expense. All data automatically backed up and replicated - reduce the risk of losing your records.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/>
+                            <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/>
+                            <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3 data-translate="feature6_title">Multi-Language & User-Friendly</h3>
+                    <p data-translate="feature6_desc">Available in English, Spanish, and Arabic. Intuitive interface with VIN auto-population, smart search by vin/make/model/color, and exceptional user experience design.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Competitive Advantages Section -->
+    <section id="advantages" class="advantages">
+        <div class="container">
+            <div class="section-header">
+                <h2 data-translate="advantages_title">Why CarLedgr outperforms the competition</h2>
+                <p data-translate="advantages_subtitle">Focused solutions that deliver real value to your dealership operations</p>
+            </div>
+            <div class="advantages-grid">
+                <div class="advantage-card">
+                    <div class="advantage-icon">🎯</div>
+                    <h3 data-translate="adv1_title">Focused vs. Bloated Systems</h3>
+                    <p data-translate="adv1_desc">Unlike DealerCenter's overwhelming 200+ features, CarLedgr provides exactly what vehicle repair and resale dealerships need - expense tracking and profit analysis without complexity.</p>
+                </div>
+                <div class="advantage-card">
+                    <div class="advantage-icon">💰</div>
+                    <h3 data-translate="adv2_title">Transparent vs. Hidden Costs</h3>
+                    <p data-translate="adv2_desc">While CDK Drive and Reynolds requires expensive training, setup fees, and per-user licensing, CarLedgr offers straightforward pricing with everything included.</p>
+                </div>
+                <div class="advantage-card">
+                    <div class="advantage-icon">🚀</div>
+                    <h3 data-translate="adv3_title">Intuitive vs. Complex Interface</h3>
+                    <p data-translate="adv3_desc">While DealerSocket and Tekion overwhelm users with complex navigation, CarLedgr features VIN auto-population, smart search, and streamlined workflows that save hours daily.</p>
+                </div>
+                <div class="advantage-card">
+                    <div class="advantage-icon">🔧</div>
+                    <h3 data-translate="adv4_title">Quick Setup vs. Months of Implementation</h3>
+                    <p data-translate="adv4_desc">Forget 6-12 month implementations like CDK or Reynolds. CarLedgr gets you operational in days if not hours, not months, with minimal training required for your team.</p>
+                </div>
+                <div class="advantage-card">
+                    <div class="advantage-icon">⚡</div>
+                    <h3 data-translate="adv5_title">Modern Cloud vs. Legacy Infrastructure</h3>
+                    <p data-translate="adv5_desc">Built on modern cloud architecture unlike outdated systems from ADP and legacy providers. Enjoy faster performance, better reliability, and seamless updates.</p>
+                </div>
+                <div class="advantage-card">
+                    <div class="advantage-icon">🛡️</div>
+                    <h3 data-translate="adv6_title">Data Security & Auto-Backup</h3>
+                    <p data-translate="adv6_desc">Never worry about losing data again. Automatic replication and backups ensure your financial records are always safe and secure without manual intervention.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <div class="section-header">
+                <h2 data-translate="pricing_title">Simple, transparent pricing</h2>
+                <p data-translate="pricing_subtitle">Choose the plan that fits your dealership size and inventory</p>
+            </div>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3 data-translate="plan_starter">Starter</h3>
+                        <div class="price">
+                            <span class="currency">$</span>
+                            <span class="amount">79.99</span>
+                            <span class="period">/month</span>
+                        </div>
+                        <p data-translate="plan_starter_desc">Perfect for smaller operations</p>
+                    </div>
+                    <div class="pricing-features">
+                        <ul>
+                            <li data-translate="feature_vehicles_30">Up to 30 active vehicles</li>
+                            <li data-translate="feature_expense_tracking">Complete expense tracking</li>
+                            <li data-translate="feature_reports">Financial reports</li>
+                            <li data-translate="feature_documents">Document management</li>
+                            <li data-translate="feature_multilang">Multi-language support</li>
+                            <li data-translate="feature_email_support">Email support</li>
+                        </ul>
+                    </div>
+                    <a href="#" class="btn btn-outline" data-translate="plan_get_started">Get Started</a>
+                </div>
+                
+                <div class="pricing-card featured">
+                    <div class="pricing-badge" data-translate="plan_most_popular">Most Popular</div>
+                    <div class="pricing-header">
+                        <h3 data-translate="plan_professional">Professional</h3>
+                        <div class="price">
+                            <span class="currency">$</span>
+                            <span class="amount">119.99</span>
+                            <span class="period">/month</span>
+                        </div>
+                        <p data-translate="plan_professional_desc">Ideal for growing dealerships</p>
+                    </div>
+                    <div class="pricing-features">
+                        <ul>
+                            <li data-translate="feature_vehicles_75">Up to 75 active vehicles</li>
+                            <li data-translate="feature_expense_tracking">Complete expense tracking</li>
+                            <li data-translate="feature_reports">Financial reports</li>
+                            <li data-translate="feature_documents">Document management</li>
+                            <li data-translate="feature_multilang">Multi-language support</li>
+                            <li data-translate="feature_priority_support">Priority support</li>
+                        </ul>
+                    </div>
+                    <a href="#" class="btn btn-primary" data-translate="plan_get_started">Get Started</a>
+                </div>
+                
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3 data-translate="plan_business">Business</h3>
+                        <div class="price">
+                            <span class="currency">$</span>
+                            <span class="amount">179.99</span>
+                            <span class="period">/month</span>
+                        </div>
+                        <p data-translate="plan_business_desc">For larger operations</p>
+                    </div>
+                    <div class="pricing-features">
+                        <ul>
+                            <li data-translate="feature_vehicles_150">Up to 150 active vehicles</li>
+                            <li data-translate="feature_expense_tracking">Complete expense tracking</li>
+                            <li data-translate="feature_reports">Financial reports</li>
+                            <li data-translate="feature_documents">Document management</li>
+                            <li data-translate="feature_multilang">Multi-language support</li>
+                            <li data-translate="feature_priority_support">Priority support</li>
+                        </ul>
+                    </div>
+                    <a href="#" class="btn btn-outline" data-translate="plan_get_started">Get Started</a>
+                </div>
+                
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3 data-translate="plan_enterprise">Enterprise</h3>
+                        <div class="price">
+                            <span class="currency">$</span>
+                            <span class="amount">249.99</span>
+                            <span class="period">/month</span>
+                        </div>
+                        <p data-translate="plan_enterprise_desc">For enterprise operations</p>
+                    </div>
+                    <div class="pricing-features">
+                        <ul>
+                            <li data-translate="feature_vehicles_unlimited">Unlimited active vehicles</li>
+                            <li data-translate="feature_expense_tracking">Complete expense tracking</li>
+                            <li data-translate="feature_reports">Financial reports</li>
+                            <li data-translate="feature_documents">Document management</li>
+                            <li data-translate="feature_multilang">Multi-language support</li>
+                            <li data-translate="feature_dedicated_support">Dedicated support</li>
+                        </ul>
+                    </div>
+                    <a href="#" class="btn btn-outline" data-translate="plan_get_started">Get Started</a>
+                </div>
+            </div>
+            
+            <div class="addons-section">
+                <div class="section-header">
+                    <h3 data-translate="addons_title">Available Add-ons</h3>
+                    <p data-translate="addons_subtitle">Contact sales for pricing on these premium features</p>
+                </div>
+                <div class="addons-grid">
+                    <div class="addon-card">
+                        <div class="addon-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 3V21H21" stroke="currentColor" stroke-width="2"/>
+                                <path d="M9 9L12 6L16 10L21 5" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <h4 data-translate="addon1_title">Custom Reports</h4>
+                        <p data-translate="addon1_desc">Tailored reporting solutions for your specific business needs</p>
+                    </div>
+                    <div class="addon-card">
+                        <div class="addon-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                                <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                                <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h4 data-translate="addon2_title">API Access</h4>
+                        <p data-translate="addon2_desc">Integrate CarLedgr with your existing systems and tools</p>
+                    </div>
+                    <div class="addon-card">
+                        <div class="addon-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3Z" stroke="currentColor" stroke-width="2"/>
+                                <path d="M8 12L11 15L16 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h4 data-translate="addon3_title">Custom Development</h4>
+                        <p data-translate="addon3_desc">Specialized integrations and custom features for your dealership</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2 data-translate="cta_title">Ready to streamline your dealership operations?</h2>
+                <p data-translate="cta_desc">Join dealerships using CarLedgr to gain complete financial visibility and maximize profitability.</p>
+                <div class="cta-buttons">
+                    <a href="#" class="btn btn-primary btn-large" data-translate="cta_demo_btn">Try Our Live Demo</a>
+                    <a href="#pricing" class="btn btn-secondary btn-large" data-translate="cta_plan_btn">Choose Your Plan</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>CarLedgr</h3>
+                    <p>Professional dealership management for vehicle repair and resale businesses.</p>
+                </div>
+                <div class="footer-section">
+                    <h4 data-translate="footer_product">Product</h4>
+                    <ul>
+                        <li><a href="#features" data-translate="footer_features">Features</a></li>
+                        <li><a href="#pricing" data-translate="footer_pricing">Pricing</a></li>
+                        <li><a href="#" data-translate="footer_demo">Demo</a></li>
+                        <li><a href="#">Add-ons</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4 data-translate="footer_support">Support</h4>
+                    <ul>
+                        <li><a href="#" data-translate="footer_docs">Documentation</a></li>
+                        <li><a href="mailto:sales@carledgr.com" data-translate="footer_sales">Sales</a></li>
+                        <li><a href="mailto:support@carledgr.com" data-translate="footer_support_contact">Support</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p data-translate="footer_copyright">&copy; 2025 CarLedgr. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

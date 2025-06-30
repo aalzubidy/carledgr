@@ -1,0 +1,326 @@
+{
+  "nav_features": {
+    "en": "Features",
+    "es": "Características"
+  },
+  "nav_why_choose": {
+    "en": "Why Choose Us",
+    "es": "Por Qué Elegirnos"
+  },
+  "nav_pricing": {
+    "en": "Pricing",
+    "es": "Precios"
+  },
+  "nav_contact": {
+    "en": "Contact",
+    "es": "Contacto"
+  },
+  "nav_demo": {
+    "en": "Try Our Live Demo",
+    "es": "Prueba Nuestra Demo"
+  },
+  "hero_title": {
+    "en": "Smart Dealership <span class=\"highlight\">Management Platform</span>",
+    "es": "Plataforma Inteligente de <span class=\"highlight\">Gestión de Concesionarios</span>"
+  },
+  "hero_description": {
+    "en": "Built specifically for dealerships specializing in vehicle repair and resale operations. Track comprehensive expenses, monitor inventory status, and maximize profit margins with precision analytics.",
+    "es": "Diseñado específicamente para concesionarios especializados en reparación y reventa de vehículos. Rastrea gastos integrales, monitorea el estado del inventario y maximiza los márgenes de ganancia con análisis de precisión."
+  },
+  "hero_demo_btn": {
+    "en": "Try Our Live Demo",
+    "es": "Prueba Nuestra Demo"
+  },
+  "hero_learn_btn": {
+    "en": "Learn More",
+    "es": "Saber Más"
+  },
+  "features_title": {
+    "en": "Comprehensive dealership management features",
+    "es": "Características integrales de gestión de concesionarios"
+  },
+  "features_subtitle": {
+    "en": "Purpose-built for vehicle repair and resale business operations",
+    "es": "Diseñado específicamente para operaciones de reparación y reventa de vehículos"
+  },
+  "feature1_title": {
+    "en": "Complete Inventory Management",
+    "es": "Gestión Completa de Inventario"
+  },
+  "feature1_desc": {
+    "en": "Track vehicles through their entire lifecycle from acquisition to sale. Know exactly what's in stock, under repair, or sold with VIN-based search and auto-population.",
+    "es": "Rastrea vehículos a través de todo su ciclo de vida desde la adquisición hasta la venta. Sabe exactamente qué está en stock, en reparación o vendido con búsqueda basada en VIN y auto-población."
+  },
+  "feature2_title": {
+    "en": "Detailed Repair Tracking",
+    "es": "Seguimiento Detallado de Reparaciones"
+  },
+  "feature2_desc": {
+    "en": "Log every maintenance record - oil changes, brake replacements, body work. Each repair automatically adds to vehicle cost with receipt attachments and categorization.",
+    "es": "Registra cada mantenimiento - cambios de aceite, reemplazos de frenos, trabajo de carrocería. Cada reparación se añade automáticamente al costo del vehículo con adjuntos de recibos y categorización."
+  },
+  "feature3_title": {
+    "en": "Three Powerful Report Types",
+    "es": "Tres Tipos de Reportes Potentes"
+  },
+  "feature3_desc": {
+    "en": "Generate Inventory reports, Maintenance reports, and Profit reports with flexible date range filters.",
+    "es": "Genera reportes de Inventario, reportes de Mantenimiento y reportes de Ganancias con filtros flexibles de rango de fechas."
+  },
+  "feature4_title": {
+    "en": "Role-Based Access Control",
+    "es": "Control de Acceso Basado en Roles"
+  },
+  "feature4_desc": {
+    "en": "Three user roles: Owner, Manager, and Operator. Secure team collaboration with proper permissions.",
+    "es": "Tres roles de usuario: Propietario, Gerente y Operador. Colaboración segura del equipo con permisos apropiados."
+  },
+  "feature5_title": {
+    "en": "Smart Attachments & Backup",
+    "es": "Adjuntos Inteligentes y Respaldo"
+  },
+  "feature5_desc": {
+    "en": "Attach receipts, photos, and PDFs to every maintenance record and expense. All data automatically backed up and replicated - reduce the risk of losing your records.",
+    "es": "Adjunta recibos, fotos y PDFs a cada registro de mantenimiento y gasto. Todos los datos respaldados automáticamente y replicados - reduce el riesgo de perder tus registros."
+  },
+  "feature6_title": {
+    "en": "Multi-Language & User-Friendly",
+    "es": "Multiidioma y Fácil de Usar"
+  },
+  "feature6_desc": {
+    "en": "Available in English, Spanish, and Arabic. Intuitive interface with VIN auto-population, smart search by vin/make/model/color, and exceptional user experience design.",
+    "es": "Disponible en inglés, español y árabe. Interfaz intuitiva con auto-población de VIN, búsqueda inteligente por vin/marca/modelo/color, y diseño excepcional de experiencia de usuario."
+  },
+  "advantages_title": {
+    "en": "Why CarLedgr outperforms the competition",
+    "es": "Por qué CarLedgr supera a la competencia"
+  },
+  "advantages_subtitle": {
+    "en": "Focused solutions that deliver real value to your dealership operations",
+    "es": "Soluciones enfocadas que entregan valor real a las operaciones de tu concesionario"
+  },
+  "adv1_title": {
+    "en": "Focused vs. Bloated Systems",
+    "es": "Enfocado vs. Sistemas Sobrecargados"
+  },
+  "adv1_desc": {
+    "en": "Unlike DealerCenter's overwhelming 200+ features, CarLedgr provides exactly what vehicle repair and resale dealerships need - expense tracking and profit analysis without complexity.",
+    "es": "A diferencia de las más de 200 características abrumadoras de DealerCenter, CarLedgr proporciona exactamente lo que los concesionarios de reparación y reventa de vehículos necesitan - seguimiento de gastos y análisis de ganancias sin complejidad."
+  },
+  "adv2_title": {
+    "en": "Transparent vs. Hidden Costs",
+    "es": "Transparente vs. Costos Ocultos"
+  },
+  "adv2_desc": {
+    "en": "While CDK Drive and Reynolds requires expensive training, setup fees, and per-user licensing, CarLedgr offers straightforward pricing with everything included.",
+    "es": "Mientras que CDK Drive y Reynolds requieren entrenamiento costoso, tarifas de configuración y licencias por usuario, CarLedgr ofrece precios directos con todo incluido."
+  },
+  "adv3_title": {
+    "en": "Intuitive vs. Complex Interface",
+    "es": "Intuitivo vs. Interfaz Compleja"
+  },
+  "adv3_desc": {
+    "en": "While DealerSocket and Tekion overwhelm users with complex navigation, CarLedgr features VIN auto-population, smart search, and streamlined workflows that save hours daily.",
+    "es": "Mientras que DealerSocket y Tekion abruman a los usuarios con navegación compleja, CarLedgr presenta auto-población de VIN, búsqueda inteligente y flujos de trabajo optimizados que ahorran horas diariamente."
+  },
+  "adv4_title": {
+    "en": "Quick Setup vs. Months of Implementation",
+    "es": "Configuración Rápida vs. Meses de Implementación"
+  },
+  "adv4_desc": {
+    "en": "Forget 6-12 month implementations like CDK or Reynolds. CarLedgr gets you operational in days if not hours, not months, with minimal training required for your team.",
+    "es": "Olvídate de implementaciones de 6-12 meses como CDK o Reynolds. CarLedgr te pone operativo en días si no horas, no meses, con entrenamiento mínimo requerido para tu equipo."
+  },
+  "adv5_title": {
+    "en": "Modern Cloud vs. Legacy Infrastructure",
+    "es": "Nube Moderna vs. Infraestructura Heredada"
+  },
+  "adv5_desc": {
+    "en": "Built on modern cloud architecture unlike outdated systems from ADP and legacy providers. Enjoy faster performance, better reliability, and seamless updates.",
+    "es": "Construido en arquitectura de nube moderna a diferencia de sistemas obsoletos de ADP y proveedores heredados. Disfruta de mejor rendimiento, mejor confiabilidad y actualizaciones sin problemas."
+  },
+  "adv6_title": {
+    "en": "Data Security & Auto-Backup",
+    "es": "Seguridad de Datos y Auto-Respaldo"
+  },
+  "adv6_desc": {
+    "en": "Never worry about losing data again. Automatic replication and backups ensure your financial records are always safe and secure without manual intervention.",
+    "es": "Nunca te preocupes por perder datos otra vez. La replicación automática y respaldos aseguran que tus registros financieros estén siempre seguros sin intervención manual."
+  },
+  "pricing_title": {
+    "en": "Simple, transparent pricing",
+    "es": "Precios simples y transparentes"
+  },
+  "pricing_subtitle": {
+    "en": "Choose the plan that fits your dealership size and inventory",
+    "es": "Elige el plan que se ajuste al tamaño de tu concesionario e inventario"
+  },
+  "plan_starter": {
+    "en": "Starter",
+    "es": "Inicial"
+  },
+  "plan_professional": {
+    "en": "Professional",
+    "es": "Profesional"
+  },
+  "plan_business": {
+    "en": "Business",
+    "es": "Empresarial"
+  },
+  "plan_enterprise": {
+    "en": "Enterprise",
+    "es": "Corporativo"
+  },
+  "plan_starter_desc": {
+    "en": "Perfect for smaller operations",
+    "es": "Perfecto para operaciones pequeñas"
+  },
+  "plan_professional_desc": {
+    "en": "Ideal for growing dealerships",
+    "es": "Ideal para concesionarios en crecimiento"
+  },
+  "plan_business_desc": {
+    "en": "For larger operations",
+    "es": "Para operaciones más grandes"
+  },
+  "plan_enterprise_desc": {
+    "en": "For enterprise operations",
+    "es": "Para operaciones corporativas"
+  },
+  "plan_most_popular": {
+    "en": "Most Popular",
+    "es": "Más Popular"
+  },
+  "plan_get_started": {
+    "en": "Get Started",
+    "es": "Comenzar"
+  },
+  "feature_vehicles_30": {
+    "en": "Up to 30 active vehicles",
+    "es": "Hasta 30 vehículos activos"
+  },
+  "feature_vehicles_75": {
+    "en": "Up to 75 active vehicles",
+    "es": "Hasta 75 vehículos activos"
+  },
+  "feature_vehicles_150": {
+    "en": "Up to 150 active vehicles",
+    "es": "Hasta 150 vehículos activos"
+  },
+  "feature_vehicles_unlimited": {
+    "en": "Unlimited active vehicles",
+    "es": "Vehículos activos ilimitados"
+  },
+  "feature_expense_tracking": {
+    "en": "Complete expense tracking",
+    "es": "Seguimiento completo de gastos"
+  },
+  "feature_reports": {
+    "en": "Financial reports",
+    "es": "Reportes financieros"
+  },
+  "feature_documents": {
+    "en": "Document management",
+    "es": "Gestión de documentos"
+  },
+  "feature_multilang": {
+    "en": "Multi-language support",
+    "es": "Soporte multiidioma"
+  },
+  "feature_email_support": {
+    "en": "Email support",
+    "es": "Soporte por email"
+  },
+  "feature_priority_support": {
+    "en": "Priority support",
+    "es": "Soporte prioritario"
+  },
+  "feature_dedicated_support": {
+    "en": "Dedicated support",
+    "es": "Soporte dedicado"
+  },
+  "addons_title": {
+    "en": "Available Add-ons",
+    "es": "Complementos Disponibles"
+  },
+  "addons_subtitle": {
+    "en": "Contact sales for pricing on these premium features",
+    "es": "Contacta ventas para precios de estas características premium"
+  },
+  "addon1_title": {
+    "en": "Custom Reports",
+    "es": "Reportes Personalizados"
+  },
+  "addon1_desc": {
+    "en": "Tailored reporting solutions for your specific business needs",
+    "es": "Soluciones de reportes adaptadas a las necesidades específicas de tu negocio"
+  },
+  "addon2_title": {
+    "en": "API Access",
+    "es": "Acceso API"
+  },
+  "addon2_desc": {
+    "en": "Integrate CarLedgr with your existing systems and tools",
+    "es": "Integra CarLedgr con tus sistemas y herramientas existentes"
+  },
+  "addon3_title": {
+    "en": "Custom Development",
+    "es": "Desarrollo Personalizado"
+  },
+  "addon3_desc": {
+    "en": "Specialized integrations and custom features for your dealership",
+    "es": "Integraciones especializadas y características personalizadas para tu concesionario"
+  },
+  "cta_title": {
+    "en": "Ready to streamline your dealership operations?",
+    "es": "¿Listo para optimizar las operaciones de tu concesionario?"
+  },
+  "cta_desc": {
+    "en": "Join dealerships using CarLedgr to gain complete financial visibility and maximize profitability.",
+    "es": "Únete a concesionarios que usan CarLedgr para obtener visibilidad financiera completa y maximizar la rentabilidad."
+  },
+  "cta_demo_btn": {
+    "en": "Try Our Live Demo",
+    "es": "Prueba Nuestra Demo"
+  },
+  "cta_plan_btn": {
+    "en": "Choose Your Plan",
+    "es": "Elige Tu Plan"
+  },
+  "footer_product": {
+    "en": "Product",
+    "es": "Producto"
+  },
+  "footer_features": {
+    "en": "Features",
+    "es": "Características"
+  },
+  "footer_pricing": {
+    "en": "Pricing",
+    "es": "Precios"
+  },
+  "footer_demo": {
+    "en": "Live Demo",
+    "es": "Demo en Vivo"
+  },
+  "footer_support": {
+    "en": "Support",
+    "es": "Soporte"
+  },
+  "footer_docs": {
+    "en": "Documentation",
+    "es": "Documentación"
+  },
+  "footer_sales": {
+    "en": "Sales",
+    "es": "Ventas"
+  },
+  "footer_support_contact": {
+    "en": "Support",
+    "es": "Soporte"
+  },
+  "footer_copyright": {
+    "en": "© 2025 CarLedgr. All rights reserved.",
+    "es": "© 2025 CarLedgr. Todos los derechos reservados."
+  }
+}
