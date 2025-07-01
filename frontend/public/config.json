@@ -1,0 +1,17 @@
+{
+  "api": {
+    "baseUrl": "http://localhost:3030/api",
+    "timeout": 10000
+  },
+  "app": {
+    "name": "CarLedgr",
+    "version": "1.0.0",
+    "defaultLanguage": "en",
+    "supportedLanguages": ["en", "ar", "es"]
+  },
+  "ui": {
+    "itemsPerPage": 10,
+    "maxItemsPerPage": 100,
+    "theme": "light"
+  }
+} 

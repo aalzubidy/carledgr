@@ -110,9 +110,21 @@ if [[ "$FRONTEND_CHANGED" == "true" ]]; then
     log "Building production frontend..."
     npm run build
     
-    # Copy to demo environment
-    log "Copying frontend build to demo environment..."
+    log "Deploying frontend with environment-specific configurations..."
+    
+    # Copy production frontend
+    cp -r dist/* /var/www/carledgr/frontend/dist/
+    
+    # Update config.json for production (api.carledgr.com)
+    sed -i 's|"baseUrl": "[^"]*"|"baseUrl": "https://api.carledgr.com/api"|' /var/www/carledgr/frontend/dist/config.json
+    log "Production frontend deployed with API URL: https://api.carledgr.com/api"
+    
+    # Copy demo frontend
     cp -r dist/* /var/www/carledgr-demo/frontend/dist/
+    
+    # Update config.json for demo (demo-api.carledgr.com)
+    sed -i 's|"baseUrl": "[^"]*"|"baseUrl": "https://demo-api.carledgr.com/api"|' /var/www/carledgr-demo/frontend/dist/config.json
+    log "Demo frontend deployed with API URL: https://demo-api.carledgr.com/api"
     
     cd ..
     log "Frontend deployed successfully"

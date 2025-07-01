@@ -5,24 +5,9 @@ async function loadConfig() {
   if (config) return config;
 
   try {
-    // Load config.json as fallback
+    // Load config.json
     const response = await fetch('/config.json');
-    const jsonConfig = await response.json();
-    
-    // Override with environment variables if available
-    config = {
-      api: {
-        baseUrl: import.meta.env.VITE_API_BASE_URL || jsonConfig.api.baseUrl,
-        timeout: jsonConfig.api.timeout
-      },
-      app: {
-        name: import.meta.env.VITE_APP_NAME || jsonConfig.app.name,
-        version: jsonConfig.app.version,
-        defaultLanguage: import.meta.env.VITE_DEFAULT_LANGUAGE || jsonConfig.app.defaultLanguage,
-        supportedLanguages: jsonConfig.app.supportedLanguages
-      },
-      ui: jsonConfig.ui
-    };
+    config = await response.json();
     
     return config;
   } catch (error) {
@@ -30,13 +15,13 @@ async function loadConfig() {
     // Fallback configuration
     return {
       api: {
-        baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3030/api',
+        baseUrl: 'http://localhost:3030/api',
         timeout: 10000
       },
       app: {
-        name: import.meta.env.VITE_APP_NAME || 'CarLedgr',
+        name: 'CarLedgr',
         version: '1.0.0',
-        defaultLanguage: import.meta.env.VITE_DEFAULT_LANGUAGE || 'en',
+        defaultLanguage: 'en',
         supportedLanguages: ['en', 'ar']
       },
       ui: {
