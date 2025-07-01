@@ -179,9 +179,7 @@ if [[ "$CADDY_CHANGED" == "true" ]]; then
     fi
 fi
 
-# Final health check
-log "Running final health checks..."
-./server-deployment/health-check.sh
+# Health checks will be run separately by the CI/CD pipeline
 
 log "🎉 Deployment completed successfully!"
 
