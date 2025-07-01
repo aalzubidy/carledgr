@@ -90,19 +90,19 @@ check_api_health() {
     info "Checking $name API health..."
     
     local response
-    response=$(curl -s "$url/api/subscriptions/health" --max-time 10 --connect-timeout 5 || echo "CURL_ERROR")
+    response=$(curl -s "$url/health" --max-time 10 --connect-timeout 5 || echo "CURL_ERROR")
     
     echo "--- API Response for $url ---"
     echo "Response: $response"
     echo "--- End API Response ---"
     
-    if [[ -n "$response" ]] && [[ "$response" != "CURL_ERROR" ]] && echo "$response" | grep -q '"status":"healthy"'; then
+    if [[ -n "$response" ]] && [[ "$response" != "CURL_ERROR" ]] && echo "$response" | grep -q '"status":"ok"'; then
         success "$name API is healthy"
         return 0
     else
         fail "$name API health check failed"
         echo "Full curl debug:"
-        curl -v "$url/api/subscriptions/health" --max-time 10 --connect-timeout 5 || true
+        curl -v "$url/health" --max-time 10 --connect-timeout 5 || true
         return 1
     fi
 }
