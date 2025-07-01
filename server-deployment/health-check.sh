@@ -37,109 +37,118 @@ fail() {
     echo -e "${RED}❌ $1${NC}"
 }
 
-# Health check function
-check_service() {
+# Check systemd service status
+check_systemd_service() {
     local service_name=$1
-    local service_systemd=$2
-    local url=$3
-    local expected_status=${4:-200}
-    local is_critical=${5:-false}
+    local display_name=$2
     
-    info "Checking $service_name..."
+    info "Checking $display_name service status..."
     
-    # Check if systemd service is running
-    if systemctl is-active --quiet "$service_systemd" 2>/dev/null; then
-        success "$service_name service is running"
-        
-        # Check HTTP response if URL provided
-        if [[ -n "$url" ]]; then
-            local http_status
-            http_status=$(curl -s -o /dev/null -w "%{http_code}" "$url" --max-time 10 || echo "000")
-            
-            if [[ "$http_status" == "$expected_status" ]]; then
-                success "$service_name is responding correctly (HTTP $http_status)"
-                return 0
-            elif [[ "$http_status" == "000" ]]; then
-                if [[ "$is_critical" == "true" ]]; then
-                    fail "$service_name is not responding (connection failed) - CRITICAL"
-                else
-                    warning "$service_name is not responding (connection failed)"
-                fi
-                return 1
-            else
-                if [[ "$is_critical" == "true" ]]; then
-                    fail "$service_name returned HTTP $http_status (expected $expected_status) - CRITICAL"
-                else
-                    warning "$service_name returned HTTP $http_status (expected $expected_status)"
-                fi
-                return 1
-            fi
-        else
-            return 0
-        fi
+    if systemctl is-active --quiet "$service_name" 2>/dev/null; then
+        success "$display_name service is running"
+        return 0
     else
-        if [[ "$is_critical" == "true" ]]; then
-            fail "$service_name service is not running - CRITICAL"
-        else
-            warning "$service_name service is not running"
-        fi
+        fail "$display_name service is not running"
+        systemctl status "$service_name" --no-pager -l || true
         return 1
     fi
 }
 
-# Check static content function
-check_static() {
-    local name=$1
-    local url=$2
-    local expected_content=$3
-    local is_critical=${4:-false}
+# Check basic HTTP connectivity
+check_http_basic() {
+    local url=$1
+    local name=$2
+    local expected_status=${3:-200}
     
-    info "Checking $name..."
+    info "Checking $name HTTP connectivity..."
+    
+    local http_status
+    http_status=$(curl -s -o /dev/null -w "%{http_code}" "$url" --max-time 10 --connect-timeout 5 || echo "000")
+    
+    if [[ "$http_status" == "$expected_status" ]]; then
+        success "$name is responding (HTTP $http_status)"
+        return 0
+    elif [[ "$http_status" == "000" ]]; then
+        fail "$name is not responding (connection failed)"
+        return 1
+    else
+        fail "$name returned HTTP $http_status (expected $expected_status)"
+        return 1
+    fi
+}
+
+# Check backend API health endpoint
+check_api_health() {
+    local url=$1
+    local name=$2
+    
+    info "Checking $name API health..."
     
     local response
-    response=$(curl -s "$url" --max-time 10 || echo "")
+    response=$(curl -s "$url/api/subscription/health" --max-time 10 --connect-timeout 5 || echo "")
     
-    if [[ -n "$response" && "$response" == *"$expected_content"* ]]; then
-        success "$name is serving content correctly"
+    if [[ -n "$response" ]] && echo "$response" | grep -q '"status":"healthy"'; then
+        success "$name API is healthy"
         return 0
     else
-        if [[ "$is_critical" == "true" ]]; then
-            fail "$name is not serving expected content - CRITICAL"
-        else
-            warning "$name is not serving expected content"
-        fi
+        fail "$name API health check failed"
+        echo "Response: $response"
         return 1
     fi
 }
 
 # Initialize counters
-total_checks=0
-passed_checks=0
 critical_checks=0
 critical_passed=0
+total_checks=0
+passed_checks=0
 
 log "Starting health checks for CarLedgr deployment..."
+echo ""
+
+# Wait a moment for services to fully start
+info "Waiting 5 seconds for services to stabilize..."
+sleep 5
 echo ""
 
 # CRITICAL CHECKS - These will fail deployment if they fail
 info "=== CRITICAL CHECKS ==="
 
-# Check Demo Backend (critical - core service)
+# Check Demo Backend Service
 ((total_checks++))
 ((critical_checks++))
-if check_service "Demo Backend" "carledgr-demo" "https://demo-api.carledgr.com" "404" "true"; then
+if check_systemd_service "carledgr-demo" "Demo Backend"; then
     ((passed_checks++))
     ((critical_passed++))
 fi
 
-# Check Production Backend (critical if running)
+# Check Demo Backend API Health
+((total_checks++))
+((critical_checks++))
+if check_api_health "https://demo-api.carledgr.com" "Demo Backend"; then
+    ((passed_checks++))
+    ((critical_passed++))
+fi
+
+# Check Production Backend (only if running)
 if systemctl is-active --quiet carledgr-prod 2>/dev/null; then
+    info "Production backend is running, checking health..."
+    
     ((total_checks++))
     ((critical_checks++))
-    if check_service "Production Backend" "carledgr-prod" "https://api.carledgr.com" "404" "true"; then
+    if check_systemd_service "carledgr-prod" "Production Backend"; then
         ((passed_checks++))
         ((critical_passed++))
     fi
+    
+    ((total_checks++))
+    ((critical_checks++))
+    if check_api_health "https://api.carledgr.com" "Production Backend"; then
+        ((passed_checks++))
+        ((critical_passed++))
+    fi
+else
+    info "Production backend is not running (this is normal for demo-only setups)"
 fi
 
 echo ""
@@ -147,65 +156,50 @@ echo ""
 # NON-CRITICAL CHECKS - These are informational only
 info "=== NON-CRITICAL CHECKS (Informational) ==="
 
-# Check Caddy web server (non-critical - might have SSL timing issues)
+# Check Caddy service
 ((total_checks++))
-if check_service "Caddy" "caddy" "https://carledgr.com" "200" "false"; then
+if check_systemd_service "caddy" "Caddy Web Server"; then
     ((passed_checks++))
 fi
 
-# Check Marketing Website
+# Check basic website connectivity
 ((total_checks++))
-if check_static "Marketing Website" "https://carledgr.com" "<title>" "false"; then
+if check_http_basic "https://carledgr.com" "Marketing Website"; then
     ((passed_checks++))
 fi
 
 ((total_checks++))
-if check_static "WWW Marketing Website" "https://www.carledgr.com" "<title>" "false"; then
+if check_http_basic "https://www.carledgr.com" "WWW Marketing Website"; then
     ((passed_checks++))
 fi
 
-# Check Production Frontend
 ((total_checks++))
-if check_static "Production Frontend" "https://app.carledgr.com" "<title>" "false"; then
+if check_http_basic "https://app.carledgr.com" "Production Frontend"; then
     ((passed_checks++))
 fi
 
-# Check Demo Frontend
 ((total_checks++))
-if check_static "Demo Frontend" "https://demo.carledgr.com" "<title>" "false"; then
+if check_http_basic "https://demo.carledgr.com" "Demo Frontend"; then
     ((passed_checks++))
 fi
 
-# SSL Certificate checks (non-critical)
-info "=== SSL CERTIFICATES (Non-Critical) ==="
-check_ssl() {
-    local domain=$1
-    info "Checking SSL certificate for $domain..."
-    
-    local ssl_info
-    ssl_info=$(echo | openssl s_client -servername "$domain" -connect "$domain:443" 2>/dev/null | openssl x509 -noout -dates 2>/dev/null || echo "")
-    
-    if [[ -n "$ssl_info" ]]; then
-        success "SSL certificate is valid for $domain"
-        return 0
-    else
-        warning "SSL certificate check failed for $domain"
-        return 1
-    fi
-}
-
-for domain in "carledgr.com" "www.carledgr.com" "app.carledgr.com" "demo.carledgr.com" "demo-api.carledgr.com"; do
+# Quick SSL check (just verify HTTPS works)
+info "=== SSL CONNECTIVITY (Non-Critical) ==="
+for domain in "carledgr.com" "demo.carledgr.com" "demo-api.carledgr.com"; do
     ((total_checks++))
-    if check_ssl "$domain"; then
+    if check_http_basic "https://$domain" "SSL for $domain"; then
         ((passed_checks++))
     fi
 done
 
+# Check production SSL if service is running
 if systemctl is-active --quiet carledgr-prod 2>/dev/null; then
-    ((total_checks++))
-    if check_ssl "api.carledgr.com"; then
-        ((passed_checks++))
-    fi
+    for domain in "app.carledgr.com" "api.carledgr.com"; do
+        ((total_checks++))
+        if check_http_basic "https://$domain" "SSL for $domain"; then
+            ((passed_checks++))
+        fi
+    done
 fi
 
 echo ""
