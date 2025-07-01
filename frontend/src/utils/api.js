@@ -81,12 +81,13 @@ async function makeRequest(endpoint, options = {}) {
       // Handle authentication errors specifically
       if (response.status === 401 || response.status === 403) {
         // Only redirect if we're not on the login page
-        if (!window.location.pathname.includes('/login') && !window.location.pathname === '/') {
+        if (!window.location.pathname.includes('/login') && window.location.pathname !== '/') {
           removeAuthToken();
-          showWarning('Your session has expired. Please login again.');
+          showWarning('Your session has expired. Redirecting to login...');
+          // Immediate redirect for better UX
           setTimeout(() => {
             window.location.href = '/';
-          }, 2000);
+          }, 1500);
         }
         throw new Error(errorData.message || 'Authentication failed');
       }
@@ -119,12 +120,15 @@ async function makeRequest(endpoint, options = {}) {
     
     // Handle authentication errors
     if (error.message.includes('401') || error.message.includes('Unauthorized') || 
-        error.message.includes('jwt expired') || error.message.includes('Session expired')) {
-      removeAuthToken();
-      showWarning('Your session has expired. Please login again.');
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 2000);
+        error.message.includes('jwt expired') || error.message.includes('Session expired') ||
+        error.message.includes('Invalid or expired token')) {
+      if (!window.location.pathname.includes('/login') && window.location.pathname !== '/') {
+        removeAuthToken();
+        showWarning('Your session has expired. Redirecting to login...');
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1500);
+      }
       return;
     }
     
@@ -475,11 +479,13 @@ const api = {
       return await response.json();
     } catch (error) {
       if (error.message.includes('401') || error.message.includes('403')) {
-        removeAuthToken();
-        showWarning('Your session has expired. Please login again.');
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 2000);
+        if (!window.location.pathname.includes('/login') && window.location.pathname !== '/') {
+          removeAuthToken();
+          showWarning('Your session has expired. Redirecting to login...');
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 1500);
+        }
         return;
       }
       throw error;
@@ -538,11 +544,13 @@ const api = {
       return await response.json();
     } catch (error) {
       if (error.message.includes('401') || error.message.includes('403')) {
-        removeAuthToken();
-        showWarning('Your session has expired. Please login again.');
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 2000);
+        if (!window.location.pathname.includes('/login') && window.location.pathname !== '/') {
+          removeAuthToken();
+          showWarning('Your session has expired. Redirecting to login...');
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 1500);
+        }
         return;
       }
       throw error;

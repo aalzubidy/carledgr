@@ -40,12 +40,13 @@ const config = {
     fromName: process.env.CL_BACKEND_EMAIL_FROM_NAME || configJson.email?.fromName
   },
   storage: {
-    provider: process.env.CL_BACKEND_STORAGE_PROVIDER || configJson.storage?.provider || 'digitalocean',
+    provider: process.env.CL_BACKEND_STORAGE_PROVIDER || configJson.storage?.provider || 's3',
     endpoint: process.env.CL_BACKEND_STORAGE_ENDPOINT || configJson.storage?.endpoint,
     bucket: process.env.CL_BACKEND_STORAGE_BUCKET || configJson.storage?.bucket,
     accessKeyId: process.env.CL_BACKEND_STORAGE_ACCESS_KEY || configJson.storage?.accessKeyId,
     secretAccessKey: process.env.CL_BACKEND_STORAGE_SECRET_KEY || configJson.storage?.secretAccessKey,
-    region: process.env.CL_BACKEND_STORAGE_REGION || configJson.storage?.region,
+    region: process.env.CL_BACKEND_STORAGE_REGION || configJson.storage?.region || 'auto',
+    parentFolder: process.env.CL_BACKEND_STORAGE_PARENT_FOLDER || configJson.storage?.parentFolder || '',
     cdnEndpoint: process.env.CL_BACKEND_STORAGE_CDN_ENDPOINT || configJson.storage?.cdnEndpoint,
     maxFileSize: process.env.CL_BACKEND_STORAGE_MAX_FILE_SIZE || configJson.storage?.maxFileSize || 8388608,
     allowedFileTypes: configJson.storage?.allowedFileTypes || ["image/jpeg", "image/png", "image/webp", "application/pdf"]

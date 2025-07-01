@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "CarLedgr",
-    "title": "Car Finance Management"
+    "title": "Smart Dealership Management Platform"
   },
   "auth": {
     "login": "Login",

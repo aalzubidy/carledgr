@@ -32,12 +32,13 @@
     "fromName": "CarLedgr Dev Team"
   },
     "storage": {
-    "provider": "digitalocean",
-    "endpoint": "https://nyc3.digitaloceanspaces.com",
+    "provider": "s3",
+    "endpoint": "https://your-s3-endpoint.com",
     "bucket": "",
     "accessKeyId": "",
     "secretAccessKey": "",
-    "region": "nyc3",
+    "region": "auto",
+    "parentFolder": "",
     "cdnEndpoint": "",
     "maxFileSize": 8388608,
     "allowedFileTypes": ["image/jpeg", "image/png", "image/webp", "application/pdf"]

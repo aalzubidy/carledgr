@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react'
 import { t } from '../utils/i18n.js'
 import { api } from '../utils/api.js'
 import Layout, { Loading, EmptyState } from '../components/Layout.jsx'
+import FileUpload from '../components/FileUpload.jsx'
+import AttachmentList from '../components/AttachmentList.jsx'
 import { showSuccess, showError, showWarning } from '../utils/snackbar.js'
 
 function MaintenancePage() {
@@ -28,6 +30,13 @@ function MaintenancePage() {
     vendor: '',
     notes: ''
   })
+  
+  // Attachment-related state
+  const [attachments, setAttachments] = useState([])
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [uploadingFile, setUploadingFile] = useState(false)
+  const [recordsWithAttachments, setRecordsWithAttachments] = useState({})
+  
   const carSearchRef = useRef(null)
 
   useEffect(() => {
@@ -70,7 +79,8 @@ function MaintenancePage() {
       const [recordsData, categoriesData, carsData] = await Promise.all([
         api.getAllMaintenanceRecords(),
         api.getMaintenanceCategories(),
-        api.getCars()
+        api.getCars(),
+        loadAttachmentIndicators()
       ])
       
       setMaintenanceRecords(recordsData)
@@ -84,6 +94,60 @@ function MaintenancePage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const loadAttachmentIndicators = async () => {
+    try {
+      const response = await api.getRecordsWithAttachments('maintenance')
+      setRecordsWithAttachments(response)
+    } catch (error) {
+      console.error('Error loading attachment indicators:', error)
+      // Don't show error for this as it's not critical
+    }
+  }
+
+  const loadAttachments = async (maintenanceId) => {
+    try {
+      const response = await api.getMaintenanceAttachments(maintenanceId)
+      setAttachments(response)
+    } catch (error) {
+      console.error('Error loading attachments:', error)
+      showError('Failed to load attachments')
+    }
+  }
+
+  const handleFileSelect = (file) => {
+    setSelectedFile(file)
+  }
+
+  const handleFileUpload = async (maintenanceId) => {
+    if (!selectedFile) return
+
+    setUploadingFile(true)
+    try {
+      await api.uploadMaintenanceAttachment(maintenanceId, selectedFile)
+      setSelectedFile(null)
+      await loadAttachments(maintenanceId)
+      await loadAttachmentIndicators()
+      showSuccess('File uploaded successfully')
+    } catch (error) {
+      console.error('Error uploading file:', error)
+      if (error.response?.data?.code === 'STORAGE_UNAVAILABLE') {
+        showError(error.response.data.message)
+      } else {
+        showError('Failed to upload file')
+      }
+    } finally {
+      setUploadingFile(false)
+    }
+  }
+
+  const handleAttachmentDelete = async (attachmentId) => {
+    // This function is called by AttachmentList after successful API deletion
+    // Only handle UI state updates here
+    setAttachments(attachments.filter(att => att.id !== attachmentId))
+    await loadAttachmentIndicators()
+    showSuccess('Attachment deleted successfully')
   }
 
   const handleSearch = (e) => {
@@ -177,7 +241,7 @@ function MaintenancePage() {
     setShowModal(true)
   }
 
-  const handleEditMaintenance = (record) => {
+  const handleEditMaintenance = async (record) => {
     setEditingRecord(record)
     setFormData({
       car_id: record.car_id,
@@ -188,6 +252,9 @@ function MaintenancePage() {
       vendor: record.vendor || '',
       notes: record.notes || ''
     })
+    
+    // Load attachments for the maintenance record
+    await loadAttachments(record.id)
     setShowModal(true)
   }
 
@@ -239,15 +306,30 @@ function MaintenancePage() {
     }
     
     try {
+      let recordId
       if (editingRecord) {
         await api.updateMaintenanceRecord(editingRecord.id, data)
+        recordId = editingRecord.id
         showSuccess(t('messages.maintenanceUpdated'))
       } else {
-        await api.createMaintenanceRecord(data)
+        const response = await api.createMaintenanceRecord(data)
+        recordId = response.id
         showSuccess(t('messages.maintenanceAdded'))
       }
       
+      // Handle file upload for both new and existing records
+      if (selectedFile && recordId) {
+        try {
+          await handleFileUpload(recordId)
+        } catch (fileError) {
+          console.error('File upload failed:', fileError)
+          // Don't fail the whole operation for file upload errors
+          showWarning('Record saved but file upload failed')
+        }
+      }
+      
       setShowModal(false)
+      setSelectedFile(null)
       loadMaintenanceData()
     } catch (error) {
       console.error('Error saving maintenance record:', error)
@@ -509,6 +591,76 @@ function MaintenancePage() {
                   value={formData.notes}
                   onChange={handleFormChange}
                 />
+              </div>
+
+              {/* Attachments Section */}
+              <div className="form-group">
+                <label>Attachments:</label>
+                
+                {editingRecord && (
+                  <AttachmentList 
+                    attachments={attachments}
+                    onDelete={handleAttachmentDelete}
+                  />
+                )}
+                
+                <div style={{ marginTop: editingRecord ? '16px' : '0' }}>
+                  {/* Only show upload if no attachment exists or we're adding new record */}
+                  {(!editingRecord || attachments.length === 0) && (
+                    <FileUpload 
+                      onFileSelect={handleFileSelect}
+                      selectedFile={selectedFile}
+                    />
+                  )}
+                  
+                  {editingRecord && attachments.length > 0 && (
+                    <div style={{ 
+                      padding: '12px', 
+                      backgroundColor: '#f8f9fa', 
+                      borderRadius: '4px', 
+                      fontSize: '14px', 
+                      color: '#6c757d',
+                      textAlign: 'center'
+                    }}>
+                      Maximum one attachment per maintenance record. Delete the existing attachment to add a new one.
+                    </div>
+                  )}
+                  
+                  {selectedFile && (
+                    <div style={{ 
+                      marginTop: '10px', 
+                      padding: '10px', 
+                      backgroundColor: '#f8f9fa', 
+                      borderRadius: '4px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}>
+                      <span style={{ fontSize: '14px' }}>
+                        Selected: {selectedFile.name} ({Math.round(selectedFile.size / 1024)}KB)
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedFile(null)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#dc3545',
+                          cursor: 'pointer',
+                          fontSize: '16px'
+                        }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                  
+                  {!editingRecord && selectedFile && (
+                    <div style={{ marginTop: '8px', fontSize: '12px', color: '#666', textAlign: 'center' }}>
+                      File will be uploaded after saving the maintenance record
+                    </div>
+                  )}
+                </div>
               </div>
             </form>
           </div>
