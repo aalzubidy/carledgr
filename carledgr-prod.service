@@ -1,0 +1,19 @@
+[Unit]
+Description=CarLedgr Production Backend
+After=network.target
+
+[Service]
+Type=simple
+User=deploy
+WorkingDirectory=/var/www/carledgr/backend
+Environment=NODE_ENV=production
+Environment=PATH=/home/deploy/.nvm/versions/node/v22.17.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=CL_BACKEND_CONFIG_FILE=/etc/carledgr/config.json
+ExecStart=/home/deploy/.nvm/versions/node/v22.17.0/bin/node index.js
+Restart=always
+RestartSec=5
+StandardOutput=append:/var/log/carledgr/backend-output.log
+StandardError=append:/var/log/carledgr/backend-error.log
+
+[Install]
+WantedBy=multi-user.target 

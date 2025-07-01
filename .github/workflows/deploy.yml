@@ -1,0 +1,92 @@
+name: Deploy CarLedgr to VPS
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      website: ${{ steps.changes.outputs.website }}
+      frontend: ${{ steps.changes.outputs.frontend }}
+      backend: ${{ steps.changes.outputs.backend }}
+      caddy: ${{ steps.changes.outputs.caddy }}
+      deploy-scripts: ${{ steps.changes.outputs.deploy-scripts }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      
+      - name: Detect changed files
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            website:
+              - 'website/**'
+            frontend:
+              - 'frontend/**'
+            backend:
+              - 'backend/**'
+            caddy:
+              - 'Caddyfile'
+            deploy-scripts:
+              - 'server-deployment/**'
+
+  deploy:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    if: ${{ needs.detect-changes.outputs.website == 'true' || needs.detect-changes.outputs.frontend == 'true' || needs.detect-changes.outputs.backend == 'true' || needs.detect-changes.outputs.caddy == 'true' || needs.detect-changes.outputs.deploy-scripts == 'true' }}
+    
+    steps:
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            echo "🚀 Starting deployment..."
+            echo "Changes detected:"
+            echo "  Website: ${{ needs.detect-changes.outputs.website }}"
+            echo "  Frontend: ${{ needs.detect-changes.outputs.frontend }}"
+            echo "  Backend: ${{ needs.detect-changes.outputs.backend }}"
+            echo "  Caddy: ${{ needs.detect-changes.outputs.caddy }}"
+            echo "  Deploy Scripts: ${{ needs.detect-changes.outputs.deploy-scripts }}"
+            
+            cd /var/www/carledgr
+            sudo -u deploy ./server-deployment/deploy-update.sh \
+              --website=${{ needs.detect-changes.outputs.website }} \
+              --frontend=${{ needs.detect-changes.outputs.frontend }} \
+              --backend=${{ needs.detect-changes.outputs.backend }} \
+              --caddy=${{ needs.detect-changes.outputs.caddy }} \
+              --deploy-scripts=${{ needs.detect-changes.outputs.deploy-scripts }}
+
+      - name: Health Check
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            cd /var/www/carledgr
+            ./server-deployment/health-check.sh
+
+      - name: Notify Success
+        if: success()
+        run: |
+          echo "✅ Deployment completed successfully!"
+          echo "🌐 Website: https://carledgr.com"
+          echo "🚀 App: https://app.carledgr.com"
+          echo "🧪 Demo: https://demo.carledgr.com"
+
+      - name: Notify Failure
+        if: failure()
+        run: |
+          echo "❌ Deployment failed!"
+          echo "Check the logs above for details." 
