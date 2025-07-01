@@ -32,7 +32,7 @@ jobs:
             backend:
               - 'backend/**'
             caddy:
-              - 'Caddyfile'
+              - 'server-deployment/Caddyfile'
             deploy-scripts:
               - 'server-deployment/**'
 
@@ -94,8 +94,4 @@ jobs:
           echo "🚀 App: https://app.carledgr.com"
           echo "🧪 Demo: https://demo.carledgr.com"
 
-      - name: Notify Failure
-        if: failure()
-        run: |
-          echo "❌ Deployment failed!"
-          echo "Check the logs above for details." 
+ 

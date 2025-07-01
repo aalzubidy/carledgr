@@ -170,8 +170,8 @@ if [[ "$CADDY_CHANGED" == "true" ]]; then
     log "Reloading Caddy configuration..."
     
     # Test Caddy configuration first
-    if caddy validate --config Caddyfile; then
-        cp Caddyfile /etc/caddy/
+    if caddy validate --config server-deployment/Caddyfile; then
+        cp server-deployment/Caddyfile /etc/caddy/
         systemctl reload caddy
         log "Caddy configuration reloaded successfully"
     else
