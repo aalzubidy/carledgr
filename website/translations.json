@@ -104,40 +104,40 @@
     "es": "Enfocado vs. Sistemas Sobrecargados"
   },
   "adv1_desc": {
-    "en": "Unlike DealerCenter's overwhelming 200+ features, CarLedgr provides exactly what vehicle repair and resale dealerships need - expense tracking and profit analysis without complexity.",
+    "en": "Unlike other applications 200+ features that you don't need, CarLedgr provides exactly what vehicle repair and resale dealerships need - expense tracking and profit analysis without complexity.",
     "es": "A diferencia de las más de 200 características abrumadoras de DealerCenter, CarLedgr proporciona exactamente lo que los concesionarios de reparación y reventa de vehículos necesitan - seguimiento de gastos y análisis de ganancias sin complejidad."
   },
   "adv2_title": {
-    "en": "Transparent vs. Hidden Costs",
-    "es": "Transparente vs. Costos Ocultos"
+    "en": "No Hidden Costs",
+    "es": "No Costos Ocultos"
   },
   "adv2_desc": {
-    "en": "While CDK Drive and Reynolds requires expensive training, setup fees, and per-user licensing, CarLedgr offers straightforward pricing with everything included.",
-    "es": "Mientras que CDK Drive y Reynolds requieren entrenamiento costoso, tarifas de configuración y licencias por usuario, CarLedgr ofrece precios directos con todo incluido."
+    "en": "No expensive training, setup fees, and per-user licensing, CarLedgr offers straightforward pricing with everything included.",
+    "es": "Mientras que requieren entrenamiento costoso, tarifas de configuración y licencias por usuario, CarLedgr ofrece precios directos con todo incluido."
   },
   "adv3_title": {
     "en": "Intuitive vs. Complex Interface",
     "es": "Intuitivo vs. Interfaz Compleja"
   },
   "adv3_desc": {
-    "en": "While DealerSocket and Tekion overwhelm users with complex navigation, CarLedgr features VIN auto-population, smart search, and streamlined workflows that save hours daily.",
-    "es": "Mientras que DealerSocket y Tekion abruman a los usuarios con navegación compleja, CarLedgr presenta auto-población de VIN, búsqueda inteligente y flujos de trabajo optimizados que ahorran horas diariamente."
+    "en": "CarLedgr features VIN auto-population, smart search, and streamlined workflows that save hours daily.",
+    "es": "CarLedgr presenta auto-población de VIN, búsqueda inteligente y flujos de trabajo optimizados que ahorran horas diariamente."
   },
   "adv4_title": {
     "en": "Quick Setup vs. Months of Implementation",
     "es": "Configuración Rápida vs. Meses de Implementación"
   },
   "adv4_desc": {
-    "en": "Forget 6-12 month implementations like CDK or Reynolds. CarLedgr gets you operational in days if not hours, not months, with minimal training required for your team.",
-    "es": "Olvídate de implementaciones de 6-12 meses como CDK o Reynolds. CarLedgr te pone operativo en días si no horas, no meses, con entrenamiento mínimo requerido para tu equipo."
+    "en": "Forget 6-12 month implementations. CarLedgr gets you operational in days if not hours, not months, with minimal training required for your team.",
+    "es": "Olvídate de implementaciones de 6-12 meses. CarLedgr te pone operativo en días si no horas, no meses, con entrenamiento mínimo requerido para tu equipo."
   },
   "adv5_title": {
     "en": "Modern Cloud vs. Legacy Infrastructure",
     "es": "Nube Moderna vs. Infraestructura Heredada"
   },
   "adv5_desc": {
-    "en": "Built on modern cloud architecture unlike outdated systems from ADP and legacy providers. Enjoy faster performance, better reliability, and seamless updates.",
-    "es": "Construido en arquitectura de nube moderna a diferencia de sistemas obsoletos de ADP y proveedores heredados. Disfruta de mejor rendimiento, mejor confiabilidad y actualizaciones sin problemas."
+    "en": "Built on modern cloud architecture unlike outdated systems. Enjoy faster performance, better reliability, and seamless updates.",
+    "es": "Construido en arquitectura de nube moderna a diferencia de sistemas obsoletos. Disfruta de mejor rendimiento, mejor confiabilidad y actualizaciones sin problemas."
   },
   "adv6_title": {
     "en": "Data Security & Auto-Backup",

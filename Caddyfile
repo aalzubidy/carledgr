@@ -1,0 +1,63 @@
+# Marketing website
+carledgr.com, www.carledgr.com {
+    root * /var/www/carledgr/website
+    file_server
+    encode gzip
+    
+    # Enable logging
+    log {
+        output file /var/log/carledgr/website-access.log
+    }
+}
+
+# Production frontend
+app.carledgr.com {
+    root * /var/www/carledgr/frontend/dist
+    file_server
+    encode gzip
+    
+    # Handle SPA routing
+    try_files {path} /index.html
+    
+    # Enable logging
+    log {
+        output file /var/log/carledgr/frontend-access.log
+    }
+}
+
+# Production backend API
+api.carledgr.com {
+    reverse_proxy localhost:3030
+    encode gzip
+    
+    # Enable logging
+    log {
+        output file /var/log/carledgr/backend-access.log
+    }
+}
+
+# Demo frontend
+demo.carledgr.com {
+    root * /var/www/carledgr-demo/frontend/dist
+    file_server
+    encode gzip
+    
+    # Handle SPA routing
+    try_files {path} /index.html
+    
+    # Enable logging
+    log {
+        output file /var/log/carledgr-demo/frontend-access.log
+    }
+}
+
+# Demo backend API
+demo-api.carledgr.com {
+    reverse_proxy localhost:3001
+    encode gzip
+    
+    # Enable logging
+    log {
+        output file /var/log/carledgr-demo/backend-access.log
+    }
+} 
