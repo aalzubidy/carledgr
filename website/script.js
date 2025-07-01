@@ -190,18 +190,27 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // 5. Handle CTA button clicks
+    // 5. Handle CTA button clicks - Let demo buttons navigate naturally
     const demoButtons = document.querySelectorAll('.hero .btn-primary, .cta .btn-primary, .nav-demo-btn');
     demoButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            addLoadingState(this);
-            
-            // Here you would typically redirect to a demo page
-            setTimeout(() => {
-                alert('This would normally open the live demo system.');
-            }, 2000);
-        });
+        // Check if this is actually a demo button (has demo URL)
+        if (button.href && button.href.includes('demo.carledgr.com')) {
+            // Let demo buttons navigate naturally - no preventDefault
+            button.addEventListener('click', function(e) {
+                addLoadingState(this);
+                // Don't prevent default - allow natural navigation to demo
+            });
+        } else {
+            // For other buttons that don't have demo URLs, show placeholder
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                addLoadingState(this);
+                
+                setTimeout(() => {
+                    alert('This would normally redirect to a signup page or contact form.');
+                }, 2000);
+            });
+        }
     });
     
     // 6. Add hover effects to feature cards
