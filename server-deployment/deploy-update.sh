@@ -5,6 +5,23 @@
 
 set -e
 
+# Set up Node.js environment for deploy user
+export NVM_DIR="/home/deploy/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+# Use the current/default node version from nvm
+if command -v nvm >/dev/null 2>&1; then
+    nvm use default >/dev/null 2>&1 || nvm use node >/dev/null 2>&1
+fi
+
+# Fallback: add common Node.js paths
+export PATH="/home/deploy/.nvm/versions/node/v22.17.0/bin:/home/deploy/.nvm/versions/node/v20.17.0/bin:/home/deploy/.nvm/versions/node/v18.20.4/bin:$PATH"
+
+# Verify npm is available
+if ! command -v npm >/dev/null 2>&1; then
+    error "npm command not found. Please ensure Node.js is properly installed for the deploy user."
+fi
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
