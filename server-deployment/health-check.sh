@@ -3,7 +3,8 @@
 # CarLedgr Health Check Script
 # Critical checks will fail deployment, non-critical are informational
 
-set -e
+# Don't use set -e - we want to handle failures gracefully
+# set -e
 
 # Colors for output
 RED='\033[0;31m'
