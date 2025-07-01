@@ -35,7 +35,7 @@ body {
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 1100px;
     margin: 0 auto;
     padding: 0 1rem;
 }
@@ -47,9 +47,9 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 0.5rem;
 }
 
-h1 { font-size: clamp(2rem, 5vw, 3.5rem); }
-h2 { font-size: clamp(1.75rem, 4vw, 2.5rem); }
-h3 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
+h1 { font-size: clamp(1.5rem, 4vw, 2.625rem); }
+h2 { font-size: clamp(1.25rem, 3vw, 1.875rem); }
+h3 { font-size: clamp(1rem, 2.25vw, 1.25rem); }
 
 p {
     margin-bottom: 1rem;
@@ -220,7 +220,7 @@ p {
 
 /* Hero Section */
 .hero {
-    padding: 8rem 0 4rem;
+    padding: 5rem 0 2.5rem;
     background: linear-gradient(135deg, var(--bg-secondary) 0%, white 100%);
     overflow: hidden;
 }
@@ -228,7 +228,7 @@ p {
 .hero .container {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 4rem;
+    gap: 2.5rem;
     align-items: center;
 }
 
@@ -243,14 +243,15 @@ p {
 }
 
 .hero-description {
-    font-size: 1.125rem;
-    margin-bottom: 2rem;
-    max-width: 500px;
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    max-width: 450px;
+    line-height: 1.5;
 }
 
 .hero-buttons {
     display: flex;
-    gap: 1rem;
+    gap: 0.75rem;
     flex-wrap: wrap;
 }
 
@@ -262,68 +263,68 @@ p {
 
 .homepage-screenshot {
     width: 100%;
-    max-width: 600px;
+    max-width: 480px;
     height: auto;
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-xl);
-    transition: transform 0.3s ease;
+    transition: transform 0.2s ease;
 }
 
 .homepage-screenshot:hover {
-    transform: scale(1.02);
+    transform: scale(1.01);
 }
 
 /* Section Headers */
 .section-header {
     text-align: center;
-    margin-bottom: 4rem;
+    margin-bottom: 2.5rem;
 }
 
 .section-header h2 {
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
 }
 
 .section-header p {
-    font-size: 1.125rem;
-    max-width: 600px;
+    font-size: 0.9rem;
+    max-width: 500px;
     margin: 0 auto;
 }
 
 /* Features Section */
 .features {
-    padding: 6rem 0;
+    padding: 4rem 0;
     background-color: var(--bg-primary);
 }
 
 .features-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
 }
 
 .feature-card {
     background: white;
-    padding: 2rem;
+    padding: 1.25rem;
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--border-color);
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .feature-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
 }
 
 .feature-icon {
-    width: 48px;
-    height: 48px;
+    width: 38px;
+    height: 38px;
     background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
     border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     color: white;
 }
 
@@ -339,14 +340,14 @@ p {
 
 /* Advantages Section */
 .advantages {
-    padding: 6rem 0;
+    padding: 4rem 0;
     background-color: var(--bg-primary);
 }
 
 .advantages-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
+    gap: 1.25rem;
 }
 
 @media (max-width: 1024px) {
@@ -363,22 +364,22 @@ p {
 
 .advantage-card {
     background: white;
-    padding: 2rem;
+    padding: 1.25rem;
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--border-color);
     text-align: center;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .advantage-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
 }
 
 .advantage-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+    font-size: 2.25rem;
+    margin-bottom: 0.75rem;
     display: block;
 }
 
@@ -394,15 +395,15 @@ p {
 
 /* Pricing Section */
 .pricing {
-    padding: 6rem 0;
+    padding: 4rem 0;
     background-color: var(--bg-secondary);
 }
 
 .pricing-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-    max-width: 1200px;
+    gap: 1rem;
+    max-width: 1050px;
     margin: 0 auto;
 }
 
@@ -680,6 +681,75 @@ p {
 }
 
 /* Responsive Design */
+
+/* Medium screens (MacBook Air 13/14", smaller laptops) */
+@media (max-width: 1440px) and (min-width: 1025px) {
+    .hero {
+        padding: 5rem 0 2.5rem;
+    }
+    
+    .hero .container {
+        gap: 2.5rem;
+    }
+    
+    .hero-description {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        max-width: 420px;
+    }
+    
+    .section-header {
+        margin-bottom: 2.5rem;
+    }
+    
+    .section-header p {
+        font-size: 0.9rem;
+        max-width: 480px;
+    }
+    
+    .features {
+        padding: 4rem 0;
+    }
+    
+    .advantages {
+        padding: 4rem 0;
+    }
+    
+    .pricing {
+        padding: 4rem 0;
+    }
+    
+    .feature-card,
+    .advantage-card {
+        padding: 1.25rem;
+    }
+    
+    .features-grid,
+    .advantages-grid {
+        gap: 1.25rem;
+    }
+    
+    .pricing-grid {
+        gap: 1rem;
+        max-width: 1100px;
+    }
+    
+    .homepage-screenshot {
+        max-width: 480px;
+    }
+    
+    .feature-icon {
+        width: 38px;
+        height: 38px;
+        margin-bottom: 1rem;
+    }
+    
+    .advantage-icon {
+        font-size: 2.25rem;
+        margin-bottom: 0.75rem;
+    }
+}
+
 @media (max-width: 768px) {
     .nav-menu {
         position: fixed;
