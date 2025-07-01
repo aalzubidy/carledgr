@@ -129,11 +129,11 @@ if [[ "$FRONTEND_CHANGED" == "true" ]]; then
     
     log "Deploying frontend with environment-specific configurations..."
     
-    # Copy production frontend
-    cp -r dist/* /var/www/carledgr/frontend/dist/
+    # The build is already in /var/www/carledgr/frontend/dist/ (current location)
+    # So we don't need to copy to production, but we need to copy to demo
     
-    # Update config.json for production (api.carledgr.com)
-    sed -i 's|"baseUrl": "[^"]*"|"baseUrl": "https://api.carledgr.com/api"|' /var/www/carledgr/frontend/dist/config.json
+    # Update config.json for production (api.carledgr.com) - already in place
+    sed -i 's|"baseUrl": "[^"]*"|"baseUrl": "https://api.carledgr.com/api"|' dist/config.json
     log "Production frontend deployed with API URL: https://api.carledgr.com/api"
     
     # Copy demo frontend
