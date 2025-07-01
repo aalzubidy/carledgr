@@ -128,4 +128,4 @@ Upon first run, the system will create a default admin organization and user:
 - **Email**: admin@carfin.com
 - **Password**: admin123
 
-Please change this password immediately after first login. 
+Please change this password immediately after first login. # Test deployment - Mon Jun 30 06:09:57 PM PDT 2025
