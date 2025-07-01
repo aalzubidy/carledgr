@@ -1,10 +1,7 @@
 #!/bin/bash
 
 # CarLedgr Health Check Script
-# Critical checks will fail deployment, non-critical are informational
-
-# Don't use set -e - we want to handle failures gracefully
-# set -e
+# Check all services and endpoints - fail on any issue
 
 # Colors for output
 RED='\033[0;31m'
@@ -13,13 +10,8 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Logging functions
 log() {
     echo -e "${BLUE}[$(date '+%Y-%m-%d %H:%M:%S')]${NC} $1"
-}
-
-info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
 }
 
 success() {
@@ -30,143 +22,124 @@ fail() {
     echo -e "${RED}❌${NC} $1"
 }
 
-warning() {
-    echo -e "${YELLOW}⚠️${NC} $1"
+info() {
+    echo -e "${BLUE}[INFO]${NC} $1"
 }
 
-error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
+# Track overall health
+FAILED_CHECKS=0
+TOTAL_CHECKS=0
 
-# Check systemd service
+# Function to check systemd service
 check_service() {
     local service_name=$1
     local display_name=$2
     
-    info "Checking $display_name service..."
+    ((TOTAL_CHECKS++))
+    info "Checking $display_name..."
     
-    if sudo systemctl status "$service_name" --no-pager -l | grep -q "Active: active"; then
+    if sudo systemctl is-active --quiet "$service_name"; then
         success "$display_name is running"
-        return 0
     else
         fail "$display_name is not running"
         sudo systemctl status "$service_name" --no-pager -l || true
-        return 1
+        ((FAILED_CHECKS++))
     fi
 }
 
-# Check API health endpoint
+# Function to check HTTP endpoint
+check_endpoint() {
+    local url=$1
+    local name=$2
+    
+    ((TOTAL_CHECKS++))
+    info "Checking $name..."
+    
+    local response
+    response=$(curl -s -w "%{http_code}" "$url" --max-time 10 --connect-timeout 5 2>/dev/null)
+    local http_code="${response: -3}"
+    
+    if [[ "$http_code" =~ ^[2-3][0-9][0-9]$ ]]; then
+        success "$name is responding (HTTP $http_code)"
+    else
+        fail "$name is not responding (HTTP $http_code)"
+        ((FAILED_CHECKS++))
+    fi
+}
+
+# Function to check API health endpoint
 check_api_health() {
     local url=$1
     local name=$2
     
+    ((TOTAL_CHECKS++))
     info "Checking $name API health..."
     
     local response
-    response=$(curl -s "$url/health" --max-time 10 --connect-timeout 5 || echo "CURL_ERROR")
+    response=$(curl -s "$url/health" --max-time 10 --connect-timeout 5 2>/dev/null || echo "")
     
-    if [[ -n "$response" ]] && [[ "$response" != "CURL_ERROR" ]] && echo "$response" | grep -q '"status":"ok"'; then
+    if [[ -n "$response" ]] && echo "$response" | grep -q '"status":"ok"'; then
         success "$name API is healthy"
-        return 0
     else
         fail "$name API health check failed"
         echo "Response: $response"
-        return 1
+        ((FAILED_CHECKS++))
     fi
 }
 
-# Check website content
-check_website() {
-    local url=$1
-    local name=$2
-    
-    info "Checking $name content..."
-    
-    local response
-    response=$(curl -s "$url" --max-time 10 --connect-timeout 5 || echo "CURL_ERROR")
-    
-    if [[ -n "$response" ]] && [[ "$response" != "CURL_ERROR" ]] && [[ ${#response} -gt 100 ]]; then
-        success "$name is serving content"
-        return 0
-    else
-        fail "$name is not serving content properly"
-        echo "Response length: ${#response}"
-        return 1
-    fi
-}
-
-# Initialize counters
-critical_checks=0
-critical_passed=0
-
-log "Starting CarLedgr health checks..."
+echo "🔍 CarLedgr Health Check"
+echo "======================="
 echo ""
 
+# Wait for services to stabilize
 info "Waiting 5 seconds for services to stabilize..."
 sleep 5
 echo ""
 
-info "=== CRITICAL CHECKS ==="
-
 # Check Demo Backend Service
-((critical_checks++))
-if check_service "carledgr-demo" "Demo Backend Service"; then
-    ((critical_passed++))
-fi
+check_service "carledgr-demo" "Demo Backend Service"
 
 # Check Demo Backend API Health
-((critical_checks++))
-if check_api_health "https://demo-api.carledgr.com" "Demo Backend"; then
-    ((critical_passed++))
-fi
+check_api_health "https://demo-api.carledgr.com" "Demo Backend"
 
-# Check Production Backend (only if running)
-if sudo systemctl status carledgr-prod --no-pager -l | grep -q "Active: active" 2>/dev/null; then
+# Check Production Backend (only if it should be running)
+if sudo systemctl is-active --quiet carledgr-prod; then
     info "Production backend detected, checking..."
-    
-    ((critical_checks++))
-    if check_service "carledgr-prod" "Production Backend Service"; then
-        ((critical_passed++))
-    fi
-    
-    ((critical_checks++))
-    if check_api_health "https://api.carledgr.com" "Production Backend"; then
-        ((critical_passed++))
-    fi
+    check_service "carledgr-prod" "Production Backend Service"
+    check_api_health "https://api.carledgr.com" "Production Backend"
 else
     info "Production backend not running (demo-only setup)"
 fi
 
-echo ""
-info "=== BASIC CONNECTIVITY ==="
-
-# Check websites are serving content
-check_website "https://carledgr.com" "Marketing Website"
-check_website "https://demo.carledgr.com" "Demo Frontend"
+# Check website endpoints
+check_endpoint "https://carledgr.com" "Marketing Website"
+check_endpoint "https://demo.carledgr.com" "Demo Frontend"
 
 # Check production frontend if backend is running
-if sudo systemctl status carledgr-prod --no-pager -l | grep -q "Active: active" 2>/dev/null; then
-    check_website "https://app.carledgr.com" "Production Frontend"
+if sudo systemctl is-active --quiet carledgr-prod; then
+    check_endpoint "https://app.carledgr.com" "Production Frontend"
 fi
 
-echo ""
-info "=== SUMMARY ==="
-echo "Critical checks: $critical_passed/$critical_checks"
-
 # Final result
-if [[ $critical_passed -eq $critical_checks ]]; then
-    success "All critical checks passed! Deployment is healthy ✅"
+echo ""
+echo "=== HEALTH CHECK RESULTS ==="
+echo "Total checks: $TOTAL_CHECKS"
+echo "Failed checks: $FAILED_CHECKS"
+echo ""
+
+if [[ $FAILED_CHECKS -eq 0 ]]; then
+    success "All health checks passed! ✅"
     echo ""
-    echo "CarLedgr is running:"
+    echo "CarLedgr is healthy and running:"
     echo "  🌐 Marketing: https://carledgr.com"
     echo "  🧪 Demo: https://demo.carledgr.com"
-    if sudo systemctl status carledgr-prod --no-pager -l | grep -q "Active: active" 2>/dev/null; then
+    if sudo systemctl is-active --quiet carledgr-prod; then
         echo "  🚀 Production: https://app.carledgr.com"
     fi
     exit 0
 else
-    fail "CRITICAL CHECKS FAILED! ($((critical_checks - critical_passed)) failures)"
+    fail "Health check failed! ($FAILED_CHECKS failures)"
     echo ""
-    echo "Deployment failed. Check the errors above."
+    echo "Please investigate the failures above."
     exit 1
 fi
