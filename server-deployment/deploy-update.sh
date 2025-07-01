@@ -148,21 +148,14 @@ if [[ "$BACKEND_CHANGED" == "true" ]]; then
     log "Restarting backend services..."
     
     # Restart demo backend
-    log "Stopping carledgr-demo service..."
-    sudo systemctl stop carledgr-demo || true
-    sleep 2
-    log "Starting carledgr-demo service..."
-    sudo systemctl start carledgr-demo
+    log "Restarting carledgr-demo service..."
+    sudo systemctl restart carledgr-demo
     wait_for_service "carledgr-demo" "https://demo-api.carledgr.com"
     
     # Restart production backend if it's running
     if is_service_running carledgr-prod; then
         log "Restarting production backend..."
-        log "Stopping carledgr-prod service..."
-        sudo systemctl stop carledgr-prod || true
-        sleep 2
-        log "Starting carledgr-prod service..."
-        sudo systemctl start carledgr-prod
+        sudo systemctl restart carledgr-prod
         wait_for_service "carledgr-prod" "https://api.carledgr.com"
     else
         info "Production backend is not running, skipping restart"
