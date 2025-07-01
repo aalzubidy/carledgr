@@ -12,6 +12,7 @@ const {
 } = require('../db/queries/authQueries');
 const { query } = require('../db/connection');
 const { ValidationError, UnauthorizedError, NotFoundError } = require('../middleware/errorHandler');
+const { sendPasswordResetEmail } = require('../utils/emailService');
 
 // Login user
 const login = async (req, res, next) => {
@@ -257,6 +258,77 @@ const updatePassword = async (req, res, next) => {
   }
 };
 
+// Generate random password
+const generateRandomPassword = () => {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+  let password = '';
+  for (let i = 0; i < 12; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
+};
+
+// Forgot password - Generate temporary password and email it
+const forgotPassword = async (req, res, next) => {
+  try {
+    const { organization, email } = req.body;
+    
+    if (!organization || !email) {
+      throw new ValidationError('Organization name and email are required');
+    }
+    
+    // Find organization
+    const organizations = await getOrganizationByName(organization.trim());
+    
+    if (organizations.length === 0) {
+      // For security, don't reveal that organization doesn't exist
+      return res.json({ 
+        message: 'If an account with that email exists in the specified organization, a password reset email has been sent.' 
+      });
+    }
+    
+    const organizationData = organizations[0];
+    
+    // Get user by email and organization
+    const users = await getUserByEmailAndOrganization(email.trim(), organizationData.id);
+    
+    if (users.length === 0) {
+      // For security, don't reveal that user doesn't exist
+      return res.json({ 
+        message: 'If an account with that email exists in the specified organization, a password reset email has been sent.' 
+      });
+    }
+    
+    const user = users[0];
+    
+    // Generate temporary password
+    const tempPassword = generateRandomPassword();
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+    
+    // Update user's password with temporary password
+    await query(
+      'UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      [hashedPassword, user.id]
+    );
+    
+    // Send password reset email
+    try {
+      await sendPasswordResetEmail(organizationData.name, user.email, tempPassword);
+      logger.info(`Password reset email sent to ${user.email} for organization ${organizationData.name}`);
+    } catch (emailError) {
+      logger.error(`Failed to send password reset email: ${emailError.message}`);
+      // Still return success to user for security, but log the error
+    }
+    
+    res.json({ 
+      message: 'If an account with that email exists in the specified organization, a password reset email has been sent.' 
+    });
+    
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   login,
   register,
@@ -264,5 +336,6 @@ module.exports = {
   getCurrentUser,
   getRoles,
   updateProfile,
-  updatePassword
+  updatePassword,
+  forgotPassword
 }; 

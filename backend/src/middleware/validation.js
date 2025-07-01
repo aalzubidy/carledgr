@@ -44,6 +44,10 @@ const rules = {
       body('organization').notEmpty().withMessage('Organization is required'),
       body('email').notEmpty().isEmail().withMessage('Valid email is required'),
       body('password').notEmpty().withMessage('Password is required')
+    ],
+    forgotPassword: [
+      body('organization').notEmpty().withMessage('Organization name is required'),
+      body('email').notEmpty().isEmail().withMessage('Valid email is required')
     ]
   },
   

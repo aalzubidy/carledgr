@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { login, register, getOrganizations, getCurrentUser, getRoles, updateProfile, updatePassword } = require('../controllers/authController');
+const { login, register, getOrganizations, getCurrentUser, getRoles, updateProfile, updatePassword, forgotPassword } = require('../controllers/authController');
 const { authenticateJWT, isOwner } = require('../middleware/auth');
 const { requireOwner } = require('../middleware/roleAuth');
 const { validate, rules } = require('../middleware/validation');
@@ -8,6 +8,7 @@ const { validate, rules } = require('../middleware/validation');
 // Public routes
 router.get('/organizations', getOrganizations);
 router.post('/login', rules.user.login, validate, login);
+router.post('/forgot-password', rules.user.forgotPassword, validate, forgotPassword);
 
 // Protected routes
 router.get('/me', authenticateJWT, getCurrentUser);
