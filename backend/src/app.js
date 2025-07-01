@@ -23,7 +23,23 @@ const adminRoutes = require('./routes/adminRoutes');
 const app = express();
 
 // CORS middleware (before other middleware)
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://carledgr.com',
+    'https://www.carledgr.com',
+    'https://app.carledgr.com',
+    'https://demo.carledgr.com',
+    'http://localhost:5050',
+    'http://127.0.0.1:5050',
+    'http://localhost:3000',
+    'http://localhost:8080',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:8080'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Request logging
 app.use((req, res, next) => {
