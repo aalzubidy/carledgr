@@ -75,7 +75,7 @@ fi
 
 # Function to check if service is running
 is_service_running() {
-    systemctl is-active --quiet "$1"
+    sudo systemctl is-active --quiet "$1"
 }
 
 # Function to wait for service to be ready
@@ -171,13 +171,13 @@ if [[ "$BACKEND_CHANGED" == "true" ]]; then
     log "Restarting backend services..."
     
     # Restart demo backend
-    systemctl restart carledgr-demo
+    sudo systemctl restart carledgr-demo
     wait_for_service "carledgr-demo" "https://demo-api.carledgr.com"
     
     # Restart production backend if it's running
     if is_service_running carledgr-prod; then
         log "Restarting production backend..."
-        systemctl restart carledgr-prod
+        sudo systemctl restart carledgr-prod
         wait_for_service "carledgr-prod" "https://api.carledgr.com"
     else
         info "Production backend is not running, skipping restart"
@@ -200,8 +200,8 @@ if [[ "$CADDY_CHANGED" == "true" ]]; then
     
     # Test Caddy configuration first
     if caddy validate --config ./server-deployment/Caddyfile; then
-        cp ./server-deployment/Caddyfile /etc/caddy/
-        systemctl reload caddy
+        sudo cp ./server-deployment/Caddyfile /etc/caddy/
+        sudo systemctl reload caddy
         log "Caddy configuration reloaded successfully"
     else
         error "Invalid Caddy configuration, deployment aborted"
