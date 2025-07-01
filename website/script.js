@@ -101,8 +101,14 @@ if (navToggle && navMenu) {
 // Smooth scrolling for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
+        const href = this.getAttribute('href');
+        // Skip empty or just # hrefs
+        if (!href || href === '#') {
+            return;
+        }
+        
         e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
+        const target = document.querySelector(href);
         if (target) {
             const offsetTop = target.offsetTop - 80; // Account for fixed navbar
             window.scrollTo({
@@ -259,6 +265,16 @@ async function createCheckoutSession(checkoutData) {
     return await response.json();
 }
 
+async function checkOrganizationNameAvailability(organizationName) {
+    const response = await fetch(`${config.api.baseUrl}${config.api.endpoints.checkOrgName}/${encodeURIComponent(organizationName)}`);
+    
+    if (!response.ok) {
+        throw new Error(`Failed to check organization name: ${response.status}`);
+    }
+    
+    return await response.json();
+}
+
 function showOrganizationModal(planName) {
     return new Promise((resolve) => {
         // Create modal HTML
@@ -360,10 +376,12 @@ function showOrganizationModal(planName) {
         document.getElementById('org-name').focus();
         
         // Handle form submission
-        form.addEventListener('submit', (e) => {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const organizationName = document.getElementById('org-name').value.trim();
             const ownerEmail = document.getElementById('owner-email').value.trim();
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.textContent;
             
             if (!organizationName || !ownerEmail) {
                 showErrorMessage('Please fill in all required fields');
@@ -377,8 +395,32 @@ function showOrganizationModal(planName) {
                 return;
             }
             
-            modal.remove();
-            resolve({ organizationName, ownerEmail });
+            // Show loading state
+            submitBtn.textContent = 'Checking availability...';
+            submitBtn.disabled = true;
+            
+            try {
+                // Check if organization name is already taken
+                const nameCheck = await checkOrganizationNameAvailability(organizationName);
+                
+                if (nameCheck.exists) {
+                    submitBtn.textContent = originalBtnText;
+                    submitBtn.disabled = false;
+                    showErrorMessage(`Organization name "${organizationName}" is already taken. Please choose a different name.`);
+                    document.getElementById('org-name').focus();
+                    return;
+                }
+                
+                // Name is available, proceed
+                modal.remove();
+                resolve({ organizationName, ownerEmail });
+                
+            } catch (error) {
+                submitBtn.textContent = originalBtnText;
+                submitBtn.disabled = false;
+                console.error('Error checking organization name:', error);
+                showErrorMessage('Unable to verify organization name availability. Please try again.');
+            }
         });
         
         // Handle cancel

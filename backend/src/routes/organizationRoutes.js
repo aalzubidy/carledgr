@@ -5,11 +5,15 @@ const {
   getById, 
   create, 
   update, 
-  remove 
+  remove,
+  checkNameExists
 } = require('../controllers/organizationController');
 const { authenticateJWT, isOwner } = require('../middleware/auth');
 const { requireOwner, requireOrganization } = require('../middleware/roleAuth');
 const { validate, rules } = require('../middleware/validation');
+
+// Public route for checking organization name availability (used during registration)
+router.get('/check-name/:name', checkNameExists);
 
 // All organization routes require authentication
 router.use(authenticateJWT);

@@ -35,10 +35,17 @@ const deleteOrganization = async (id) => {
   return query('DELETE FROM organizations WHERE id = ?', [id]);
 };
 
+// Check if organization name exists
+const checkOrganizationNameExists = async (name) => {
+  const result = await query('SELECT id FROM organizations WHERE LOWER(name) = LOWER(?)', [name]);
+  return result.length > 0;
+};
+
 module.exports = {
   getAllOrganizations,
   getOrganizationById,
   createOrganization,
   updateOrganization,
-  deleteOrganization
+  deleteOrganization,
+  checkOrganizationNameExists
 }; 
