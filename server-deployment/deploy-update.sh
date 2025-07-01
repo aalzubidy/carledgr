@@ -78,25 +78,191 @@ is_service_running() {
     sudo systemctl is-active --quiet "$1"
 }
 
-# Function to wait for service to be ready
+# Function to check and fix backend setup
+check_and_fix_backend_setup() {
+    local env_name=$1
+    local backend_path="/var/www/carledgr${env_name:+-$env_name}/backend"
+    local config_path="/etc/carledgr${env_name:+-$env_name}/config.json"
+    
+    log "Checking ${env_name:-production} backend setup..."
+    
+    # Check configuration file
+    if [[ ! -f "$config_path" ]]; then
+        error "Configuration file not found: $config_path"
+    fi
+    
+    if ! jq empty "$config_path" 2>/dev/null; then
+        error "Invalid JSON in configuration file: $config_path"
+    fi
+    
+    # Check backend directory and dependencies
+    if [[ ! -d "$backend_path" ]]; then
+        error "Backend directory not found: $backend_path"
+    fi
+    
+    cd "$backend_path"
+    
+    if [[ ! -f "package.json" ]]; then
+        error "package.json not found in $backend_path"
+    fi
+    
+    # Check and fix node_modules
+    if [[ ! -d "node_modules" ]] || [[ ! -d "node_modules/express" ]]; then
+        warning "Missing or incomplete node_modules, reinstalling..."
+        npm ci --production
+    fi
+    
+    # Test manual startup to catch startup errors
+    log "Testing ${env_name:-production} backend startup..."
+    export NODE_ENV=production
+    export CL_BACKEND_CONFIG_FILE="$config_path"
+    
+    # Capture startup output
+    local startup_output
+    startup_output=$(timeout 10s node index.js 2>&1 || echo "STARTUP_FAILED")
+    
+    if echo "$startup_output" | grep -q "STARTUP_FAILED\|Error\|error\|ERROR"; then
+        error "Backend startup test failed for ${env_name:-production}:
+$startup_output"
+    fi
+    
+    if echo "$startup_output" | grep -q "Server running\|listening\|started"; then
+        info "Backend startup test passed for ${env_name:-production}"
+    else
+        warning "Backend startup test unclear for ${env_name:-production}. Output:
+$startup_output"
+    fi
+    
+    cd /var/www/carledgr
+}
+
+# Function to wait for service to be ready with automatic diagnosis
 wait_for_service() {
     local service=$1
     local url=$2
-    local max_attempts=30
+    local max_systemd_attempts=15
+    local max_http_attempts=20
     local attempt=1
     
     log "Waiting for $service to be ready..."
-    while [[ $attempt -le $max_attempts ]]; do
-        if curl -f -s "$url" > /dev/null 2>&1; then
-            log "$service is ready!"
-            return 0
+    
+    # First wait for systemd service to be active
+    while [[ $attempt -le $max_systemd_attempts ]]; do
+        if sudo systemctl is-active --quiet "$service"; then
+            log "$service systemd service is active"
+            break
+        elif [[ $attempt -eq $max_systemd_attempts ]]; then
+            # Service failed to start - provide diagnosis and try to fix
+            warning "$service systemd service failed to start within $max_systemd_attempts attempts"
+            
+            info "Service status:"
+            sudo systemctl status "$service" --no-pager -l || true
+            
+            info "Recent logs:"
+            local logs
+            logs=$(sudo journalctl -u "$service" --no-pager -l -n 20 2>/dev/null || echo "No logs available")
+            echo "$logs"
+            
+            # Try to identify and fix common issues
+            if echo "$logs" | grep -q "ENOENT\|Cannot find module\|MODULE_NOT_FOUND"; then
+                warning "Dependencies issue detected. Reinstalling node_modules..."
+                local backend_path="/var/www/carledgr${service#carledgr}-demo/backend"
+                if [[ "$service" == "carledgr-prod" ]]; then
+                    backend_path="/var/www/carledgr/backend"
+                fi
+                cd "$backend_path"
+                rm -rf node_modules package-lock.json
+                npm install --production
+                cd /var/www/carledgr
+                
+                log "Retrying service start after dependency fix..."
+                sudo systemctl start "$service"
+                sleep 5
+                
+                if sudo systemctl is-active --quiet "$service"; then
+                    log "$service started successfully after dependency fix"
+                    break
+                fi
+            fi
+            
+            if echo "$logs" | grep -q "permission denied\|EACCES"; then
+                warning "Permission issue detected. Fixing permissions..."
+                local base_path="/var/www/carledgr"
+                if [[ "$service" == "carledgr-demo" ]]; then
+                    base_path="/var/www/carledgr-demo"
+                fi
+                sudo chown -R deploy:deploy "$base_path"
+                sudo chmod -R 755 "$base_path"
+                
+                log "Retrying service start after permission fix..."
+                sudo systemctl start "$service"
+                sleep 5
+                
+                if sudo systemctl is-active --quiet "$service"; then
+                    log "$service started successfully after permission fix"
+                    break
+                fi
+            fi
+            
+            if echo "$logs" | grep -q "port.*already in use\|EADDRINUSE"; then
+                warning "Port conflict detected. Checking for conflicting processes..."
+                local port="3001"
+                if [[ "$service" == "carledgr-prod" ]]; then
+                    port="3000"
+                fi
+                
+                local conflicting_pid
+                conflicting_pid=$(sudo lsof -t -i:"$port" 2>/dev/null || echo "")
+                if [[ -n "$conflicting_pid" ]]; then
+                    warning "Killing conflicting process on port $port (PID: $conflicting_pid)"
+                    sudo kill -9 "$conflicting_pid" 2>/dev/null || true
+                    sleep 2
+                    
+                    log "Retrying service start after port cleanup..."
+                    sudo systemctl start "$service"
+                    sleep 5
+                    
+                    if sudo systemctl is-active --quiet "$service"; then
+                        log "$service started successfully after port cleanup"
+                        break
+                    fi
+                fi
+            fi
+            
+            error "$service systemd service failed to start and automatic fixes didn't work. Manual intervention required."
         fi
         echo -n "."
         sleep 2
         ((attempt++))
     done
     
-    error "$service failed to start properly after $max_attempts attempts"
+    # Then wait for HTTP endpoint to be ready
+    attempt=1
+    while [[ $attempt -le $max_http_attempts ]]; do
+        if curl -f -s "$url/health" > /dev/null 2>&1; then
+            log "$service is ready and responding!"
+            return 0
+        fi
+        echo -n "."
+        sleep 3
+        ((attempt++))
+    done
+    
+    # HTTP endpoint still not responding
+    warning "$service HTTP endpoint not responding after $max_http_attempts attempts"
+    warning "Service is running but not responding to HTTP requests"
+    
+    # Check if it's a network/firewall issue
+    if curl -f -s "$url" > /dev/null 2>&1; then
+        warning "Base URL responds but /health endpoint doesn't. This might be a backend routing issue."
+    else
+        warning "No HTTP response at all. This might be a network or firewall issue."
+    fi
+    
+    info "Final service status:"
+    sudo systemctl status "$service" --no-pager -l || true
+    
+    error "$service failed to become fully ready. Manual investigation required."
 }
 
 # Pull latest code
@@ -105,15 +271,62 @@ git fetch origin
 git reset --hard origin/master
 log "Code updated successfully"
 
-# Deploy website if changed
-if [[ "$WEBSITE_CHANGED" == "true" ]]; then
-    log "Deploying website..."
-    # Website files are already updated by git pull
-    # No service restart needed for static files
-    log "Website deployed successfully"
+# Deploy backend FIRST (before frontend)
+if [[ "$BACKEND_CHANGED" == "true" ]]; then
+    log "Deploying backend..."
+    
+    cd backend
+    
+    # Install dependencies for production
+    log "Installing production backend dependencies..."
+    npm ci --production
+    
+    # Copy to demo environment
+    log "Copying backend to demo environment..."
+    rsync -av --exclude=node_modules . /var/www/carledgr-demo/backend/
+    
+    # Install dependencies for demo
+    cd /var/www/carledgr-demo/backend
+    npm ci --production
+    
+    cd /var/www/carledgr
+    
+    # Check and fix backend setups
+    check_and_fix_backend_setup "demo"
+    
+    # Check production setup only if service is supposed to be running
+    if is_service_running carledgr-prod; then
+        check_and_fix_backend_setup ""
+    fi
+    
+    # Restart services
+    log "Restarting backend services..."
+    
+    # Restart demo backend
+    log "Stopping carledgr-demo service..."
+    sudo systemctl stop carledgr-demo || true
+    sleep 2
+    log "Starting carledgr-demo service..."
+    sudo systemctl start carledgr-demo
+    wait_for_service "carledgr-demo" "https://demo-api.carledgr.com"
+    
+    # Restart production backend if it's running
+    if is_service_running carledgr-prod; then
+        log "Restarting production backend..."
+        log "Stopping carledgr-prod service..."
+        sudo systemctl stop carledgr-prod || true
+        sleep 2
+        log "Starting carledgr-prod service..."
+        sudo systemctl start carledgr-prod
+        wait_for_service "carledgr-prod" "https://api.carledgr.com"
+    else
+        info "Production backend is not running, skipping restart"
+    fi
+    
+    log "Backend deployed successfully"
 fi
 
-# Deploy frontend if changed
+# Deploy frontend AFTER backend
 if [[ "$FRONTEND_CHANGED" == "true" ]]; then
     log "Deploying frontend..."
     
@@ -147,43 +360,12 @@ if [[ "$FRONTEND_CHANGED" == "true" ]]; then
     log "Frontend deployed successfully"
 fi
 
-# Deploy backend if changed
-if [[ "$BACKEND_CHANGED" == "true" ]]; then
-    log "Deploying backend..."
-    
-    cd backend
-    
-    # Install dependencies for production
-    log "Installing production backend dependencies..."
-    npm ci --production
-    
-    # Copy to demo environment
-    log "Copying backend to demo environment..."
-    rsync -av --exclude=node_modules . /var/www/carledgr-demo/backend/
-    
-    # Install dependencies for demo
-    cd /var/www/carledgr-demo/backend
-    npm ci --production
-    
-    cd /var/www/carledgr
-    
-    # Restart services
-    log "Restarting backend services..."
-    
-    # Restart demo backend
-    sudo systemctl restart carledgr-demo
-    wait_for_service "carledgr-demo" "https://demo-api.carledgr.com"
-    
-    # Restart production backend if it's running
-    if is_service_running carledgr-prod; then
-        log "Restarting production backend..."
-        sudo systemctl restart carledgr-prod
-        wait_for_service "carledgr-prod" "https://api.carledgr.com"
-    else
-        info "Production backend is not running, skipping restart"
-    fi
-    
-    log "Backend deployed successfully"
+# Deploy website if changed
+if [[ "$WEBSITE_CHANGED" == "true" ]]; then
+    log "Deploying website..."
+    # Website files are already updated by git pull
+    # No service restart needed for static files
+    log "Website deployed successfully"
 fi
 
 # Update deployment scripts if changed
