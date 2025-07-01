@@ -1,6 +1,6 @@
 {
   "name": "carledgr-backend",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Backend for car dealership financial tracking",
   "main": "index.js",
   "scripts": {

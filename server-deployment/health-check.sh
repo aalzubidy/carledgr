@@ -45,12 +45,12 @@ check_service() {
     
     info "Checking $display_name service..."
     
-    if systemctl is-active --quiet "$service_name" 2>/dev/null; then
+    if sudo systemctl is-active --quiet "$service_name" 2>/dev/null; then
         success "$display_name is running"
         return 0
     else
         fail "$display_name is not running"
-        systemctl status "$service_name" --no-pager -l || true
+        sudo systemctl status "$service_name" --no-pager -l || true
         return 1
     fi
 }
@@ -121,7 +121,7 @@ if check_api_health "https://demo-api.carledgr.com" "Demo Backend"; then
 fi
 
 # Check Production Backend (only if running)
-if systemctl is-active --quiet carledgr-prod 2>/dev/null; then
+if sudo systemctl is-active --quiet carledgr-prod 2>/dev/null; then
     info "Production backend detected, checking..."
     
     ((critical_checks++))
@@ -145,7 +145,7 @@ check_website "https://carledgr.com" "Marketing Website"
 check_website "https://demo.carledgr.com" "Demo Frontend"
 
 # Check production frontend if backend is running
-if systemctl is-active --quiet carledgr-prod 2>/dev/null; then
+if sudo systemctl is-active --quiet carledgr-prod 2>/dev/null; then
     check_website "https://app.carledgr.com" "Production Frontend"
 fi
 
@@ -160,7 +160,7 @@ if [[ $critical_passed -eq $critical_checks ]]; then
     echo "CarLedgr is running:"
     echo "  🌐 Marketing: https://carledgr.com"
     echo "  🧪 Demo: https://demo.carledgr.com"
-    if systemctl is-active --quiet carledgr-prod 2>/dev/null; then
+    if sudo systemctl is-active --quiet carledgr-prod 2>/dev/null; then
         echo "  🚀 Production: https://app.carledgr.com"
     fi
     exit 0
