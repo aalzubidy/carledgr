@@ -120,9 +120,20 @@ wait_for_service() {
 
 # Pull latest code
 log "Pulling latest code from repository..."
+
+# Store script checksum before pull
+SCRIPT_BEFORE=$(md5sum "$0" 2>/dev/null || echo "")
+
 git fetch origin
 git reset --hard origin/master
 log "Code updated successfully"
+
+# Check if this script was updated and re-exec if needed
+SCRIPT_AFTER=$(md5sum "$0" 2>/dev/null || echo "")
+if [[ "$SCRIPT_BEFORE" != "$SCRIPT_AFTER" ]] && [[ -n "$SCRIPT_BEFORE" ]]; then
+    log "Deployment script was updated, re-executing with new version..."
+    exec "$0" "$@"
+fi
 
 # Deploy backend FIRST (before frontend)
 if [[ "$BACKEND_CHANGED" == "true" ]]; then
