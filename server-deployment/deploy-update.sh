@@ -78,25 +78,7 @@ is_service_running() {
     sudo systemctl is-active --quiet "$1"
 }
 
-# Simple function to check basic backend setup
-check_backend_setup() {
-    local env_name=$1
-    local config_path="/etc/carledgr${env_name:+-$env_name}/config.json"
-    
-    # Just check if config exists and is valid JSON
-    if [[ ! -f "$config_path" ]]; then
-        warning "Configuration file not found: $config_path"
-        return 1
-    fi
-    
-    if ! jq empty "$config_path" 2>/dev/null; then
-        warning "Invalid JSON in configuration file: $config_path"
-        return 1
-    fi
-    
-    info "${env_name:-production} backend config looks good"
-    return 0
-}
+
 
 # Simple function to check if service is working
 wait_for_service() {
@@ -161,14 +143,6 @@ if [[ "$BACKEND_CHANGED" == "true" ]]; then
     npm ci --production
     
     cd /var/www/carledgr
-    
-    # Quick config check
-    check_backend_setup "demo"
-    
-    # Check production setup only if service is supposed to be running
-    if is_service_running carledgr-prod; then
-        check_backend_setup ""
-    fi
     
     # Restart services
     log "Restarting backend services..."
