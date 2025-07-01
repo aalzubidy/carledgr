@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { t } from '../utils/i18n.js'
 import { api } from '../utils/api.js'
 import Layout, { Loading, EmptyState } from '../components/Layout.jsx'
-import { showSuccess, showError, showWarning } from '../utils/snackbar.js'
+import { showSuccess, showError, showWarning, showInfo, hideSnackbar } from '../utils/snackbar.js'
 import vinDecoder from '../utils/vinDecoder.js'
 
 function CarsPage() {
@@ -30,9 +30,20 @@ function CarsPage() {
   })
   const [vinDecoding, setVinDecoding] = useState(false)
   const decodeTimeoutRef = useRef(null)
+  const vinCheckingSnackbarRef = useRef(null)
 
   useEffect(() => {
     loadCarsData()
+    
+    // Cleanup function
+    return () => {
+      if (decodeTimeoutRef.current) {
+        clearTimeout(decodeTimeoutRef.current)
+      }
+      if (vinCheckingSnackbarRef.current) {
+        hideSnackbar(vinCheckingSnackbarRef.current)
+      }
+    }
   }, [])
 
   useEffect(() => {
@@ -128,6 +139,12 @@ function CarsPage() {
       sale_price: '',
       status: 'in_stock'
     })
+    setVinDecoding(false)
+    // Clear any existing VIN checking snackbar
+    if (vinCheckingSnackbarRef.current) {
+      hideSnackbar(vinCheckingSnackbarRef.current)
+      vinCheckingSnackbarRef.current = null
+    }
     setShowModal(true)
   }
 
@@ -173,14 +190,20 @@ function CarsPage() {
     const vin = e.target.value.trim()
     handleFormChange(e)
     
-    // Clear previous timeout
+    // Clear previous timeout and hide previous snackbar
     if (decodeTimeoutRef.current) {
       clearTimeout(decodeTimeoutRef.current)
+    }
+    if (vinCheckingSnackbarRef.current) {
+      hideSnackbar(vinCheckingSnackbarRef.current)
+      vinCheckingSnackbarRef.current = null
     }
     
     // Only decode if we have a 17-character VIN and we're adding a new car
     if (vin.length >= 17 && !editingCar) {
       setVinDecoding(true)
+      // Show "Checking VIN..." message
+      vinCheckingSnackbarRef.current = showInfo('Checking VIN...', 0) // 0 duration means it won't auto-hide
       
       // Decode with a small delay to avoid too many API calls
       decodeTimeoutRef.current = setTimeout(async () => {
@@ -208,6 +231,11 @@ function CarsPage() {
           }
         } finally {
           setVinDecoding(false)
+          // Hide the "Checking VIN..." message
+          if (vinCheckingSnackbarRef.current) {
+            hideSnackbar(vinCheckingSnackbarRef.current)
+            vinCheckingSnackbarRef.current = null
+          }
         }
       }, 1000)
     } else {
@@ -397,7 +425,15 @@ function CarsPage() {
         <div className="modal">
           <div className="modal-header">
             <h2>{modalTitle}</h2>
-            <button className="modal-close" onClick={() => setShowModal(false)}>×</button>
+            <button className="modal-close" onClick={() => {
+              setShowModal(false)
+              // Clear any VIN checking snackbar when modal is closed
+              if (vinCheckingSnackbarRef.current) {
+                hideSnackbar(vinCheckingSnackbarRef.current)
+                vinCheckingSnackbarRef.current = null
+              }
+              setVinDecoding(false)
+            }}>×</button>
           </div>
           <div className="modal-body">
             <form onSubmit={handleSaveCar}>
@@ -432,6 +468,7 @@ function CarsPage() {
                     required 
                     value={formData.make}
                     onChange={handleFormChange}
+                    disabled={vinDecoding && !isEdit}
                   />
                 </div>
               </div>
@@ -445,6 +482,7 @@ function CarsPage() {
                     required 
                     value={formData.model}
                     onChange={handleFormChange}
+                    disabled={vinDecoding && !isEdit}
                   />
                 </div>
                 <div className="form-group">
@@ -456,6 +494,7 @@ function CarsPage() {
                     required 
                     value={formData.year}
                     onChange={handleFormChange}
+                    disabled={vinDecoding && !isEdit}
                   />
                 </div>
               </div>
@@ -468,6 +507,7 @@ function CarsPage() {
                     className="form-control" 
                     value={formData.color}
                     onChange={handleFormChange}
+                    disabled={vinDecoding && !isEdit}
                   />
                 </div>
                 <div className="form-group">
@@ -553,7 +593,15 @@ function CarsPage() {
             </form>
           </div>
           <div className="modal-footer">
-            <button className="btn btn-secondary" onClick={() => setShowModal(false)}>
+            <button className="btn btn-secondary" onClick={() => {
+              setShowModal(false)
+              // Clear any VIN checking snackbar when modal is closed
+              if (vinCheckingSnackbarRef.current) {
+                hideSnackbar(vinCheckingSnackbarRef.current)
+                vinCheckingSnackbarRef.current = null
+              }
+              setVinDecoding(false)
+            }}>
               {t('common.cancel')}
             </button>
             <button className="btn btn-primary" onClick={handleSaveCar}>

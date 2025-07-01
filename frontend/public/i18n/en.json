@@ -11,7 +11,13 @@
     "organization": "Organization",
     "loginButton": "Sign In",
     "loginError": "Invalid credentials",
-    "loginSuccess": "Login successful"
+    "loginSuccess": "Login successful",
+    "forgotPassword": "Forgot Password?",
+    "resetPassword": "Reset Password",
+    "backToLogin": "Back to Login",
+    "resetInstructions": "Enter your organization name and email address to receive a temporary password.",
+    "resetEmailSent": "If an account exists with those details, a password reset email has been sent.",
+    "sendResetEmail": "Send Reset Email"
   },
   "navigation": {
     "dashboard": "Dashboard",

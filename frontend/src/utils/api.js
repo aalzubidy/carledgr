@@ -151,6 +151,13 @@ const api = {
     
     return response;
   },
+
+  async forgotPassword(data) {
+    return makeRequest('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  },
   
   async logout() {
     try {

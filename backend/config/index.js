@@ -51,14 +51,17 @@ const config = {
     enterprisePriceId: process.env.CL_BACKEND_STRIPE_ENTERPRISE_PRICE_ID || configJson.stripe?.enterprisePriceId
   },
   email: {
-    provider: process.env.CL_BACKEND_EMAIL_PROVIDER || configJson.email?.provider || 'smtp',
-    host: process.env.CL_BACKEND_EMAIL_HOST || configJson.email?.host,
-    port: process.env.CL_BACKEND_EMAIL_PORT || configJson.email?.port || 587,
-    secure: process.env.CL_BACKEND_EMAIL_SECURE === 'true' || configJson.email?.secure || false,
-    user: process.env.CL_BACKEND_EMAIL_USER || configJson.email?.user,
-    password: process.env.CL_BACKEND_EMAIL_PASSWORD || configJson.email?.password,
-    fromEmail: process.env.CL_BACKEND_EMAIL_FROM || configJson.email?.fromEmail,
-    fromName: process.env.CL_BACKEND_EMAIL_FROM_NAME || configJson.email?.fromName
+    provider: process.env.CL_BACKEND_EMAIL_PROVIDER || configJson.email?.provider || 'resend',
+    resendApiKey: process.env.CL_BACKEND_EMAIL_RESEND_API_KEY || configJson.email?.resendApiKey,
+    fromEmail: process.env.CL_BACKEND_EMAIL_FROM || configJson.email?.fromEmail || 'onboarding@carledgr.com',
+    fromName: process.env.CL_BACKEND_EMAIL_FROM_NAME || configJson.email?.fromName || 'CarLedgr Team',
+    smtp: {
+      host: process.env.CL_BACKEND_EMAIL_HOST || configJson.email?.smtp?.host,
+      port: process.env.CL_BACKEND_EMAIL_PORT || configJson.email?.smtp?.port || 587,
+      secure: process.env.CL_BACKEND_EMAIL_SECURE === 'true' || configJson.email?.smtp?.secure || false,
+      user: process.env.CL_BACKEND_EMAIL_USER || configJson.email?.smtp?.user,
+      password: process.env.CL_BACKEND_EMAIL_PASSWORD || configJson.email?.smtp?.password
+    }
   },
   storage: {
     provider: process.env.CL_BACKEND_STORAGE_PROVIDER || configJson.storage?.provider || 's3',

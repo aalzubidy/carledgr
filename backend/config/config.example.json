@@ -22,14 +22,17 @@
     "enterprisePriceId": ""
   },
   "email": {
-    "provider": "smtp",
-    "host": "",
-    "port": 465,
-    "secure": true,
-    "user": "",
-    "password": "",
-    "fromEmail": "",
-    "fromName": "CarLedgr Dev Team"
+    "provider": "resend",
+    "resendApiKey": "",
+    "fromEmail": "support@yourcarledgrdomain.com",
+    "fromName": "CarLedgr Support",
+    "smtp": {
+      "host": "",
+      "port": 465,
+      "secure": true,
+      "user": "",
+      "password": ""
+    }
   },
     "storage": {
     "provider": "s3",

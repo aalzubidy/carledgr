@@ -11,7 +11,13 @@
     "organization": "Organización",
     "loginButton": "Iniciar Sesión",
     "loginError": "Credenciales inválidas",
-    "loginSuccess": "Inicio de sesión exitoso"
+    "loginSuccess": "Inicio de sesión exitoso",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "resetPassword": "Restablecer contraseña",
+    "backToLogin": "Volver al inicio de sesión",
+    "resetInstructions": "Ingresa el nombre de tu organización y dirección de correo electrónico para recibir una contraseña temporal.",
+    "resetEmailSent": "Si existe una cuenta con esos detalles, se ha enviado un correo de restablecimiento de contraseña.",
+    "sendResetEmail": "Enviar correo de restablecimiento"
   },
   "navigation": {
     "dashboard": "Tablero",
