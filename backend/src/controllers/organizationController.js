@@ -5,7 +5,8 @@ const {
   getOrganizationById,
   createOrganization,
   updateOrganization,
-  deleteOrganization
+  deleteOrganization,
+  checkOrganizationNameExists
 } = require('../db/queries/organizationQueries');
 const { NotFoundError } = require('../middleware/errorHandler');
 
@@ -107,10 +108,34 @@ const remove = async (req, res, next) => {
   }
 };
 
+// Check if organization name exists
+const checkNameExists = async (req, res, next) => {
+  try {
+    const { name } = req.params;
+    
+    if (!name || name.trim().length === 0) {
+      return res.status(400).json({ 
+        error: 'Organization name is required',
+        exists: false 
+      });
+    }
+    
+    const exists = await checkOrganizationNameExists(name.trim());
+    
+    res.json({ 
+      exists,
+      name: name.trim()
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getAll,
   getById,
   create,
   update,
-  remove
+  remove,
+  checkNameExists
 }; 
