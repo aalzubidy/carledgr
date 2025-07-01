@@ -214,7 +214,7 @@ git log --oneline -5
 | `website/**` | Marketing website | None |
 | `frontend/**` | Production + Demo frontends | None |
 | `backend/**` | Production + Demo backends | carledgr-demo, carledgr-prod |
-| `Caddyfile` | Caddy configuration | caddy (reload) |
+| `server-deployment/Caddyfile` | Caddy configuration | caddy (reload) |
 | `server-deployment/**` | Deployment scripts | None |
 
 ---

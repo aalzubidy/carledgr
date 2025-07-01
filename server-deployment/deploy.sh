@@ -160,51 +160,15 @@ log "Configuration files created (REMEMBER TO UPDATE THEM WITH YOUR CREDENTIALS)
 # Step 7: Service Configuration
 log "Step 7: Setting up systemd services..."
 
-# Create production service file
-cat > /etc/systemd/system/carledgr-prod.service << EOF
-[Unit]
-Description=CarLedgr Production Backend
-After=network.target
+# Copy service files from repository
+cp "$PROJECT_DIR/server-deployment/carledgr-prod.service" /etc/systemd/system/
+cp "$PROJECT_DIR/server-deployment/carledgr-demo.service" /etc/systemd/system/
 
-[Service]
-Type=simple
-User=$DEPLOY_USER
-WorkingDirectory=/var/www/carledgr/backend
-Environment=NODE_ENV=production
-Environment=PATH=/home/$DEPLOY_USER/.nvm/versions/node/v$NODE_VERSION/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-Environment=CL_BACKEND_CONFIG_FILE=/etc/carledgr/config.json
-ExecStart=/home/$DEPLOY_USER/.nvm/versions/node/v$NODE_VERSION/bin/node index.js
-Restart=always
-RestartSec=5
-StandardOutput=append:/var/log/carledgr/backend-output.log
-StandardError=append:/var/log/carledgr/backend-error.log
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-# Create demo service file
-cat > /etc/systemd/system/carledgr-demo.service << EOF
-[Unit]
-Description=CarLedgr Demo Backend
-After=network.target
-
-[Service]
-Type=simple
-User=$DEPLOY_USER
-WorkingDirectory=/var/www/carledgr-demo/backend
-Environment=NODE_ENV=production
-Environment=PATH=/home/$DEPLOY_USER/.nvm/versions/node/v$NODE_VERSION/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-Environment=CL_BACKEND_CONFIG_FILE=/etc/carledgr-demo/config.json
-ExecStart=/home/$DEPLOY_USER/.nvm/versions/node/v$NODE_VERSION/bin/node index.js
-Restart=always
-RestartSec=5
-StandardOutput=append:/var/log/carledgr-demo/backend-output.log
-StandardError=append:/var/log/carledgr-demo/backend-error.log
-
-[Install]
-WantedBy=multi-user.target
-EOF
+# Update the service files with the correct user and node version
+sed -i "s|User=deploy|User=$DEPLOY_USER|g" /etc/systemd/system/carledgr-prod.service
+sed -i "s|User=deploy|User=$DEPLOY_USER|g" /etc/systemd/system/carledgr-demo.service
+sed -i "s|/home/deploy/.nvm/versions/node/v[^/]*/bin|/home/$DEPLOY_USER/.nvm/versions/node/v$NODE_VERSION/bin|g" /etc/systemd/system/carledgr-prod.service
+sed -i "s|/home/deploy/.nvm/versions/node/v[^/]*/bin|/home/$DEPLOY_USER/.nvm/versions/node/v$NODE_VERSION/bin|g" /etc/systemd/system/carledgr-demo.service
 
 # Reload systemd and enable services
 systemctl daemon-reload
@@ -215,72 +179,8 @@ log "Systemd services configured"
 # Step 8: Caddy Configuration
 log "Step 8: Configuring Caddy..."
 
-# Create Caddyfile
-cat > /etc/caddy/Caddyfile << 'EOF'
-# Marketing website
-carledgr.com, www.carledgr.com {
-    root * /var/www/carledgr/website
-    file_server
-    encode gzip
-    
-    # Enable logging
-    log {
-        output file /var/log/carledgr/website-access.log
-    }
-}
-
-# Production frontend
-app.carledgr.com {
-    root * /var/www/carledgr/frontend/dist
-    file_server
-    encode gzip
-    
-    # Handle SPA routing
-    try_files {path} /index.html
-    
-    # Enable logging
-    log {
-        output file /var/log/carledgr/frontend-access.log
-    }
-}
-
-# Production backend API
-api.carledgr.com {
-    reverse_proxy localhost:3030
-    encode gzip
-    
-    # Enable logging
-    log {
-        output file /var/log/carledgr/backend-access.log
-    }
-}
-
-# Demo frontend
-demo.carledgr.com {
-    root * /var/www/carledgr-demo/frontend/dist
-    file_server
-    encode gzip
-    
-    # Handle SPA routing
-    try_files {path} /index.html
-    
-    # Enable logging
-    log {
-        output file /var/log/carledgr-demo/frontend-access.log
-    }
-}
-
-# Demo backend API
-demo-api.carledgr.com {
-    reverse_proxy localhost:3001
-    encode gzip
-    
-    # Enable logging
-    log {
-        output file /var/log/carledgr-demo/backend-access.log
-    }
-}
-EOF
+# Copy Caddyfile from repository
+cp "$PROJECT_DIR/server-deployment/Caddyfile" /etc/caddy/
 
 # Enable and start Caddy
 systemctl enable caddy

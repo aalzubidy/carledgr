@@ -96,15 +96,15 @@ Create configuration files in `/etc/carledgr/` and `/etc/carledgr-demo/` directo
 ### 7. Service Configuration
 Copy the systemd service files:
 ```bash
-sudo cp carledgr-prod.service /etc/systemd/system/
-sudo cp carledgr-demo.service /etc/systemd/system/
+sudo cp server-deployment/carledgr-prod.service /etc/systemd/system/
+sudo cp server-deployment/carledgr-demo.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable carledgr-demo carledgr-prod
 ```
 
 ### 8. Caddy Configuration
 ```bash
-sudo cp Caddyfile /etc/caddy/
+sudo cp server-deployment/Caddyfile /etc/caddy/
 sudo systemctl enable caddy
 sudo systemctl start caddy
 ```
