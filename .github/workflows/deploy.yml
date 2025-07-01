@@ -42,14 +42,20 @@ jobs:
     if: ${{ needs.detect-changes.outputs.website == 'true' || needs.detect-changes.outputs.frontend == 'true' || needs.detect-changes.outputs.backend == 'true' || needs.detect-changes.outputs.caddy == 'true' || needs.detect-changes.outputs.deploy-scripts == 'true' }}
     
     steps:
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+          
+      - name: Test SSH Connection
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} 'echo "SSH connection successful"'
+          
       - name: Deploy to VPS
-        uses: appleboy/ssh-action@v1.1.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: 22
-          script: |
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'ENDSSH'
             echo "🚀 Starting deployment..."
             echo "Changes detected:"
             echo "  Website: ${{ needs.detect-changes.outputs.website }}"
@@ -65,18 +71,20 @@ jobs:
               --backend=${{ needs.detect-changes.outputs.backend }} \
               --caddy=${{ needs.detect-changes.outputs.caddy }} \
               --deploy-scripts=${{ needs.detect-changes.outputs.deploy-scripts }}
+          ENDSSH
 
       - name: Health Check
         if: success()
-        uses: appleboy/ssh-action@v1.1.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: 22
-          script: |
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'ENDSSH'
             cd /var/www/carledgr
             ./server-deployment/health-check.sh
+          ENDSSH
+
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -f ~/.ssh/id_rsa
 
       - name: Notify Success
         if: success()
