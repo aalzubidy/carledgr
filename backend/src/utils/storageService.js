@@ -11,21 +11,23 @@ class StorageService {
     this.isConfigured = this.checkConfiguration();
     
     if (this.isConfigured) {
-      // Configure AWS SDK v3 for Digital Ocean Spaces
+      // Configure AWS SDK v3 for S3-compatible storage (Contabo/DigitalOcean/etc)
+      const isContabo = config.storage.endpoint && config.storage.endpoint.includes('contabostorage.com');
+      
       this.s3Client = new S3Client({
         endpoint: config.storage.endpoint,
-        region: config.storage.region,
+        region: config.storage.region || (isContabo ? 'us-east-1' : 'auto'), // Contabo requires a valid region
         credentials: {
           accessKeyId: config.storage.accessKeyId,
           secretAccessKey: config.storage.secretAccessKey,
         },
-        forcePathStyle: false, // Use subdomain/virtual calling format for DigitalOcean Spaces
+        forcePathStyle: isContabo, // Contabo requires path-style access
       });
     }
   }
 
   checkConfiguration() {
-    const required = ['endpoint', 'bucket', 'accessKeyId', 'secretAccessKey', 'region'];
+    const required = ['endpoint', 'bucket', 'accessKeyId', 'secretAccessKey'];
     const missing = required.filter(key => !config.storage?.[key]);
     
     if (missing.length > 0) {
@@ -75,7 +77,14 @@ class StorageService {
       .replace(/[^a-zA-Z0-9-_]/g, '_')
       .substring(0, 50);
     
-    return `${recordType}/${recordId}/${timestamp}-${uuid}-${sanitizedName}${ext}`;
+    const basePath = `${recordType}/${recordId}/${timestamp}-${uuid}-${sanitizedName}${ext}`;
+    
+    // Add parent folder if configured
+    if (config.storage.parentFolder && config.storage.parentFolder.trim()) {
+      return `${config.storage.parentFolder.trim()}/${basePath}`;
+    }
+    
+    return basePath;
   }
 
   async uploadFile(file, recordType, recordId) {

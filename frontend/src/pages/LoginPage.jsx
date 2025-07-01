@@ -105,7 +105,10 @@ function LoginPage({ onLogin }) {
     <div className="login-container">
       
       <form className="login-form" onSubmit={handleLogin}>
-        <h1>{t('app.title')}</h1>
+        <div className="login-header">
+          <img src="/cl-logo.png" alt="CarLedgr Logo" className="login-logo" />
+          <h1>CarLedgr Smart Dealership Management Platform</h1>
+        </div>
         
         <div className="form-group">
           <label htmlFor="organization">{t('auth.organization')}</label>

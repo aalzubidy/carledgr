@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "CarLedgr",
-    "title": "Gestión Financiera de Vehículos"
+    "title": "Plataforma Inteligente de Gestión de Concesionarios"
   },
   "auth": {
     "login": "Iniciar Sesión",

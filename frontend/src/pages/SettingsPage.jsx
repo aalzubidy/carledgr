@@ -31,6 +31,10 @@ function SettingsPage() {
   })
   const [currentUser, setCurrentUser] = useState(null)
   const [isOwner, setIsOwner] = useState(false)
+  
+  // License usage state
+  const [licenseData, setLicenseData] = useState(null)
+  const [activeCarsCount, setActiveCarsCount] = useState(0)
 
   // Check permissions
   if (!canAccessSettings()) {
@@ -72,6 +76,7 @@ function SettingsPage() {
   useEffect(() => {
     loadCategories()
     loadCurrentUser()
+    loadLicenseData()
   }, [])
 
   useEffect(() => {
@@ -306,6 +311,53 @@ function SettingsPage() {
     }
   }
 
+  const loadLicenseData = async () => {
+    try {
+      // Get license information and cars data
+      const [licenseInfo, carsData] = await Promise.all([
+        api.getLicenseInfo(),
+        api.getCars()
+      ])
+      
+      setLicenseData(licenseInfo)
+      
+      // Count active cars (not sold)
+      const activeCars = carsData.filter(car => car.status !== 'sold')
+      setActiveCarsCount(activeCars.length)
+    } catch (error) {
+      console.error('Error loading license data:', error)
+      // Don't show error for this as it's not critical for the page function
+    }
+  }
+
+  const handleManageSubscription = async () => {
+    try {
+      // Show loading state
+      const button = event.target
+      const originalText = button.textContent
+      button.textContent = 'Opening...'
+      button.disabled = true
+
+      // Get current URL for return
+      const returnUrl = window.location.origin + window.location.pathname
+
+      // Create portal session
+      const response = await api.createPortalSession(returnUrl)
+      
+      // Open Stripe Customer Portal in same tab
+      window.location.href = response.portal_url
+
+    } catch (error) {
+      console.error('Error opening customer portal:', error)
+      showError(error.message || 'Failed to open subscription management portal')
+      
+      // Reset button
+      const button = event.target
+      button.textContent = '💳 Manage Subscription'
+      button.disabled = false
+    }
+  }
+
   const loadUsers = async () => {
     try {
       const response = await api.getOrganizationUsers()
@@ -488,6 +540,210 @@ function SettingsPage() {
       console.error('Error deleting user:', error)
       showError(error.message || t('messages.errorOccurred'))
     }
+  }
+
+  const renderLicenseUsage = () => {
+    if (!licenseData) {
+      return (
+        <div className="license-usage-card" style={{ marginBottom: '2rem' }}>
+          <div className="license-header">
+            <h2>License Usage</h2>
+          </div>
+          <div className="license-content" style={{ textAlign: 'center', padding: '20px' }}>
+            <p>Loading license information...</p>
+          </div>
+        </div>
+      )
+    }
+
+    const usagePercentage = Math.round((activeCarsCount / licenseData.car_limit) * 100)
+    const isNearLimit = usagePercentage >= 80
+    const isAtLimit = usagePercentage >= 100
+    
+    // Determine progress bar color
+    let progressColor = '#28a745' // Green
+    if (usagePercentage >= 90) {
+      progressColor = '#dc3545' // Red
+    } else if (usagePercentage >= 80) {
+      progressColor = '#ffc107' // Yellow
+    }
+
+    return (
+      <div className="license-usage-card" style={{ 
+        backgroundColor: 'white',
+        border: '1px solid #dee2e6',
+        borderRadius: '10px',
+        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+        marginBottom: '2rem',
+        overflow: 'hidden'
+      }}>
+        <div className="license-header" style={{
+          backgroundColor: '#f8f9fa',
+          padding: '15px 20px',
+          borderBottom: '1px solid #dee2e6',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <h2 style={{ margin: 0, color: '#2c3e50', fontSize: '1.25rem' }}>
+            License Usage
+          </h2>
+          <span style={{
+            backgroundColor: licenseData.is_free_account ? '#17a2b8' : '#28a745',
+            color: 'white',
+            padding: '4px 8px',
+            borderRadius: '12px',
+            fontSize: '12px',
+            fontWeight: '500',
+            textTransform: 'uppercase'
+          }}>
+            {licenseData.is_free_account ? 'Free Account' : licenseData.display_name}
+          </span>
+        </div>
+        
+        <div className="license-content" style={{ padding: '20px' }}>
+          <div style={{ marginBottom: '15px' }}>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              marginBottom: '8px'
+            }}>
+              <span style={{ fontWeight: '500', color: '#495057' }}>
+                Active Cars: {activeCarsCount} of {licenseData.car_limit}
+              </span>
+              <span style={{ 
+                fontWeight: 'bold',
+                color: isAtLimit ? '#dc3545' : isNearLimit ? '#ffc107' : '#28a745'
+              }}>
+                {usagePercentage}%
+              </span>
+            </div>
+            
+            {/* Progress Bar */}
+            <div style={{
+              width: '100%',
+              height: '20px',
+              backgroundColor: '#e9ecef',
+              borderRadius: '10px',
+              overflow: 'hidden',
+              position: 'relative'
+            }}>
+              <div style={{
+                height: '100%',
+                width: `${Math.min(usagePercentage, 100)}%`,
+                backgroundColor: progressColor,
+                borderRadius: '10px',
+                transition: 'width 0.3s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {usagePercentage > 15 && (
+                  <span style={{ 
+                    color: 'white', 
+                    fontSize: '12px', 
+                    fontWeight: 'bold' 
+                  }}>
+                    {usagePercentage}%
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Status Messages */}
+          {isAtLimit && (
+            <div style={{
+              padding: '10px',
+              backgroundColor: '#f8d7da',
+              color: '#721c24',
+              borderRadius: '5px',
+              fontSize: '14px',
+              marginTop: '10px'
+            }}>
+              ⚠️ You've reached your car limit. Please upgrade your plan to add more cars.
+            </div>
+          )}
+          
+          {isNearLimit && !isAtLimit && (
+            <div style={{
+              padding: '10px',
+              backgroundColor: '#fff3cd',
+              color: '#856404',
+              borderRadius: '5px',
+              fontSize: '14px',
+              marginTop: '10px'
+            }}>
+              ⚡ You're approaching your car limit. Consider upgrading your plan.
+            </div>
+          )}
+
+          {/* Additional Info */}
+          <div style={{ 
+            marginTop: '15px', 
+            fontSize: '14px', 
+            color: '#6c757d',
+            lineHeight: '1.4'
+          }}>
+            <div style={{ marginBottom: '5px' }}>
+              <strong>Plan:</strong> {licenseData.display_name}
+              {!licenseData.is_free_account && (
+                <span> (${licenseData.monthly_price}/month)</span>
+              )}
+            </div>
+            <div style={{ marginBottom: '15px' }}>
+              <strong>Status:</strong> 
+              <span style={{ 
+                color: licenseData.is_active ? '#28a745' : '#dc3545',
+                marginLeft: '5px'
+              }}>
+                {licenseData.is_active ? 'Active' : 'Inactive'}
+              </span>
+            </div>
+          </div>
+
+          {/* Manage Subscription Button */}
+          {!licenseData.is_free_account && licenseData.is_active && (
+            <div style={{ 
+              borderTop: '1px solid #dee2e6',
+              paddingTop: '15px',
+              marginTop: '15px'
+            }}>
+              <button
+                onClick={handleManageSubscription}
+                style={{
+                  backgroundColor: '#007bff',
+                  color: 'white',
+                  border: 'none',
+                  padding: '10px 20px',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  transition: 'background-color 0.2s ease'
+                }}
+                onMouseOver={(e) => e.target.style.backgroundColor = '#0056b3'}
+                onMouseOut={(e) => e.target.style.backgroundColor = '#007bff'}
+              >
+                <span>💳</span>
+                Manage Subscription
+              </button>
+              <p style={{ 
+                fontSize: '12px', 
+                color: '#6c757d', 
+                margin: '8px 0 0 0' 
+              }}>
+                Update payment method, view invoices, or cancel subscription
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    )
   }
 
   const renderCategoriesTable = () => {
@@ -1087,6 +1343,9 @@ function SettingsPage() {
         </div>
 
         <div className="settings-content">
+          {/* License Usage Section */}
+          {renderLicenseUsage()}
+          
           <div className="settings-section">
             <div className="table-container">
               <div className="table-header">

@@ -1,0 +1,14 @@
+{
+  "api": {
+    "baseUrl": "http://demo-api.carledgr.com/api",
+    "endpoints": {
+      "plans": "/subscriptions/plans",
+      "checkout": "/subscriptions/checkout"
+    }
+  },
+  "app": {
+    "successUrl": "http://carledgr.com/success.html",
+    "cancelUrl": "http://carledgr.com/cancel.html",
+    "demoUrl": "https://demo.carledgr.com"
+  }
+}

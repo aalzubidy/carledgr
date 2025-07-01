@@ -6,7 +6,7 @@ const { authenticateJWT } = require('../middleware/auth');
 const { requireOrganization } = require('../middleware/roleAuth');
 const { getLicenseWithTierByOrganizationId } = require('../db/queries/licenseQueries');
 
-// Webhook endpoint (must be before express.json() middleware)
+// Webhook endpoint (needs raw body)
 router.post('/webhook', express.raw({ type: 'application/json' }), handleWebhook);
 
 // Protected routes (require authentication)

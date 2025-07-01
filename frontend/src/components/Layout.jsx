@@ -147,6 +147,7 @@ function Layout({ children, activeRoute = '' }) {
       {/* Header */}
       <header className="app-header">
         <div className="header-left">
+          <img src="/cl-logo.png" alt="CarLedgr Logo" className="header-logo" />
           <h1>{t('app.name')}</h1>
         </div>
         

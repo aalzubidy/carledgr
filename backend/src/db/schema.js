@@ -217,9 +217,28 @@ async function initializeSchema() {
     await connection.commit();
     logger.info('Database schema initialized successfully');
     
-    // Run licensing migration
-    logger.info('Running licensing migration...');
-    await migrateLicensing();
+    // Check if license tables exist and run migration only if needed
+    const [licenseTables] = await connection.execute(`
+      SELECT COUNT(*) as count 
+      FROM information_schema.tables 
+      WHERE table_schema = DATABASE() 
+      AND table_name IN ('license_tiers', 'organization_licenses', 'stripe_events')
+    `);
+    
+    if (licenseTables[0].count < 3) {
+      // License tables don't exist or are incomplete, run migration
+      logger.info('License tables missing, running licensing migration...');
+      await migrateLicensing();
+    } else {
+      // Check if default license tiers exist
+      const [defaultTiers] = await connection.execute('SELECT COUNT(*) as count FROM license_tiers');
+      if (defaultTiers[0].count === 0) {
+        logger.info('License tables exist but no default tiers found, running licensing migration...');
+        await migrateLicensing();
+      } else {
+        logger.info('License system already initialized, skipping migration');
+      }
+    }
     
   } catch (error) {
     await connection.rollback();

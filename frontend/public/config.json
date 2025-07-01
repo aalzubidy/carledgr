@@ -5,6 +5,7 @@
   },
   "app": {
     "name": "CarLedgr",
+    "title": "Smart Dealership Management Platform",
     "version": "1.0.0",
     "defaultLanguage": "en",
     "supportedLanguages": ["en", "ar", "es"]
