@@ -4,8 +4,7 @@
 # Verifies all services are healthy after deployment
 # Critical checks will fail deployment, non-critical are informational
 
-# Temporarily disable strict error checking to see what's happening
-# set -e
+set -e
 
 # Colors for output
 RED='\033[0;31m'
@@ -91,7 +90,7 @@ check_api_health() {
     info "Checking $name API health..."
     
     local response
-    response=$(curl -s "$url/api/subscription/health" --max-time 10 --connect-timeout 5 || echo "CURL_ERROR")
+    response=$(curl -s "$url/api/subscriptions/health" --max-time 10 --connect-timeout 5 || echo "CURL_ERROR")
     
     echo "--- API Response for $url ---"
     echo "Response: $response"
@@ -103,7 +102,7 @@ check_api_health() {
     else
         fail "$name API health check failed"
         echo "Full curl debug:"
-        curl -v "$url/api/subscription/health" --max-time 10 --connect-timeout 5 || true
+        curl -v "$url/api/subscriptions/health" --max-time 10 --connect-timeout 5 || true
         return 1
     fi
 }
@@ -228,6 +227,29 @@ info "=== HEALTH CHECK SUMMARY ==="
 echo "Critical checks: $critical_passed/$critical_checks (must all pass)"
 echo "All checks: $passed_checks/$total_checks"
 
-# For debugging, always exit 0 for now
-info "DEBUGGING MODE: Always exiting 0 to see what's happening"
-exit 0 
+# Check critical services
+if [[ $critical_passed -eq $critical_checks ]]; then
+    success "All critical checks passed! ✅"
+    
+    if [[ $passed_checks -eq $total_checks ]]; then
+        success "All health checks passed! 🎉"
+        echo ""
+        echo "Your CarLedgr deployment is fully healthy:"
+        echo "  🌐 Marketing: https://carledgr.com"
+        echo "  🚀 Production: https://app.carledgr.com"
+        echo "  🧪 Demo: https://demo.carledgr.com"
+    else
+        warning "Some non-critical checks failed ($((total_checks - passed_checks)) failures)"
+        echo ""
+        echo "Deployment is healthy but some services may need attention."
+        echo "Check the logs above for details."
+    fi
+    
+    exit 0
+else
+    fail "CRITICAL CHECKS FAILED! ($((critical_checks - critical_passed)) failures)"
+    echo ""
+    echo "Deployment failed due to critical service issues."
+    echo "Please fix the critical issues above before proceeding."
+    exit 1
+fi 
