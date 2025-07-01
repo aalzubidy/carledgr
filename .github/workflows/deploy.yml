@@ -42,19 +42,14 @@ jobs:
     if: ${{ needs.detect-changes.outputs.website == 'true' || needs.detect-changes.outputs.frontend == 'true' || needs.detect-changes.outputs.backend == 'true' || needs.detect-changes.outputs.caddy == 'true' || needs.detect-changes.outputs.deploy-scripts == 'true' }}
     
     steps:
-      - name: Setup SSH Key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.VPS_SSH_KEY }}
-          known_hosts: ${{ secrets.VPS_HOST }}
-          
-      - name: Add known hosts
-        run: |
-          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
-          
       - name: Deploy to VPS
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          script: |
             echo "🚀 Starting deployment..."
             echo "Changes detected:"
             echo "  Website: ${{ needs.detect-changes.outputs.website }}"
@@ -64,20 +59,24 @@ jobs:
             echo "  Deploy Scripts: ${{ needs.detect-changes.outputs.deploy-scripts }}"
             
             cd /var/www/carledgr
-            sudo -u deploy ./server-deployment/deploy-update.sh \
+            ./server-deployment/deploy-update.sh \
               --website=${{ needs.detect-changes.outputs.website }} \
               --frontend=${{ needs.detect-changes.outputs.frontend }} \
               --backend=${{ needs.detect-changes.outputs.backend }} \
               --caddy=${{ needs.detect-changes.outputs.caddy }} \
               --deploy-scripts=${{ needs.detect-changes.outputs.deploy-scripts }}
-          EOF
 
       - name: Health Check
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+        if: success()
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          script: |
             cd /var/www/carledgr
             ./server-deployment/health-check.sh
-          EOF
 
       - name: Notify Success
         if: success()
