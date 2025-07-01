@@ -1,25 +1,46 @@
 const fs = require('fs');
 const path = require('path');
 
-// Load configuration from JSON file
-const configPath = path.join(__dirname, 'config.json');
-const configJson = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+// Load configuration with priority order:
+// 1. Custom config file from CL_BACKEND_CONFIG_FILE env var (highest priority)
+// 2. Individual environment variables (medium priority)  
+// 3. Default config/config.json file (lowest priority)
 
-// Override with environment variables if present
+let configJson = {};
+
+// Try to load config file (either custom or default)
+const customConfigPath = process.env.CL_BACKEND_CONFIG_FILE;
+if (customConfigPath && fs.existsSync(customConfigPath)) {
+  // Use custom config file if specified and exists
+  console.log(`Loading config from custom file: ${customConfigPath}`);
+  configJson = JSON.parse(fs.readFileSync(customConfigPath, 'utf8'));
+} else {
+  // Fallback to default config file
+  const defaultConfigPath = path.join(__dirname, 'config.json');
+  if (fs.existsSync(defaultConfigPath)) {
+    console.log(`Loading config from default file: ${defaultConfigPath}`);
+    configJson = JSON.parse(fs.readFileSync(defaultConfigPath, 'utf8'));
+  } else {
+    console.log('No config file found, using environment variables only');
+    configJson = {}; // Empty object, will rely on env vars and defaults
+  }
+}
+
+// Build final config with environment variable overrides
 const config = {
   app: {
-    port: process.env.CL_BACKEND_PORT || process.env.PORT || configJson.app.port,
-    environment: process.env.CL_BACKEND_NODE_ENV || process.env.NODE_ENV || configJson.app.environment,
-    jwtSecret: process.env.CL_BACKEND_JWT_SECRET || configJson.app.jwtSecret,
-    jwtExpiration: process.env.CL_BACKEND_JWT_EXPIRATION || configJson.app.jwtExpiration
+    port: process.env.CL_BACKEND_PORT || process.env.PORT || configJson.app?.port || 3030,
+    environment: process.env.CL_BACKEND_NODE_ENV || process.env.NODE_ENV || configJson.app?.environment || 'development',
+    jwtSecret: process.env.CL_BACKEND_JWT_SECRET || configJson.app?.jwtSecret || 'your-jwt-secret-key',
+    jwtExpiration: process.env.CL_BACKEND_JWT_EXPIRATION || configJson.app?.jwtExpiration || '24h'
   },
   database: {
-    host: process.env.CL_BACKEND_DB_HOST || configJson.database.host,
-    port: process.env.CL_BACKEND_DB_PORT || configJson.database.port,
-    user: process.env.CL_BACKEND_DB_USER || configJson.database.user,
-    password: process.env.CL_BACKEND_DB_PASSWORD || configJson.database.password,
-    database: process.env.CL_BACKEND_DB_NAME || configJson.database.database,
-    connectionLimit: process.env.CL_BACKEND_DB_CONNECTION_LIMIT || configJson.database.connectionLimit
+    host: process.env.CL_BACKEND_DB_HOST || configJson.database?.host || 'localhost',
+    port: process.env.CL_BACKEND_DB_PORT || configJson.database?.port || 3306,
+    user: process.env.CL_BACKEND_DB_USER || configJson.database?.user || 'root',
+    password: process.env.CL_BACKEND_DB_PASSWORD || configJson.database?.password || '',
+    database: process.env.CL_BACKEND_DB_NAME || configJson.database?.database || 'carledgr',
+    connectionLimit: process.env.CL_BACKEND_DB_CONNECTION_LIMIT || configJson.database?.connectionLimit || 10
   },
   stripe: {
     secretKey: process.env.CL_BACKEND_STRIPE_SECRET_KEY || configJson.stripe?.secretKey,
@@ -52,11 +73,11 @@ const config = {
     allowedFileTypes: configJson.storage?.allowedFileTypes || ["image/jpeg", "image/png", "image/webp", "application/pdf"]
   },
   logging: {
-    level: process.env.CL_BACKEND_LOG_LEVEL || configJson.logging.level,
-    file: process.env.CL_BACKEND_LOG_FILE || configJson.logging.file
+    level: process.env.CL_BACKEND_LOG_LEVEL || configJson.logging?.level || 'info',
+    file: process.env.CL_BACKEND_LOG_FILE || configJson.logging?.file || 'app.log'
   },
   frontend: {
-    url: process.env.CL_BACKEND_FRONTEND_URL || 'https://your-carledgr-domain.com'
+    url: process.env.CL_BACKEND_FRONTEND_URL || configJson.frontend?.url || 'https://your-carledgr-domain.com'
   }
 };
 
