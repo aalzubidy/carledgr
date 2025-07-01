@@ -1,5 +1,33 @@
 // Global translations object - will be loaded from JSON file
 let translations = {};
+let config = {};
+
+// Load configuration
+async function loadConfig() {
+    try {
+        console.log('Loading configuration...');
+        const response = await fetch('config.json');
+        config = await response.json();
+        console.log('Configuration loaded:', config);
+    } catch (error) {
+        console.error('Error loading configuration:', error);
+        // Fallback configuration
+        config = {
+            api: {
+                baseUrl: 'http://localhost:5000/api',
+                endpoints: {
+                    plans: '/subscriptions/plans',
+                    checkout: '/subscriptions/checkout'
+                }
+            },
+            app: {
+                successUrl: 'https://carledgr.com/success.html',
+                cancelUrl: 'https://carledgr.com/cancel.html',
+                demoUrl: 'https://demo.carledgr.com'
+            }
+        };
+    }
+}
 
 // Load translations from JSON file
 async function loadTranslations() {
@@ -153,12 +181,294 @@ function addLoadingState(button) {
     }, 2000);
 }
 
+// Stripe Checkout Functions
+async function startCheckoutProcess(planName, button, originalText) {
+    try {
+        // Map plan names to the backend plan identifiers
+        const planMapping = {
+            'Starter': 'starter',
+            'Professional': 'professional', 
+            'Business': 'business',
+            'Enterprise': 'enterprise'
+        };
+        
+        const planId = planMapping[planName];
+        if (!planId) {
+            throw new Error(`Unknown plan: ${planName}`);
+        }
+        
+        // Show organization name modal
+        const orgData = await showOrganizationModal(planName);
+        if (!orgData) {
+            // User cancelled
+            resetButton(button, originalText);
+            return;
+        }
+        
+        // Get available plans from backend to get the correct price ID
+        const plans = await fetchAvailablePlans();
+        const selectedPlan = plans.find(p => p.id === planId);
+        
+        if (!selectedPlan) {
+            throw new Error(`Plan not found: ${planId}`);
+        }
+        
+        // Create checkout session
+        const checkoutData = {
+            price_id: selectedPlan.stripe_price_id,
+            organization_name: orgData.organizationName,
+            owner_email: orgData.ownerEmail,
+            success_url: config.app.successUrl,
+            cancel_url: config.app.cancelUrl
+        };
+        
+        const session = await createCheckoutSession(checkoutData);
+        
+        // Redirect to Stripe Checkout
+        window.location.href = session.checkout_url;
+        
+    } catch (error) {
+        console.error('Checkout error:', error);
+        resetButton(button, originalText);
+        showErrorMessage(`Sorry, there was an error starting the checkout process: ${error.message}`);
+    }
+}
+
+async function fetchAvailablePlans() {
+    const response = await fetch(`${config.api.baseUrl}${config.api.endpoints.plans}`);
+    if (!response.ok) {
+        throw new Error(`Failed to fetch plans: ${response.status}`);
+    }
+    return await response.json();
+}
+
+async function createCheckoutSession(checkoutData) {
+    const response = await fetch(`${config.api.baseUrl}${config.api.endpoints.checkout}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(checkoutData)
+    });
+    
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    return await response.json();
+}
+
+function showOrganizationModal(planName) {
+    return new Promise((resolve) => {
+        // Create modal HTML
+        const modalHTML = `
+            <div id="org-modal" style="
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem;
+            ">
+                <div style="
+                    background: white;
+                    border-radius: 12px;
+                    padding: 2.5rem;
+                    max-width: 500px;
+                    width: 100%;
+                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                ">
+                    <h2 style="margin: 0 0 1rem 0; color: #1a1a1a; font-size: 1.8rem;">
+                        Complete Your ${planName} Plan Purchase
+                    </h2>
+                    <p style="color: #666; margin-bottom: 2rem; line-height: 1.6;">
+                        Please provide your business information to set up your CarLedgr account.
+                    </p>
+                    
+                    <form id="org-form">
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #374151;">
+                                Business/Organization Name *
+                            </label>
+                            <input type="text" id="org-name" required style="
+                                width: 100%;
+                                padding: 0.75rem;
+                                border: 2px solid #e5e7eb;
+                                border-radius: 8px;
+                                font-size: 1rem;
+                                box-sizing: border-box;
+                            " placeholder="ABC Auto Dealership">
+                        </div>
+                        
+                        <div style="margin-bottom: 2rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #374151;">
+                                Owner Email Address *
+                            </label>
+                            <input type="email" id="owner-email" required style="
+                                width: 100%;
+                                padding: 0.75rem;
+                                border: 2px solid #e5e7eb;
+                                border-radius: 8px;
+                                font-size: 1rem;
+                                box-sizing: border-box;
+                            " placeholder="owner@abcauto.com">
+                            <small style="color: #6b7280; margin-top: 0.25rem; display: block;">
+                                We'll send your login credentials to this email address
+                            </small>
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                            <button type="button" id="modal-cancel" style="
+                                padding: 0.75rem 1.5rem;
+                                border: 2px solid #e5e7eb;
+                                background: white;
+                                color: #374151;
+                                border-radius: 8px;
+                                font-weight: 500;
+                                cursor: pointer;
+                                font-size: 1rem;
+                            ">Cancel</button>
+                            <button type="submit" style="
+                                padding: 0.75rem 1.5rem;
+                                background: #2563eb;
+                                color: white;
+                                border: none;
+                                border-radius: 8px;
+                                font-weight: 500;
+                                cursor: pointer;
+                                font-size: 1rem;
+                            ">Continue to Payment</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+        
+        // Add modal to page
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        const modal = document.getElementById('org-modal');
+        const form = document.getElementById('org-form');
+        const cancelBtn = document.getElementById('modal-cancel');
+        
+        // Focus first input
+        document.getElementById('org-name').focus();
+        
+        // Handle form submission
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const organizationName = document.getElementById('org-name').value.trim();
+            const ownerEmail = document.getElementById('owner-email').value.trim();
+            
+            if (!organizationName || !ownerEmail) {
+                showErrorMessage('Please fill in all required fields');
+                return;
+            }
+            
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(ownerEmail)) {
+                showErrorMessage('Please enter a valid email address');
+                return;
+            }
+            
+            modal.remove();
+            resolve({ organizationName, ownerEmail });
+        });
+        
+        // Handle cancel
+        cancelBtn.addEventListener('click', () => {
+            modal.remove();
+            resolve(null);
+        });
+        
+        // Handle escape key
+        document.addEventListener('keydown', function escapeHandler(e) {
+            if (e.key === 'Escape') {
+                modal.remove();
+                document.removeEventListener('keydown', escapeHandler);
+                resolve(null);
+            }
+        });
+        
+        // Handle click outside modal
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+                resolve(null);
+            }
+        });
+    });
+}
+
+function resetButton(button, originalText) {
+    button.textContent = originalText;
+    button.disabled = false;
+}
+
+function showErrorMessage(message) {
+    // Create error notification
+    const errorDiv = document.createElement('div');
+    errorDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #ef4444;
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        z-index: 10001;
+        max-width: 400px;
+        font-weight: 500;
+        animation: slideInRight 0.3s ease-out;
+    `;
+    errorDiv.textContent = message;
+    
+    // Add animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    document.body.appendChild(errorDiv);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        errorDiv.style.animation = 'slideInRight 0.3s ease-out reverse';
+        setTimeout(() => {
+            if (errorDiv.parentNode) {
+                errorDiv.parentNode.removeChild(errorDiv);
+            }
+        }, 300);
+    }, 5000);
+    
+    // Click to dismiss
+    errorDiv.addEventListener('click', () => {
+        errorDiv.style.animation = 'slideInRight 0.3s ease-out reverse';
+        setTimeout(() => {
+            if (errorDiv.parentNode) {
+                errorDiv.parentNode.removeChild(errorDiv);
+            }
+        }, 300);
+    });
+}
+
 // Consolidated DOMContentLoaded event handler
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing...');
     
-    // 1. Load translations first
-    loadTranslations();
+    // 1. Load configuration and translations
+    Promise.all([loadConfig(), loadTranslations()]);
     
     // 2. Set up language selector
     const languageSelect = document.getElementById('language-select');
@@ -175,18 +485,21 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(el);
     });
     
-    // 4. Set up pricing plan selection
+    // 4. Set up pricing plan selection with Stripe checkout
     const pricingButtons = document.querySelectorAll('.pricing-card .btn');
     pricingButtons.forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
-            const planName = this.closest('.pricing-card').querySelector('h3').textContent;
+            const planCard = this.closest('.pricing-card');
+            const planName = planCard.querySelector('h3').textContent.trim();
             
-            // Here you would typically redirect to a signup page or open a modal
-            console.log(`Selected plan: ${planName}`);
+            // Show loading state
+            const originalText = this.textContent;
+            this.textContent = 'Loading...';
+            this.disabled = true;
             
-            // For demo purposes, show an alert
-            alert(`You selected the ${planName} plan. This would normally redirect to a signup page.`);
+            // Start checkout process
+            startCheckoutProcess(planName, this, originalText);
         });
     });
     

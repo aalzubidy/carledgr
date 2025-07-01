@@ -1,0 +1,14 @@
+{
+  "api": {
+    "baseUrl": "http://localhost:3030/api",
+    "endpoints": {
+      "plans": "/subscriptions/plans",
+      "checkout": "/subscriptions/checkout"
+    }
+  },
+  "app": {
+    "successUrl": "http://localhost:8080/success.html",
+    "cancelUrl": "http://localhost:8080/cancel.html",
+    "demoUrl": "https://demo.carledgr.com"
+  }
+} 

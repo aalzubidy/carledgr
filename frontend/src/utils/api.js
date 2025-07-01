@@ -576,6 +576,20 @@ const api = {
   async downloadAttachment(type, recordId, attachmentId) {
     const response = await makeRequest(`/attachments/download/${type}/${recordId}/${attachmentId}`);
     return response.data;
+  },
+
+  // License information
+  async getLicenseInfo() {
+    const response = await makeRequest('/licenses');
+    return response;
+  },
+
+  // Stripe Customer Portal
+  async createPortalSession(returnUrl) {
+    return makeRequest('/stripe/create-portal-session', {
+      method: 'POST',
+      body: JSON.stringify({ return_url: returnUrl })
+    });
   }
 };
 

@@ -31,10 +31,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Stripe webhook route (MUST be before express.json() middleware)
-app.use('/api/stripe', stripeRoutes);
-
-// Body parsing middleware (after Stripe webhook)
+// Body parsing middleware (needed for most routes)
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -50,6 +47,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/attachments', attachmentRoutes);
 app.use('/api/licenses', licenseRoutes);
 app.use('/api/license-tiers', licenseTierRoutes);
+app.use('/api/stripe', stripeRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/admin', adminRoutes);
 

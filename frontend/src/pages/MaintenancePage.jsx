@@ -51,8 +51,10 @@ function MaintenancePage() {
         record.description.toLowerCase().includes(term) ||
         record.car_make.toLowerCase().includes(term) ||
         record.car_model.toLowerCase().includes(term) ||
+        record.car_vin.toLowerCase().includes(term) ||
         record.category_name.toLowerCase().includes(term) ||
-        (record.vendor && record.vendor.toLowerCase().includes(term))
+        (record.vendor && record.vendor.toLowerCase().includes(term)) ||
+        record.cost.toString().includes(term)
       )
     })
     setFilteredRecords(filtered)
@@ -382,6 +384,7 @@ function MaintenancePage() {
               <th className="sortable" onClick={() => handleSort('vendor')}>
                 {t('maintenance.vendor')}
               </th>
+              <th style={{ textAlign: 'center' }}>📎</th>
               <th>{t('common.actions')}</th>
             </tr>
           </thead>
@@ -400,6 +403,20 @@ function MaintenancePage() {
                 <td>{record.description}</td>
                 <td>${formatNumber(record.cost)}</td>
                 <td>{record.vendor || '-'}</td>
+                <td style={{ textAlign: 'center' }}>
+                  {recordsWithAttachments[record.id] && (
+                    <span
+                      title={`${recordsWithAttachments[record.id]} attachment(s)`}
+                      style={{ 
+                        fontSize: '16px',
+                        color: '#007bff',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      📎
+                    </span>
+                  )}
+                </td>
                 <td>
                   <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                     <button 
@@ -472,7 +489,7 @@ function MaintenancePage() {
           </tbody>
           <tfoot>
             <tr>
-              <td colSpan="8" style={{ textAlign: 'center', fontWeight: 'bold', padding: '12px', backgroundColor: '#f8f9fa', borderTop: '2px solid #dee2e6' }}>
+              <td colSpan="9" style={{ textAlign: 'center', fontWeight: 'bold', padding: '12px', backgroundColor: '#f8f9fa', borderTop: '2px solid #dee2e6' }}>
                 {t('common.total')}: {filteredRecords.length} {filteredRecords.length === 1 ? t('maintenance.record') : t('maintenance.records')} | {t('maintenance.totalCost')}: ${formatNumber(totalCost)}
               </td>
             </tr>

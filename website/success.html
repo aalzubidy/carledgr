@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to CarLedgr - Payment Successful</title>
+    <meta name="description" content="Your CarLedgr subscription is now active! Check your email for login credentials.">
+    <link rel="icon" type="image/png" href="img/cl-logo.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .success-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+        }
+        .success-card {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 40px;
+            color: white;
+        }
+        .success-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 1rem;
+        }
+        .success-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        .success-steps {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+        .success-steps h3 {
+            color: #1a1a1a;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        .success-steps ol {
+            padding-left: 1.5rem;
+        }
+        .success-steps li {
+            margin-bottom: 0.8rem;
+            color: #555;
+            line-height: 1.5;
+        }
+        .success-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        .contact-info {
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        .contact-info h4 {
+            color: #ea580c;
+            margin-bottom: 0.5rem;
+        }
+        .contact-info p {
+            color: #7c2d12;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="success-card">
+            <div class="success-icon">
+                ✓
+            </div>
+            
+            <h1 class="success-title">Welcome to CarLedgr!</h1>
+            <p class="success-subtitle">
+                🎉 Your subscription has been successfully activated! We're excited to help you streamline your dealership operations.
+            </p>
+            
+            <div class="success-steps">
+                <h3>What happens next?</h3>
+                <ol>
+                    <li><strong>Check your email</strong> - We've sent your login credentials to the email address you provided</li>
+                    <li><strong>Log into your account</strong> - Use the credentials to access your CarLedgr dashboard</li>
+                    <li><strong>Set up your inventory</strong> - Start adding vehicles and tracking expenses immediately</li>
+                    <li><strong>Explore features</strong> - Take advantage of our comprehensive reporting and management tools</li>
+                </ol>
+            </div>
+            
+            <div class="success-actions">
+                <a href="https://demo.carledgr.com" class="btn btn-primary btn-large">
+                    Access Your Dashboard
+                </a>
+                <a href="/" class="btn btn-secondary btn-large">
+                    Return to Homepage
+                </a>
+            </div>
+            
+            <div class="contact-info">
+                <h4>Need Help Getting Started?</h4>
+                <p>
+                    Our support team is here to help! Email us at 
+                    <strong>support@carledgr.com</strong> or check out our documentation.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-redirect to demo after 10 seconds if user doesn't click
+        setTimeout(() => {
+            if (confirm('Ready to access your CarLedgr dashboard?')) {
+                window.location.href = 'https://demo.carledgr.com';
+            }
+        }, 10000);
+    </script>
+</body>
+</html> 
