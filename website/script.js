@@ -9,6 +9,11 @@ async function loadConfig() {
         const response = await fetch('config.json');
         config = await response.json();
         console.log('Configuration loaded:', config);
+        
+        // Initialize Google Analytics if enabled
+        if (config.analytics && config.analytics.googleAnalytics && config.analytics.googleAnalytics.enabled) {
+            initializeGoogleAnalytics(config.analytics.googleAnalytics.measurementId);
+        }
     } catch (error) {
         console.error('Error loading configuration:', error);
         // Fallback configuration
@@ -27,6 +32,115 @@ async function loadConfig() {
             }
         };
     }
+}
+
+// Initialize Google Analytics with the correct measurement ID
+function initializeGoogleAnalytics(measurementId) {
+    if (typeof gtag === 'undefined') {
+        console.warn('Google Analytics (gtag) not loaded');
+        return;
+    }
+    
+    // Update the script src and config with actual measurement ID
+    const gtagScript = document.querySelector('script[src*="googletagmanager.com/gtag/js"]');
+    if (gtagScript) {
+        gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+    }
+    
+    // Reconfigure gtag with actual measurement ID
+    gtag('config', measurementId, {
+        page_title: document.title,
+        page_location: window.location.href,
+        custom_map: {
+            custom_parameter_1: 'user_language',
+            custom_parameter_2: 'pricing_plan_viewed'
+        }
+    });
+    
+    console.log('Google Analytics initialized with ID:', measurementId);
+}
+
+// Analytics event tracking functions
+function trackEvent(eventName, parameters = {}) {
+    if (typeof gtag !== 'undefined' && config.analytics?.googleAnalytics?.enabled) {
+        gtag('event', eventName, {
+            event_category: parameters.category || 'engagement',
+            event_label: parameters.label || '',
+            value: parameters.value || 0,
+            ...parameters
+        });
+        console.log('Analytics event tracked:', eventName, parameters);
+    }
+}
+
+function trackPageView(pageTitle, pagePath) {
+    if (typeof gtag !== 'undefined' && config.analytics?.googleAnalytics?.enabled) {
+        gtag('config', config.analytics.googleAnalytics.measurementId, {
+            page_title: pageTitle,
+            page_path: pagePath
+        });
+    }
+}
+
+function trackConversion(conversionName, conversionValue = 0, currency = 'USD') {
+    if (typeof gtag !== 'undefined' && config.analytics?.googleAnalytics?.enabled) {
+        gtag('event', 'conversion', {
+            send_to: config.analytics.googleAnalytics.measurementId,
+            event_category: 'conversion',
+            event_label: conversionName,
+            value: conversionValue,
+            currency: currency
+        });
+        console.log('Conversion tracked:', conversionName, conversionValue);
+    }
+}
+
+function trackLanguageChange(newLanguage, previousLanguage) {
+    trackEvent('language_change', {
+        category: 'localization',
+        label: `${previousLanguage}_to_${newLanguage}`,
+        custom_parameter_1: newLanguage
+    });
+}
+
+function trackDemoAccess(source) {
+    trackEvent('demo_access', {
+        category: 'lead_generation',
+        label: source,
+        value: 1
+    });
+    
+    // Track as conversion
+    trackConversion('demo_signup', 1);
+}
+
+function trackPricingInteraction(planName, action) {
+    trackEvent('pricing_interaction', {
+        category: 'pricing',
+        label: `${planName}_${action}`,
+        custom_parameter_2: planName
+    });
+}
+
+function trackCheckoutStart(planName, organizationName) {
+    trackEvent('begin_checkout', {
+        category: 'ecommerce',
+        label: planName,
+        value: 1,
+        items: [{
+            item_id: planName.toLowerCase(),
+            item_name: `CarLedgr ${planName} Plan`,
+            item_category: 'subscription',
+            quantity: 1
+        }]
+    });
+}
+
+function trackFormInteraction(formType, action) {
+    trackEvent('form_interaction', {
+        category: 'forms',
+        label: `${formType}_${action}`
+    });
 }
 
 // Load translations from JSON file
@@ -53,6 +167,8 @@ async function loadTranslations() {
 // Language switcher functionality
 function updateLanguage(lang) {
     console.log('Updating language to:', lang);
+    const previousLanguage = localStorage.getItem('carledgr-language') || 'en';
+    
     const elements = document.querySelectorAll('[data-translate]');
     elements.forEach(element => {
         const key = element.getAttribute('data-translate');
@@ -64,6 +180,11 @@ function updateLanguage(lang) {
             }
         }
     });
+    
+    // Track language change if it's different
+    if (previousLanguage !== lang) {
+        trackLanguageChange(lang, previousLanguage);
+    }
     
     // Save language preference
     localStorage.setItem('carledgr-language', lang);
@@ -77,14 +198,27 @@ if (navToggle && navMenu) {
     navToggle.addEventListener('click', function() {
         navToggle.classList.toggle('active');
         navMenu.classList.toggle('active');
+        
+        // Track mobile menu usage
+        trackEvent('mobile_menu_toggle', {
+            category: 'navigation',
+            label: navMenu.classList.contains('active') ? 'open' : 'close'
+        });
     });
     
     // Close mobile menu when clicking on a link
     const navLinks = document.querySelectorAll('.nav-link');
     navLinks.forEach(link => {
-        link.addEventListener('click', () => {
+        link.addEventListener('click', (e) => {
             navToggle.classList.remove('active');
             navMenu.classList.remove('active');
+            
+            // Track navigation clicks
+            const linkText = link.textContent || link.getAttribute('data-translate');
+            trackEvent('navigation_click', {
+                category: 'navigation',
+                label: linkText
+            });
         });
     });
     
@@ -131,7 +265,7 @@ window.addEventListener('scroll', function() {
     }
 });
 
-// Intersection Observer for animations
+// Intersection Observer for animations and section tracking
 const observerOptions = {
     threshold: 0.1,
     rootMargin: '0px 0px -50px 0px'
@@ -146,6 +280,23 @@ const observer = new IntersectionObserver(function(entries) {
         }
     });
 }, observerOptions);
+
+// Section tracking observer for user engagement
+const sectionObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(entry => {
+        if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+            const sectionId = entry.target.id || entry.target.className;
+            trackEvent('section_view', {
+                category: 'engagement',
+                label: sectionId,
+                value: 1
+            });
+        }
+    });
+}, {
+    threshold: 0.5,
+    rootMargin: '0px'
+});
 
 // Add CSS animation class
 const style = document.createElement('style');
@@ -190,6 +341,9 @@ function addLoadingState(button) {
 // Stripe Checkout Functions
 async function startCheckoutProcess(planName, button, originalText) {
     try {
+        // Track pricing interaction
+        trackPricingInteraction(planName, 'checkout_started');
+        
         // Map plan names to the backend plan identifiers
         const planMapping = {
             'Starter': 'starter',
@@ -276,6 +430,10 @@ async function checkOrganizationNameAvailability(organizationName) {
 }
 
 function showOrganizationModal(planName) {
+    // Track modal interaction
+    trackFormInteraction('organization_modal', 'opened');
+    trackPricingInteraction(planName, 'modal_opened');
+    
     return new Promise((resolve) => {
         // Create modal HTML
         const modalHTML = `
@@ -412,6 +570,8 @@ function showOrganizationModal(planName) {
                 }
                 
                 // Name is available, proceed
+                trackFormInteraction('organization_modal', 'completed');
+                trackCheckoutStart(planName, organizationName);
                 modal.remove();
                 resolve({ organizationName, ownerEmail });
                 
@@ -527,6 +687,12 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(el);
     });
     
+    // 3b. Set up section tracking observer
+    const sections = document.querySelectorAll('section, .hero');
+    sections.forEach(section => {
+        sectionObserver.observe(section);
+    });
+    
     // 4. Set up pricing plan selection with Stripe checkout
     const pricingButtons = document.querySelectorAll('.pricing-card .btn');
     pricingButtons.forEach(button => {
@@ -550,8 +716,19 @@ document.addEventListener('DOMContentLoaded', function() {
     demoButtons.forEach(button => {
         // Check if this is actually a demo button (has demo URL)
         if (button.href && button.href.includes('demo.carledgr.com')) {
-            // Let demo buttons navigate naturally - no preventDefault
+            // Track demo clicks but allow natural navigation
             button.addEventListener('click', function(e) {
+                // Determine source based on button location/class
+                let source = 'unknown';
+                if (button.classList.contains('nav-demo-btn')) {
+                    source = 'navigation';
+                } else if (button.closest('.hero')) {
+                    source = 'hero_section';
+                } else if (button.closest('.cta')) {
+                    source = 'cta_section';
+                }
+                
+                trackDemoAccess(source);
                 addLoadingState(this);
                 // Don't prevent default - allow natural navigation to demo
             });

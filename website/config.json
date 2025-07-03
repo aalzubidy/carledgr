@@ -11,5 +11,11 @@
     "successUrl": "https://carledgr.com/success.html",
     "cancelUrl": "https://carledgr.com/cancel.html",
     "demoUrl": "https://demo.carledgr.com"
+  },
+  "analytics": {
+    "googleAnalytics": {
+      "measurementId": "G-R2ZRM29Y1K",
+      "enabled": true
+    }
   }
 }

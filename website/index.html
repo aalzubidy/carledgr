@@ -10,6 +10,19 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=MEASUREMENT_ID_PLACEHOLDER"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        // Will be configured dynamically from config.json
+        gtag('config', 'MEASUREMENT_ID_PLACEHOLDER', {
+            page_title: document.title,
+            page_location: window.location.href
+        });
+    </script>
 </head>
 <body>
     <!-- Navigation -->
