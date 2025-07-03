@@ -22,6 +22,7 @@ frontend/.env.production.local
 
 # Config files with sensitive data
 backend/config/config.json
+server-deployment/db-backup/db-config.json
 
 # Logs
 backend/logs/

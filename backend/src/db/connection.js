@@ -3,7 +3,7 @@ const config = require('../../config');
 const logger = require('../utils/logger');
 
 // Create a connection pool
-const pool = mysql.createPool({
+const poolConfig = {
   host: config.database.host,
   port: config.database.port,
   user: config.database.user,
@@ -12,7 +12,16 @@ const pool = mysql.createPool({
   connectionLimit: config.database.connectionLimit,
   waitForConnections: true,
   queueLimit: 0
-});
+};
+
+// Add SSL configuration if enabled
+if (config.database.ssl) {
+  poolConfig.ssl = {
+    rejectUnauthorized: false // For managed databases, you might need to set this
+  };
+}
+
+const pool = mysql.createPool(poolConfig);
 
 // Test database connection
 async function testConnection() {

@@ -40,7 +40,8 @@ const config = {
     user: process.env.CL_BACKEND_DB_USER || configJson.database?.user || 'root',
     password: process.env.CL_BACKEND_DB_PASSWORD || configJson.database?.password || '',
     database: process.env.CL_BACKEND_DB_NAME || configJson.database?.database || 'carledgr',
-    connectionLimit: process.env.CL_BACKEND_DB_CONNECTION_LIMIT || configJson.database?.connectionLimit || 10
+    connectionLimit: process.env.CL_BACKEND_DB_CONNECTION_LIMIT || configJson.database?.connectionLimit || 10,
+    ssl: process.env.CL_BACKEND_DB_SSL === 'true' || configJson.database?.ssl || false
   },
   stripe: {
     secretKey: process.env.CL_BACKEND_STRIPE_SECRET_KEY || configJson.stripe?.secretKey,
