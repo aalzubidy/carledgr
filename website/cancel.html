@@ -29,11 +29,11 @@
     </script>
     <style>
         .cancel-container {
-            min-height: 100vh;
+            min-height: calc(100vh - 8rem);
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-secondary);
             padding: 2rem;
         }
         .cancel-card {
@@ -42,12 +42,13 @@
             padding: 3rem;
             max-width: 600px;
             text-align: center;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border-color);
         }
         .cancel-icon {
             width: 80px;
             height: 80px;
-            background: #f59e0b;
+            background: var(--accent-color);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -59,24 +60,24 @@
         .cancel-title {
             font-size: 2.5rem;
             font-weight: 700;
-            color: #1a1a1a;
+            color: var(--text-primary);
             margin-bottom: 1rem;
         }
         .cancel-subtitle {
             font-size: 1.2rem;
-            color: #666;
+            color: var(--text-secondary);
             margin-bottom: 2rem;
             line-height: 1.6;
         }
         .cancel-options {
-            background: #f8fafc;
+            background: var(--bg-secondary);
             border-radius: 12px;
             padding: 2rem;
             margin: 2rem 0;
             text-align: left;
         }
         .cancel-options h3 {
-            color: #1a1a1a;
+            color: var(--text-primary);
             margin-bottom: 1rem;
             font-size: 1.3rem;
         }
@@ -85,7 +86,7 @@
         }
         .cancel-options li {
             margin-bottom: 0.8rem;
-            color: #555;
+            color: var(--text-secondary);
             line-height: 1.5;
         }
         .cancel-actions {
@@ -118,16 +119,38 @@
             margin-top: 1rem;
         }
         .contact-info h4 {
-            color: #1d4ed8;
+            color: var(--primary-color);
             margin-bottom: 0.5rem;
         }
         .contact-info p {
-            color: #1e40af;
+            color: var(--primary-dark);
             margin: 0;
         }
     </style>
 </head>
 <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="img/cl-logo.png" alt="CarLedgr Logo" class="logo-img">
+                <h2>CarLedgr</h2>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="index.html#features" class="nav-link">Features</a>
+                <a href="index.html#advantages" class="nav-link">Why Choose Us</a>
+                <a href="index.html#pricing" class="nav-link">Pricing</a>
+                <a href="index.html#contact" class="nav-link">Contact</a>
+                <a href="https://demo.carledgr.com" class="nav-demo-btn">Try Our Live Demo</a>
+            </div>
+            <div class="nav-toggle" id="nav-toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
     <div class="cancel-container">
         <div class="cancel-card">
             <div class="cancel-icon">
@@ -153,7 +176,7 @@
                 <a href="https://demo.carledgr.com" class="btn btn-primary btn-large">
                     Try Live Demo
                 </a>
-                <a href="/#pricing" class="btn btn-secondary btn-large">
+                <a href="index.html#pricing" class="btn btn-secondary btn-large">
                     View Plans
                 </a>
             </div>
@@ -175,7 +198,39 @@
             </div>
         </div>
     </div>
-    
 
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>CarLedgr</h3>
+                    <p>Professional dealership management for vehicle repair and resale businesses.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="index.html#features">Features</a></li>
+                        <li><a href="index.html#pricing">Pricing</a></li>
+                        <li><a href="https://demo.carledgr.com">Demo</a></li>
+                        <li><a href="index.html#pricing">Add-ons</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="user-documentation.html">Documentation</a></li>
+                        <li><a href="mailto:sales@carledgr.com">Sales</a></li>
+                        <li><a href="mailto:support@carledgr.com">Support</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 CarLedgr. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
 </body>
 </html> 
