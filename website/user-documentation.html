@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarLedgr User Documentation</title>
+    <link rel="icon" type="image/png" href="img/cl-logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #64748b;
+            --accent-color: #f59e0b;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-light: #94a3b8;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-dark: #0f172a;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 4rem;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .logo-img {
+            height: 40px;
+            width: auto;
+        }
+
+        .nav-logo h2 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-demo-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .nav-demo-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            padding: 6rem 0 3rem 0;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Documentation Layout */
+        .docs-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            position: sticky;
+            top: 5rem;
+            height: fit-content;
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+        }
+
+        .sidebar h3 {
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar li {
+            margin: 0;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .sidebar a:hover {
+            background: var(--bg-secondary);
+            color: var(--primary-color);
+        }
+
+        .sidebar a.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Main Content Area */
+        .docs-content {
+            min-width: 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 1rem 0;
+        }
+
+        .section {
+            background: white;
+            margin: 2rem 0;
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .section h2 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border-color);
+            font-weight: 600;
+        }
+
+        .section h3 {
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            margin: 1.5rem 0 1rem 0;
+            font-weight: 600;
+        }
+
+        .section h4 {
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            margin: 1rem 0 0.5rem 0;
+            font-weight: 600;
+        }
+
+        ul, ol {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.2s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .feature-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Tables */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .table th,
+        .table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin: 0.25rem;
+        }
+
+        .badge-owner {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .badge-manager {
+            background: #bee3f8;
+            color: #2b6cb0;
+        }
+
+        .badge-operator {
+            background: #c6f6d5;
+            color: #2f855a;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin: 1rem 0;
+        }
+
+        .alert-info {
+            background: #ebf8ff;
+            border: 1px solid #bee3f8;
+            color: #2c5282;
+        }
+
+        .alert-warning {
+            background: #fffbeb;
+            border: 1px solid #fbd38d;
+            color: #c05621;
+        }
+
+        .alert-success {
+            background: #f0fff4;
+            border: 1px solid #9ae6b4;
+            color: #276749;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--bg-dark);
+            color: white;
+            padding: 3rem 0 1rem 0;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3,
+        .footer-section h4 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section p {
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-section ul li a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #374151;
+            padding-top: 1rem;
+            text-align: center;
+        }
+
+        .footer-bottom p {
+            color: var(--text-light);
+            margin: 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .docs-layout {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .sidebar {
+                position: static;
+                order: -1;
+                margin-bottom: 1rem;
+            }
+
+            .sidebar ul {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .sidebar a {
+                margin-bottom: 0;
+                padding: 0.5rem 0.75rem;
+                font-size: 0.875rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .header {
+                padding: 5rem 0 2rem 0;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .docs-layout {
+                padding: 1rem;
+            }
+            
+            .sidebar ul {
+                flex-direction: column;
+            }
+            
+            .section {
+                padding: 1rem;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <img src="img/cl-logo.png" alt="CarLedgr Logo" class="logo-img">
+                <h2>CarLedgr</h2>
+            </a>
+            <div class="nav-menu">
+                <a href="index.html#features" class="nav-link">Features</a>
+                <a href="index.html#advantages" class="nav-link">Why Choose Us</a>
+                <a href="index.html#pricing" class="nav-link">Pricing</a>
+                <a href="index.html#contact" class="nav-link">Contact</a>
+                <a href="https://demo.carledgr.com" class="nav-demo-btn">Try Our Live Demo</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="container">
+            <h1>CarLedgr User Documentation</h1>
+            <p>Complete guide to using the smart dealership management platform</p>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="docs-layout">
+            <!-- Sidebar Navigation -->
+            <nav class="sidebar">
+                <h3>Documentation</h3>
+                <ul>
+                    <li><a href="#getting-started">Getting Started</a></li>
+                    <li><a href="#dashboard">Dashboard</a></li>
+                    <li><a href="#cars">Car Management</a></li>
+                    <li><a href="#maintenance">Maintenance</a></li>
+                    <li><a href="#expenses">Expenses</a></li>
+                    <li><a href="#reports">Reports</a></li>
+                    <li><a href="#settings">Settings</a></li>
+                    <li><a href="#profile">Profile</a></li>
+                    <li><a href="#roles">User Roles</a></li>
+                    <li><a href="#additional-features">Additional Features</a></li>
+                    <li><a href="#support">Support</a></li>
+                </ul>
+            </nav>
+
+            <!-- Main Content -->
+            <div class="docs-content">
+            <!-- Getting Started Section -->
+            <section id="getting-started" class="section">
+                <h2>Getting Started</h2>
+                
+                <h3>Welcome to CarLedgr</h3>
+                <p>CarLedgr is a comprehensive dealership management platform designed specifically for vehicle repair and resale businesses. Whether you're buying cars at auctions, fixing them up, or selling them for profit, CarLedgr helps you track your financial expenses in multiple aspect of your operation.</p>
+
+                <h3>Key Features Overview</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>🚗 Complete Inventory Management</h4>
+                        <p>Track vehicles through their entire lifecycle from acquisition to sale with VIN-based search and auto-population.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🔧 Detailed Repair Tracking</h4>
+                        <p>Log every maintenance record with automatic cost calculation and receipt attachments.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📊 Powerful Reporting</h4>
+                        <p>Generate inventory, maintenance, and profit reports with flexible date filtering.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>👥 Role-Based Access</h4>
+                        <p>Secure team collaboration with Owner, Manager, and Operator roles.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📎 Smart Attachments</h4>
+                        <p>Attach receipts, photos, and PDFs to every record with automatic backup.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🌍 Multi-Language Support</h4>
+                        <p>Available in English, Spanish, French, and Arabic with intuitive interface design.</p>
+                    </div>
+                </div>
+
+                <h3>Logging In</h3>
+                <p>To access CarLedgr, you'll need:</p>
+                <ul>
+                    <li><strong>Organization Name:</strong> Your dealership's organization name</li>
+                    <li><strong>Email:</strong> Your registered email address</li>
+                    <li><strong>Password:</strong> Your account password</li>
+                </ul>
+
+                <div class="alert alert-info">
+                    <strong>Language Selection:</strong> You can change the interface language using the globe icon (🌐) in the bottom right corner of any page.
+                </div>
+            </section>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="section">
+                <h2>Dashboard</h2>
+                
+                <p>The Dashboard provides a comprehensive overview of your dealership's performance with real-time metrics and insights.</p>
+
+                <h3>Inventory Metrics</h3>
+                <ul>
+                    <li><strong>Total Cars:</strong> Complete count of all vehicles in your system</li>
+                    <li><strong>In Stock:</strong> Vehicles currently available for sale</li>
+                    <li><strong>Sold:</strong> Successfully sold vehicles</li>
+                    <li><strong>Pending:</strong> Vehicles in process or under evaluation</li>
+                    <li><strong>Current Inventory Value:</strong> Total value of unsold inventory</li>
+                </ul>
+
+                <h3>Financial Overview</h3>
+                <ul>
+                    <li><strong>Total Profit:</strong> Overall profit across all sold vehicles</li>
+                    <li><strong>Net Profit:</strong> Profit after all expenses</li>
+                    <li><strong>Profit This Month:</strong> Current month's profit performance</li>
+                    <li><strong>Cars Sold This Month:</strong> Number of vehicles sold in current month</li>
+                </ul>
+
+                <h3>Performance Analytics</h3>
+                <ul>
+                    <li><strong>Top Sold Models:</strong> Most sold vehicle types in the system</li>
+                    <li><strong>Total Revenue:</strong> Total revenue per vehicle brand and model</li>
+                    <li><strong>Average Sale Price:</strong> The average sale price per vehicle models for the top sold models</li>
+                </ul>
+            </section>
+
+            <!-- Car Management Section -->
+            <section id="cars" class="section">
+                <h2>Car Management</h2>
+                
+                <p>The Cars section is where you manage your entire vehicle inventory from acquisition to sale.</p>
+
+                <h3>Adding a New Car</h3>
+                <ol>
+                    <li>Click the <strong>"Add Car"</strong> button</li>
+                    <li>Enter the <strong>VIN number</strong> - the system will automatically populate make, model, and year</li>
+                    <li>Fill in additional details:
+                        <ul>
+                            <li>Color</li>
+                            <li>Mileage</li>
+                            <li>Purchase date and price</li>
+                            <li>Current status (In Stock, Sold, Pending)</li>
+                        </ul>
+                    </li>
+                    <li>Click <strong>"Save"</strong> to add the vehicle</li>
+                </ol>
+
+                <div class="alert alert-success">
+                    <strong>VIN Auto-Population:</strong> When you enter a VIN, CarLedgr automatically fetches vehicle information to save you time and ensure accuracy.
+                </div>
+
+                <h3>Vehicle Statuses</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Description</th>
+                            <th>Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>In Stock</strong></td>
+                            <td>Vehicle is available for sale</td>
+                            <td>Completed repairs, ready for customer</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pending</strong></td>
+                            <td>Vehicle is being processed</td>
+                            <td>Under repair, awaiting parts, or being evaluated</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sold</strong></td>
+                            <td>Vehicle has been sold</td>
+                            <td>Transaction completed, no longer in active cars inventory</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Searching and Filtering</h3>
+                <p>You can search for vehicles using:</p>
+                <ul>
+                    <li><strong>VIN number</strong> - Full or partial VIN</li>
+                    <li><strong>Make and Model</strong> - Vehicle brand and model</li>
+                    <li><strong>Year</strong> - Manufacturing year</li>
+                    <li><strong>Color</strong> - Vehicle color</li>
+                    <li><strong>Status</strong> - Current vehicle status</li>
+                </ul>
+
+                <h3>Editing Vehicle Information</h3>
+                <ol>
+                    <li>Click the <strong>"Edit"</strong> button next to any vehicle</li>
+                    <li>Modify the necessary information</li>
+                    <li>Update sale information when a vehicle is sold</li>
+                    <li>Click <strong>"Save"</strong> to update the record</li>
+                </ol>
+
+                <h3>Vehicle Details Page</h3>
+                <p>Click on any vehicle row to view comprehensive details including:</p>
+                <ul>
+                    <li>Complete vehicle specifications</li>
+                    <li>Purchase and sale history</li>
+                    <li>All maintenance records</li>
+                    <li>Total costs and profit calculations</li>
+                    <li>Attached documents and receipts for the maintenance records</li>
+                </ul>
+                <p><strong>Print Option:</strong> Vehicle details pages include a print button to generate hard copies of individual car information and history.</p>
+            </section>
+
+            <!-- Maintenance Section -->
+            <section id="maintenance" class="section">
+                <h2>Maintenance Tracking</h2>
+                
+                <p>The Maintenance section allows you to track all repairs, services, and improvements performed on your vehicles.</p>
+
+                <h3>Adding Maintenance Records</h3>
+                <ol>
+                    <li>Click <strong>"Add Maintenance"</strong></li>
+                    <li>Search and select the vehicle (by VIN, make, model, or year)</li>
+                    <li>Choose a maintenance category (If you need a new category, only the owner of the organization can create it)</li>
+                    <li>Enter the description and cost</li>
+                    <li>Set the maintenance date</li>
+                    <li>Add vendor information (optional)</li>
+                    <li>Include any additional notes (optional)</li>
+                    <li>Click <strong>"Save"</strong> to record the maintenance</li>
+                </ol>
+
+                <h3>Maintenance Categories</h3>
+                <p>CarLedgr includes pre-configured categories for common maintenance types:</p>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>🔧 Mechanical</h4>
+                        <p>Engine, Transmission, Brakes, Suspension</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>⚡ Electrical</h4>
+                        <p>Lighting, Battery, Alternator, Wiring</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🚗 Body & Interior</h4>
+                        <p>Paint, Upholstery, Glass, Trim</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🛞 Tires & Wheels</h4>
+                        <p>Tire replacement, Wheel alignment, Balancing</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🛢️ Fluids & Filters</h4>
+                        <p>Oil changes, Coolant, Brake fluid, Air filters</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📋 Other</h4>
+                        <p>Miscellaneous repairs and services</p>
+                    </div>
+                </div>
+
+                <h3>Attaching Documents</h3>
+                <p>For each maintenance record, you can add an attachment. The accepted formats are PDF, JPG, PNG, WEBP and the maximum file size is 8MB.</p>
+
+                <div class="alert alert-info">
+                    <strong>Automatic Cost Calculation:</strong> All maintenance costs are automatically added to the vehicle's total cost, helping you track true profitability.
+                </div>
+
+                <h3>Searching Maintenance Records</h3>
+                <p>You can search maintenance records by:</p>
+                <ul>
+                    <li>Vehicle VIN, make, or model</li>
+                    <li>Maintenance description</li>
+                    <li>Category type</li>
+                    <li>Vendor name</li>
+                    <li>Cost amount</li>
+                </ul>
+
+                <h3>Editing and Deleting Records</h3>
+                <ul>
+                    <li><strong>Edit:</strong> Click the edit button to modify any maintenance record</li>
+                    <li><strong>Delete:</strong> Removes the maintenance record from the system permanently</li>
+                    <li><strong>View Car:</strong> Jump directly to the vehicle's detail page</li>
+                </ul>
+            </section>
+
+            <!-- Expenses Section -->
+            <section id="expenses" class="section">
+                <h2>Dealership Expenses</h2>
+                
+                <p>Track your dealership's operational expenses separate from vehicle-specific maintenance costs.</p>
+
+                <div class="alert alert-warning">
+                    <strong>Access Level:</strong> Only Owners and Managers can access the Expenses section.
+                </div>
+
+                <h3>Types of Dealership Expenses</h3>
+                <p>CarLedgr includes a few predefined expense categories like Rent, Utilities, Insurance, and Office Supplies. The organization owner can create and customize additional categories to match your specific business needs.</p>
+
+                <h3>Adding Expense Records</h3>
+                <ol>
+                    <li>Click <strong>"Add Expense"</strong></li>
+                    <li>Select or create an expense category (If you need a new category, only the owner of the organization can create it)</li>
+                    <li>Enter the expense amount</li>
+                    <li>Add a description</li>
+                    <li>Set the expense date</li>
+                    <li>Attach receipts or invoices (optional) - accepted formats are PDF, JPG, PNG, WEBP with maximum file size of 8MB</li>
+                    <li>Click <strong>"Save"</strong></li>
+                </ol>
+
+                <h3>Filtering Expenses</h3>
+                <p>You can filter your expenses by:</p>
+                <ul>
+                    <li><strong>Category:</strong> View expenses for specific categories or all together</li>
+                    <li><strong>Date Range:</strong> Filter expenses within a specific time period</li>
+                    <li><strong>Combined Filters:</strong> Use both category and date filters together for precise results</li>
+                </ul>
+
+                <h3>Expense Summary</h3>
+                <p>View important expense metrics:</p>
+                <ul>
+                    <li><strong>Total Amount:</strong> Sum of all recorded expenses</li>
+                    <li><strong>Total Count (Available at the bottom of the table):</strong> Number of expense records</li>
+                    <li><strong>Category Breakdown:</strong> Expenses by category</li>
+                    <li><strong>Monthly Breakdown:</strong> Expenses by month</li>
+                </ul>
+                <p><strong>Print Option:</strong> Expense summaries and detailed records can be printed using the print button available on the expenses page.</p>
+
+                <h3>Tax Benefits</h3>
+                <div class="alert alert-success">
+                    <strong>Hint! Tax Preparation:</strong> Detailed expense tracking helps you maximize business deductions and simplifies tax preparation at year-end.
+                </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="reports" class="section">
+                <h2>Reports & Analytics</h2>
+                
+                <p>Generate comprehensive reports to analyze your dealership's performance and profitability.</p>
+
+                <h3>Report Types</h3>
+                
+                <h4>1. Inventory Reports</h4>
+                <p>Get insights into your current inventory status:</p>
+                <ul>
+                    <li><strong>Inventory Status:</strong> Breakdown by In Stock, Sold, and Pending</li>
+                    <li><strong>Inventory Value:</strong> Total value of unsold inventory</li>
+                    <li><strong>Vehicle Distribution:</strong> List of vehicles within the specified time period and their purchase price, total maintenance costs, and total invetment (purchase price + maintenance costs)</li>
+                </ul>
+
+                <h4>2. Maintenance Reports</h4>
+                <p>Analyze maintenance costs and patterns:</p>
+                <ul>
+                    <li><strong>Total Maintenance Costs:</strong> Overall spending on repairs</li>
+                    <li><strong>All Maintenance Records:</strong> Total number of repair records</li>
+                    <li><strong>Total Car Costs:</strong> The value of the cars in the inventory (without maintenance costs)</li>
+                    <li><strong>Total Investment:</strong> The total of the cars in the inventory (purchase price + maintenance costs)</li>
+                    <li><strong>Average Cost per Car:</strong> The average maintenance cost per car</li>
+                    <li><strong>Models Breakdown:</strong> Total and average costs by car model</li>
+                    <li><strong>Category Breakdown:</strong> Total and average costs by maintenance type</li>
+                    <li><strong>Vehicle Information:</strong> List of vehicles in that specific time period and the total number of maintenance records and the total cost of maintenance</li>
+                </ul>
+
+                <h4>3. Sales/Profit Reports</h4>
+                <p>Track your financial performance:</p>
+                <ul>
+                    <li><strong>Total Revenue:</strong> Income from vehicle sales</li>
+                    <li><strong>Total Costs:</strong> Purchase prices plus maintenance</li>
+                    <li><strong>Net Profit:</strong> Revenue minus all costs</li>
+                    <li><strong>Total Sales:</strong> Total number of vehicles sold</li>
+                    <li><strong>Total Maintenance cost:</strong> Total maintenance cost for all vehicles sold</li>
+                    <li><strong>Monthly Breakdown:</strong> Total revenue, total number of sales, and net profit by month</li>
+                    <li><strong>Make Breakdown:</strong> Total revenue, total number of sales, and net profit by car make</li>
+                    <li><strong>Vehicle Information:</strong> List of vehicles in that specific time period and the cost and profit information</li>
+                </ul>
+
+                <h3>Date Range Filtering</h3>
+                <p>All reports support flexible date filtering:</p>
+                <ul>
+                    <li><strong>Today:</strong> Current day only</li>
+                    <li><strong>This Week:</strong> Current week's data</li>
+                    <li><strong>This Month:</strong> Current month's data</li>
+                    <li><strong>This Year:</strong> Current year's data</li>
+                    <li><strong>Custom Range:</strong> Select specific start and end dates</li>
+                    <li><strong>All Time:</strong> Complete historical data</li>
+                </ul>
+
+                <h3>Category Filtering</h3>
+                <p>For maintenance reports, you can filter by specific maintenance categories or view all categories together for comprehensive analysis.</p>
+
+                <h3>Printing and Exporting Reports</h3>
+                <p>CarLedgr provides multiple options for sharing and saving your reports:</p>
+                <ul>
+                    <li><strong>Print Reports:</strong> All report types include print buttons for generating hard copies</li>
+                    <li><strong>Export Reports:</strong> Reports can be exported for external analysis or sharing with accountants and business partners</li>
+                </ul>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings" class="section">
+                <h2>Settings & Configuration</h2>
+                
+                <div class="alert alert-warning">
+                    <strong>Access Level:</strong> Only Owners can access the Settings section.
+                </div>
+
+                <h3>License Usage</h3>
+                <p>Monitor your subscription plan usage:</p>
+                <ul>
+                    <li><strong>Current Plan:</strong> Your active subscription tier</li>
+                    <li><strong>Active Cars:</strong> Number of vehicles currently in your inventory in all statuses except sold</li>
+                    <li><strong>Car Limit:</strong> Maximum allowed vehicles in your plan. Remember this is for cars in all statuses except sold for your plan (You can upgrade your plan to increase the limit)</li>
+                    <li><strong>Usage Percentage:</strong> How much of your limit is being used</li>
+                </ul>
+
+                <h3>Expense Categories Management</h3>
+                <p>Customize expense categories for your business:</p>
+                <ul>
+                    <li><strong>Add Categories:</strong> Create new expense types</li>
+                    <li><strong>Edit Categories:</strong> Modify existing category names, as well as it provides the ability to move all the expenses within this category to another category.</li>
+                    <li><strong>Delete Categories:</strong> Remove unused categories</li>
+                    <li><strong>Default Categories:</strong> System-provided standard categories (Cannot be edited or deleted)</li>
+                </ul>
+
+                <h3>Maintenance Categories Management</h3>
+                <p>Customize maintenance categories:</p>
+                <ul>
+                    <li><strong>Standard Categories:</strong> Pre-configured maintenance types (Cannot be edited or deleted)</li>
+                    <li><strong>Custom Categories:</strong> Add categories specific to your business</li>
+                    <li><strong>Category Usage:</strong> Number of maintenance records in each category</li>
+                </ul>
+
+                <h3>User Management</h3>
+                <p>Owners can manage team members and their access:</p>
+                <ul>
+                    <li><strong>Add Users:</strong> Add other users to your organization with appropriate roles</li>
+                    <li><strong>Edit Users:</strong> Update user information and assign or update their roles</li>
+                    <li><strong>Delete Users:</strong> Remove team members from the organization</li>
+                    <li><strong>Role Assignment:</strong> Set Owner, Manager, or Operator access levels</li>
+                    <li><strong>Account Restrictions:</strong> Owners cannot delete or reassign their own account. Please contact support@carledgr.com if you need to delete or reassign your own account.</li>
+                </ul>
+            </section>
+
+            <!-- Profile Management Section -->
+            <section id="profile" class="section">
+                <h2>Profile Management</h2>
+                
+                <p>All users can update their personal account information:</p>
+                <ul>
+                    <li><strong>Name:</strong> First and last name</li>
+                    <li><strong>Email:</strong> Contact email address</li>
+                    <li><strong>Password:</strong> Account password</li>
+                    <li><strong>Language:</strong> Interface language preference</li>
+                </ul>
+                
+                <div class="alert alert-info">
+                    <strong>Access:</strong> Profile management is available to all users through the user dropdown menu in the top right corner.
+                </div>
+            </section>
+
+            <!-- User Roles Section -->
+            <section id="roles" class="section">
+                <h2>User Roles & Permissions</h2>
+                
+                <p>CarLedgr uses a role-based access control system to ensure secure team collaboration with appropriate permissions for each user type.</p>
+
+                <h3>Role Hierarchy</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Role</th>
+                            <th>Access Level</th>
+                            <th>Primary Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge badge-owner">Owner</span></td>
+                            <td>Full Access</td>
+                            <td>Business owners, managers with full control</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-manager">Manager</span></td>
+                            <td>Operations Access</td>
+                            <td>Department managers, senior staff</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-operator">Operator</span></td>
+                            <td>Limited Access</td>
+                            <td>Technicians, entry-level staff</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Owner Permissions</h3>
+                <p>Owners can control everything in the organization:</p>
+                <ul>
+                    <li>✅ Update, add, and manage all vehicles</li>
+                    <li>✅ Add, edit, and delete maintenance records</li>
+                    <li>✅ Access and manage dealership expenses</li>
+                    <li>✅ Generate all types of reports</li>
+                    <li>✅ Access settings page</li>
+                    <li>✅ Manage user accounts and roles</li>
+                    <li>✅ Create and manage expense and maintenance categories</li>
+                    <li>✅ View license usage and billing information</li>
+                </ul>
+
+                <h3>Manager Permissions</h3>
+                <p>Managers can control everything related to operations but not settings:</p>
+                <ul>
+                    <li>✅ Update, add, and manage all vehicles</li>
+                    <li>✅ Add, edit, and delete maintenance records</li>
+                    <li>✅ Access and manage dealership expenses</li>
+                    <li>✅ Generate all types of reports</li>
+                    <li>❌ Cannot access settings page</li>
+                    <li>❌ Cannot create new categories for maintenance or expenses</li>
+                    <li>❌ Cannot manage users</li>
+                    <li>❌ Cannot view billing information</li>
+                </ul>
+
+                <h3>Operator Permissions</h3>
+                <p>Operators can manage cars and maintenance records only:</p>
+                <ul>
+                    <li>✅ Add, edit, and manage cars</li>
+                    <li>✅ Add, edit, and delete maintenance records</li>
+                    <li>✅ Generate reports</li>
+                    <li>❌ Cannot access dealership expenses</li>
+                    <li>❌ Cannot access settings page</li>
+                    <li>❌ Cannot create categories</li>
+                    <li>❌ Cannot manage users</li>
+                </ul>
+
+                <h3>Permission Matrix</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Owner</th>
+                            <th>Manager</th>
+                            <th>Operator</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Dashboard</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                        </tr>
+                        <tr>
+                            <td>Car Management</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                        </tr>
+                        <tr>
+                            <td>Maintenance Tracking</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                        </tr>
+                        <tr>
+                            <td>Dealership Expenses</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                            <td>❌</td>
+                        </tr>
+                        <tr>
+                            <td>All Reports</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                        </tr>
+                            <td>❌</td>
+                        </tr>
+                        <tr>
+                            <td>Settings</td>
+                            <td>✅</td>
+                            <td>❌</td>
+                            <td>❌</td>
+                        </tr>
+                        <tr>
+                            <td>User Management</td>
+                            <td>✅</td>
+                            <td>❌</td>
+                            <td>❌</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Best Practices</h3>
+                <ul>
+                    <li><strong>Assign Appropriate Roles:</strong> Give users the minimum permissions needed for their job</li>
+                    <li><strong>Regular Review:</strong> Periodically review user roles and permissions</li>
+                    <li><strong>Owner Backup:</strong> Ensure at least two users have Owner access</li>
+                    <li><strong>Training:</strong> Train users on features available to their role</li>
+                </ul>
+            </section>
+
+            <!-- Additional Features -->
+            <section id="additional-features" class="section">
+                <h2>Additional Features</h2>
+                
+                <h3>Multi-Language Support</h3>
+                <p>CarLedgr supports four languages:</p>
+                <ul>
+                    <li><strong>English:</strong> Default language</li>
+                    <li><strong>Spanish (Español):</strong> Full translation available</li>
+                    <li><strong>French (Français):</strong> Complete translation available</li>
+                    <li><strong>Arabic (العربية):</strong> Complete right-to-left support</li>
+                </ul>
+                <p>Change language using the globe icon (🌐) in the bottom right corner.</p>
+
+                <h3>VIN Auto-Population</h3>
+                <p>When entering a VIN number, CarLedgr automatically:</p>
+                <ul>
+                    <li>Fetches vehicle make, model, and year</li>
+                    <li>Validates VIN format</li>
+                    <li>Saves time on data entry</li>
+                    <li>Reduces input errors</li>
+                </ul>
+
+                <h3>Smart Search</h3>
+                <p>Search across all sections using:</p>
+                <ul>
+                    <li><strong>VIN numbers:</strong> Full or partial VIN matching</li>
+                    <li><strong>Vehicle details:</strong> Make, model, year, color</li>
+                    <li><strong>Descriptions:</strong> Maintenance and expense descriptions</li>
+                    <li><strong>Categories:</strong> Maintenance and expense categories</li>
+                    <li><strong>Amounts:</strong> Cost and price values</li>
+                </ul>
+
+                <h3>File Attachments</h3>
+                <p>Attach files to maintenance records and expenses:</p>
+                <ul>
+                    <li><strong>Supported formats:</strong> PDF, JPG, PNG, WEBP</li>
+                    <li><strong>Maximum size:</strong> 8MB per file</li>
+                    <li><strong>Automatic backup:</strong> All files are securely stored</li>
+                    <li><strong>Easy access:</strong> View and download from any device</li>
+                </ul>
+
+                <h3>Data Security</h3>
+                <ul>
+                    <li><strong>Automatic Backups:</strong> Daily backups of all data</li>
+                    <li><strong>Secure Storage:</strong> Encrypted data transmission and storage</li>
+                    <li><strong>Access Control:</strong> Role-based permissions</li>
+                    <li><strong>Data Isolation:</strong> Each organization's data is completely separate</li>
+                </ul>
+
+                <h3>Mobile Responsive</h3>
+                <p>CarLedgr works seamlessly on all devices:</p>
+                <ul>
+                    <li><strong>Desktop:</strong> Full-featured experience</li>
+                    <li><strong>Tablet:</strong> Optimized touch interface</li>
+                    <li><strong>Mobile:</strong> Essential features available on-the-go</li>
+                </ul>
+            </section>
+
+            <!-- Support Section -->
+            <section id="support" class="section">
+                <h2>Support & Help</h2>
+                
+                <h3>Getting Help</h3>
+                <p>If you need assistance with CarLedgr:</p>
+                <ul>
+                    <li><strong>Email Support:</strong> Contact support@carledgr.com for technical assistance</li>
+                    <li><strong>Documentation:</strong> Refer to this comprehensive guide</li>
+                    <li><strong>Feature Requests:</strong> Submit suggestions for new features via support@carledgr.com</li>
+                    <li><strong>Bug Reports:</strong> Report any issues you encounter via support@carledgr.com</li>
+                </ul>
+
+                <h3>Common Questions</h3>
+                
+                <h4>How do I reset my password?</h4>
+                <p>Use the "Forgot Password?" link on the login page. Enter your organization name and email to receive reset instructions.</p>
+
+                <h4>Can I export my data?</h4>
+                <p>Yes, reports can be exported for external analysis. Contact support for bulk data export options.</p>
+
+                <h4>How many users can I have?</h4>
+                <p>User limits depend on your subscription plan. Check your Settings page for current limits.</p>
+
+                <h4>Is my data secure?</h4>
+                <p>Yes, all data is encrypted, automatically backed up, and stored securely. Each organization's data is completely isolated.</p>
+
+                <h4>Can I customize categories?</h4>
+                <p>Owners can create custom maintenance and expense categories in the Settings section.</p>
+
+                <div class="alert alert-info">
+                    <strong>Tip:</strong> Most questions can be answered by exploring the relevant section of this documentation or by contacting your organization's Owner or Manager.
+                </div>
+            </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>CarLedgr</h3>
+                    <p>Professional dealership management for vehicle repair and resale businesses.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="index.html#features">Features</a></li>
+                        <li><a href="index.html#pricing">Pricing</a></li>
+                        <li><a href="https://demo.carledgr.com">Demo</a></li>
+                        <li><a href="index.html#pricing">Add-ons</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="user-documentation.html">Documentation</a></li>
+                        <li><a href="mailto:sales@carledgr.com">Sales</a></li>
+                        <li><a href="mailto:support@carledgr.com">Support</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 CarLedgr. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Highlight current section in navigation
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.sidebar a');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (window.scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+
+
+</body>
+</html> 
