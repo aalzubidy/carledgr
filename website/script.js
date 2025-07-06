@@ -714,8 +714,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // 5. Handle CTA button clicks - Let demo buttons navigate naturally
     const demoButtons = document.querySelectorAll('.hero .btn-primary, .cta .btn-primary, .nav-demo-btn');
     demoButtons.forEach(button => {
-        // Check if this is actually a demo button (has demo URL)
-        if (button.href && button.href.includes('demo.carledgr.com')) {
+        // Check if this is actually a demo button (has demo URL or demo-info.html)
+        if (button.href && (button.href.includes('demo.carledgr.com') || button.href.includes('demo-info.html'))) {
             // Track demo clicks but allow natural navigation
             button.addEventListener('click', function(e) {
                 // Determine source based on button location/class
@@ -729,8 +729,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 trackDemoAccess(source);
-                addLoadingState(this);
-                // Don't prevent default - allow natural navigation to demo
+                // Don't prevent default - allow natural navigation to demo info page
             });
         } else {
             // For other buttons that don't have demo URLs, show placeholder
