@@ -69,6 +69,16 @@ const deleteExpenseCategory = async (req, res) => {
     const { id } = req.params;
     const { action, uncategorized_category_id } = req.body;
 
+    // Check if category exists and belongs to organization
+    const category = await expenseQueries.getExpenseCategoryById(id, organizationId);
+    if (!category) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
+    
+    if (category.is_default) {
+      return res.status(400).json({ error: 'Cannot delete default categories' });
+    }
+
     // Check if category has expenses
     const expenseCount = await expenseQueries.getExpensesByCategoryId(id, organizationId);
     
@@ -90,7 +100,7 @@ const deleteExpenseCategory = async (req, res) => {
     const deleted = await expenseQueries.deleteExpenseCategory(id, organizationId);
 
     if (!deleted) {
-      return res.status(404).json({ error: 'Category not found' });
+      return res.status(404).json({ error: 'Category not found or not deletable' });
     }
 
     res.json({ message: 'Category deleted successfully' });

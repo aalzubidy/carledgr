@@ -8,12 +8,14 @@ const getExpenseCategories = async (organizationId) => {
       c.id, 
       c.category_name, 
       c.is_recurring, 
+      c.is_default,
       c.created_date,
       COUNT(e.id) as expense_count
     FROM organization_expense_categories c
     LEFT JOIN organization_expenses e ON c.id = e.category_id
-    WHERE c.organization_id = ?
-    GROUP BY c.id, c.category_name, c.is_recurring, c.created_date
+    WHERE (c.is_default = TRUE AND c.organization_id IS NULL) 
+       OR (c.organization_id = ? AND c.is_default = FALSE)
+    GROUP BY c.id, c.category_name, c.is_recurring, c.is_default, c.created_date
     ORDER BY c.category_name ASC
   `;
   return await query(sql, [organizationId]);
@@ -21,9 +23,9 @@ const getExpenseCategories = async (organizationId) => {
 
 const getExpenseCategoryById = async (id, organizationId) => {
   const sql = `
-    SELECT id, category_name, is_recurring, created_date
+    SELECT id, category_name, is_recurring, is_default, created_date
     FROM organization_expense_categories 
-    WHERE id = ? AND organization_id = ?
+    WHERE id = ? AND ((is_default = TRUE AND organization_id IS NULL) OR organization_id = ?)
   `;
   const results = await query(sql, [id, organizationId]);
   return results[0];
@@ -32,18 +34,18 @@ const getExpenseCategoryById = async (id, organizationId) => {
 const createExpenseCategory = async (organizationId, categoryName, isRecurring) => {
   const id = uuidv4();
   const sql = `
-    INSERT INTO organization_expense_categories (id, organization_id, category_name, is_recurring)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO organization_expense_categories (id, organization_id, category_name, is_recurring, is_default)
+    VALUES (?, ?, ?, ?, FALSE)
   `;
   await query(sql, [id, organizationId, categoryName, isRecurring]);
-  return { id, organization_id: organizationId, category_name: categoryName, is_recurring: isRecurring };
+  return { id, organization_id: organizationId, category_name: categoryName, is_recurring: isRecurring, is_default: false };
 };
 
 const updateExpenseCategory = async (categoryId, organizationId, categoryName, isRecurring) => {
   const sql = `
     UPDATE organization_expense_categories 
     SET category_name = ?, is_recurring = ?
-    WHERE id = ? AND organization_id = ?
+    WHERE id = ? AND organization_id = ? AND is_default = FALSE
   `;
   const result = await query(sql, [categoryName, isRecurring, categoryId, organizationId]);
   return result.affectedRows > 0;
@@ -52,7 +54,7 @@ const updateExpenseCategory = async (categoryId, organizationId, categoryName, i
 const deleteExpenseCategory = async (categoryId, organizationId) => {
   const sql = `
     DELETE FROM organization_expense_categories 
-    WHERE id = ? AND organization_id = ?
+    WHERE id = ? AND organization_id = ? AND is_default = FALSE
   `;
   const result = await query(sql, [categoryId, organizationId]);
   return result.affectedRows > 0;
@@ -66,6 +68,18 @@ const getExpensesByCategoryId = async (categoryId, organizationId) => {
   `;
   const result = await query(sql, [categoryId, organizationId]);
   return result[0].count;
+};
+
+// Get the "Other" default category for moving records
+const getDefaultOtherExpenseCategory = async () => {
+  const sql = `
+    SELECT id, category_name
+    FROM organization_expense_categories 
+    WHERE category_name = 'Other' AND is_default = TRUE AND organization_id IS NULL
+    LIMIT 1
+  `;
+  const result = await query(sql);
+  return result[0];
 };
 
 const moveExpensesToUncategorized = async (categoryId, organizationId, uncategorizedCategoryId) => {
@@ -316,6 +330,7 @@ module.exports = {
   updateExpenseCategory,
   deleteExpenseCategory,
   getExpensesByCategoryId,
+  getDefaultOtherExpenseCategory,
   moveExpensesToUncategorized,
   deleteExpensesByCategory,
   

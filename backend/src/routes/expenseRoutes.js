@@ -8,8 +8,8 @@ const { requireExpenseAccess, requireSettings, requireOrganization } = require('
 router.use(authenticateJWT);
 router.use(requireOrganization);
 
-// Expense Categories Routes (Settings - Owners only)
-router.get('/categories', requireSettings, expenseController.getExpenseCategories);
+// Expense Categories Routes (Settings - Owners only for management, all roles can view)
+router.get('/categories', expenseController.getExpenseCategories);
 router.post('/categories', requireSettings, expenseController.createExpenseCategory);
 router.put('/categories/:id', requireSettings, expenseController.updateExpenseCategory);
 router.delete('/categories/:id', requireSettings, expenseController.deleteExpenseCategory);
