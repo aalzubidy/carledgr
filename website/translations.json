@@ -110,8 +110,8 @@
     "fr": "Multilingue et Convivial"
   },
   "feature6_desc": {
-    "en": "Available in English, Spanish, and Arabic. Intuitive interface with VIN auto-population, smart search by vin/make/model/color, and exceptional user experience design.",
-    "es": "Disponible en inglés, español y árabe. Interfaz intuitiva con auto-población de VIN, búsqueda inteligente por vin/marca/modelo/color, y diseño excepcional de experiencia de usuario.",
+    "en": "Available in English, Spanish, Arabic, and French. Intuitive interface with VIN auto-population, smart search by vin/make/model/color, and exceptional user experience design.",
+    "es": "Disponible en inglés, español, árabe y francés. Interfaz intuitiva con auto-población de VIN, búsqueda inteligente por vin/marca/modelo/color, y diseño excepcional de experiencia de usuario.",
     "fr": "Disponible en anglais, espagnol, arabe et français. Interface intuitive avec auto-population VIN, recherche intelligente par vin/marque/modèle/couleur, et design d'expérience utilisateur exceptionnel."
   },
   "advantages_title": {
@@ -400,8 +400,88 @@
     "fr": "Support"
   },
   "footer_copyright": {
-    "en": "© 2025 CarLedgr. All rights reserved.",
-    "es": "© 2025 CarLedgr. Todos los derechos reservados.",
-    "fr": "© 2025 CarLedgr. Tous droits réservés."
+    "en": "© 2025 CarLedgr. All rights reserved. Developed by AA Systems LLC.",
+    "es": "© 2025 CarLedgr. Todos los derechos reservados. Desarrollado por AA Systems LLC.",
+    "fr": "© 2025 CarLedgr. Tous droits réservés. Développé par AA Systems LLC."
+  },
+  "demo_page_title": {
+    "en": "Experience CarLedgr <span class=\"highlight\">Live Demo</span>",
+    "es": "Experimenta la <span class=\"highlight\">Demo en Vivo</span> de CarLedgr",
+    "fr": "Découvrez la <span class=\"highlight\">Démo en Direct</span> de CarLedgr"
+  },
+  "demo_page_subtitle": {
+    "en": "Explore our dealership management platform with real sample data. Test all features with different user roles and see how CarLedgr can transform your business operations.",
+    "es": "Explora nuestra plataforma de gestión de concesionarios con datos de muestra reales. Prueba todas las características con diferentes roles de usuario y ve cómo CarLedgr puede transformar las operaciones de tu negocio.",
+    "fr": "Explorez notre plateforme de gestion de concession avec de vraies données d'exemple. Testez toutes les fonctionnalités avec différents rôles d'utilisateur et voyez comment CarLedgr peut transformer les opérations de votre entreprise."
+  },
+  "demo_credentials_title": {
+    "en": "Demo Login Credentials",
+    "es": "Credenciales de Acceso a la Demo",
+    "fr": "Identifiants de Connexion à la Démo"
+  },
+  "demo_org_name": {
+    "en": "Organization Name:",
+    "es": "Nombre de la Organización:",
+    "fr": "Nom de l'Organisation :"
+  },
+  "demo_password": {
+    "en": "Password (same for all users):",
+    "es": "Contraseña (igual para todos los usuarios):",
+    "fr": "Mot de passe (identique pour tous les utilisateurs) :"
+  },
+  "demo_available_users": {
+    "en": "Available User Accounts:",
+    "es": "Cuentas de Usuario Disponibles:",
+    "fr": "Comptes Utilisateur Disponibles :"
+  },
+  "demo_owner_desc": {
+    "en": "Owner - Full access to all features",
+    "es": "Propietario - Acceso completo a todas las características",
+    "fr": "Propriétaire - Accès complet à toutes les fonctionnalités"
+  },
+  "demo_manager_desc": {
+    "en": "Manager - Can manage inventory and reports",
+    "es": "Gerente - Puede gestionar inventario y reportes",
+    "fr": "Gestionnaire - Peut gérer l'inventaire et les rapports"
+  },
+  "demo_operator_desc": {
+    "en": "Operator - Can view and add maintenance records",
+    "es": "Operador - Puede ver y agregar registros de mantenimiento",
+    "fr": "Opérateur - Peut voir et ajouter des enregistrements de maintenance"
+  },
+  "demo_warning": {
+    "en": "Important: This is a demo environment with sample data. Any data you add will be automatically deleted periodically to maintain the demo's integrity.",
+    "es": "Importante: Este es un entorno de demostración con datos de muestra. Cualquier dato que agregues será eliminado automáticamente de forma periódica para mantener la integridad de la demo.",
+    "fr": "Important : Il s'agit d'un environnement de démonstration avec des données d'exemple. Toutes les données que vous ajoutez seront automatiquement supprimées périodiquement pour maintenir l'intégrité de la démo."
+  },
+  "demo_access_btn": {
+    "en": "🚀 Access Live Demo",
+    "es": "🚀 Acceder a la Demo en Vivo",
+    "fr": "🚀 Accéder à la Démo en Direct"
+  },
+  "demo_access_note": {
+    "en": "Opens in a new window • No installation required",
+    "es": "Se abre en una nueva ventana • No requiere instalación",
+    "fr": "S'ouvre dans une nouvelle fenêtre • Aucune installation requise"
+  },
+  "demo_learn_roles_title": {
+    "en": "Learn More About User Roles",
+    "es": "Aprende Más Sobre los Roles de Usuario",
+    "fr": "En Savoir Plus sur les Rôles d'Utilisateur"
+  },
+  "demo_learn_roles_desc": {
+    "en": "Want to understand what each user role can do? Check out our comprehensive documentation to learn about permissions, features, and workflows for each role type.",
+    "es": "¿Quieres entender qué puede hacer cada rol de usuario? Consulta nuestra documentación completa para aprender sobre permisos, características y flujos de trabajo para cada tipo de rol.",
+    "fr": "Vous voulez comprendre ce que chaque rôle d'utilisateur peut faire ? Consultez notre documentation complète pour en savoir plus sur les permissions, les fonctionnalités et les flux de travail pour chaque type de rôle."
+  },
+  "demo_view_docs_btn": {
+    "en": "📚 View Documentation",
+    "es": "📚 Ver Documentación",
+    "fr": "📚 Voir la Documentation"
+  },
+  "demo_back_home_btn": {
+    "en": "← Back to Home",
+    "es": "← Volver al Inicio",
+    "fr": "← Retour à l'Accueil"
   }
 }

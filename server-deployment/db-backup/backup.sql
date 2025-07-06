@@ -1,8 +1,8 @@
 -- MySQL dump 10.13  Distrib 8.0.42, for Linux (x86_64)
 --
--- Host: 6irvb.h.filess.io    Database: carfindev_dancenight
+-- Host: db-mysql-nyc3-74388-do-user-23602098-0.m.db.ondigitalocean.com    Database: carledgr_demo
 -- ------------------------------------------------------
--- Server version	8.0.36-28
+-- Server version	8.0.35
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -14,6 +14,14 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+SET @MYSQLDUMP_TEMP_LOG_BIN = @@SESSION.SQL_LOG_BIN;
+SET @@SESSION.SQL_LOG_BIN= 0;
+
+--
+-- GTID state at the beginning of the backup 
+--
+
+SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ 'ec0cf79e-576a-11f0-94d0-3e0b6ed34628:1-580';
 
 --
 -- Table structure for table `cars`
@@ -23,19 +31,19 @@ DROP TABLE IF EXISTS `cars`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cars` (
-  `id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
-  `organization_id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
-  `vin` varchar(17) COLLATE utf8mb4_general_ci NOT NULL,
-  `make` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `model` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `organization_id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `vin` varchar(17) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `make` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `model` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `year` int NOT NULL,
-  `color` varchar(30) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `color` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `mileage` int DEFAULT '0',
   `purchase_date` date NOT NULL,
   `purchase_price` decimal(10,2) NOT NULL,
   `sale_date` date DEFAULT NULL,
   `sale_price` decimal(10,2) DEFAULT NULL,
-  `status` enum('in_stock','sold','pending') COLLATE utf8mb4_general_ci DEFAULT 'in_stock',
+  `status` enum('in_stock','sold','pending','in_repair') COLLATE utf8mb4_general_ci DEFAULT 'pending',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -51,7 +59,7 @@ CREATE TABLE `cars` (
 
 LOCK TABLES `cars` WRITE;
 /*!40000 ALTER TABLE `cars` DISABLE KEYS */;
-INSERT INTO `cars` VALUES ('12fe0221-fd19-4fe5-9b14-b37926742470','36debc90-59df-4db4-af5d-78ef4c001ae2','TEST987654321EFGH','Honda','Civic',2021,'Red',67522,'2023-02-20',22000.00,'2025-05-15',25000.00,'sold','2025-05-28 11:56:07','2025-06-14 16:42:15'),('290fbc47-0fd9-4cb1-9a37-8b08f2c88669','36debc90-59df-4db4-af5d-78ef4c001ae2','JM1GJ1V51F1181005','MAZDA','Mazda6',2015,'White',0,'2025-06-27',11000.00,NULL,150000.00,'pending','2025-07-01 21:05:04','2025-07-01 21:08:38'),('2cc31065-0fb7-4609-8d08-51da64d5c4cc','36debc90-59df-4db4-af5d-78ef4c001ae2','A2345678912145678','Nissan','Altima',2020,'White',73201,'2025-05-13',31000.00,'2025-06-02',45000.00,'sold','2025-06-02 16:47:15','2025-06-14 16:42:15'),('6b2de218-ba50-4c64-ae13-d874915ab5dd','36debc90-59df-4db4-af5d-78ef4c001ae2','TEST555666777IJKL','Ford','Focus',2019,'White',153440,'2023-03-10',18000.00,'2024-01-20',20000.00,'sold','2025-05-28 11:56:07','2025-06-14 16:42:15'),('701922e2-fbe6-41b4-a7dd-3ee5fb0c360f','36debc90-59df-4db4-af5d-78ef4c001ae2','JN1CA21D8XT223244','NISSAN','Maxima',1999,'White',137596,'2025-06-13',5000.00,'2025-07-01',6000.00,'pending','2025-06-14 16:26:44','2025-07-01 21:59:49'),('9d1d3604-d2cf-4cd9-8b28-94ad6a72262b','36debc90-59df-4db4-af5d-78ef4c001ae2','JT2BG22KXY0423980','TOYOTA','Camry',2000,'White',0,'2025-06-26',12000.00,NULL,NULL,'pending','2025-06-28 22:06:51','2025-07-01 17:32:48'),('bcb8f8ee-0489-4509-a8d8-ac5404440090','36debc90-59df-4db4-af5d-78ef4c001ae2','12345678912345678','Nissan','Altima',2020,'White',17663,'2025-05-27',13000.00,NULL,NULL,'in_stock','2025-05-27 17:52:28','2025-06-14 16:42:15'),('c3306a8c-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123456','BMW','3 Series',2020,NULL,65528,'2025-03-15',25000.00,'2025-04-20',28500.00,'sold','2025-05-28 14:19:27','2025-06-14 16:42:15'),('c339a74c-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123457','BMW','X5',2019,NULL,64650,'2025-03-10',35000.00,'2025-04-25',39000.00,'sold','2025-05-28 14:19:27','2025-06-14 16:42:15'),('c339a9a1-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123458','Mercedes','C-Class',2021,NULL,116668,'2025-03-20',30000.00,'2025-05-05',34000.00,'sold','2025-05-28 14:19:27','2025-06-14 16:42:15'),('c339e0be-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123459','Mercedes','E-Class',2020,NULL,179389,'2025-03-25',40000.00,'2025-05-10',45000.00,'sold','2025-05-28 14:19:27','2025-06-14 16:42:15'),('c33a0d9e-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123460','Audi','A4',2021,NULL,136942,'2025-04-01',28000.00,'2025-05-15',32000.00,'sold','2025-05-28 14:19:27','2025-06-14 16:42:15'),('ca4b012b-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123461','Audi','Q5',2020,NULL,136544,'2025-04-05',38000.00,'2025-05-20',42000.00,'sold','2025-05-28 14:19:39','2025-06-14 16:42:15'),('ca4b3be8-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123462','Toyota','Camry',2022,NULL,61896,'2025-04-10',22000.00,'2025-05-25',25000.00,'sold','2025-05-28 14:19:39','2025-06-14 16:42:15'),('ca4b615d-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123463','Toyota','RAV4',2021,NULL,89845,'2025-04-15',26000.00,'2025-05-30',29000.00,'sold','2025-05-28 14:19:39','2025-06-14 16:42:15'),('ca4b8aba-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123464','Honda','Accord',2022,NULL,53540,'2025-04-20',24000.00,'2025-06-01',27000.00,'sold','2025-05-28 14:19:39','2025-06-14 16:42:15'),('ca4cd307-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123465','Honda','CR-V',2021,NULL,188164,'2025-04-25',27000.00,'2025-06-05',30000.00,'sold','2025-05-28 14:19:39','2025-06-14 16:42:15'),('f02e727f-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123466','Ford','F-150',2020,NULL,76509,'2025-05-01',32000.00,'2025-06-10',36000.00,'sold','2025-05-28 14:20:42','2025-06-14 16:42:15'),('f02e99fc-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123467','Ford','Escape',2021,NULL,61946,'2025-05-05',23000.00,'2025-06-15',26000.00,'sold','2025-05-28 14:20:42','2025-06-14 16:42:15'),('f02eacbb-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123468','Chevrolet','Malibu',2022,NULL,70205,'2025-05-10',21000.00,'2025-06-20',24000.00,'sold','2025-05-28 14:20:42','2025-06-14 16:42:15'),('f02eb1f4-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123469','Chevrolet','Equinox',2021,NULL,155187,'2025-05-15',25000.00,'2025-06-25',28000.00,'sold','2025-05-28 14:20:42','2025-06-14 16:42:15'),('f02eca5a-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123470','Nissan','Altima',2022,NULL,155321,'2025-05-20',20000.00,'2025-06-30',23000.00,'sold','2025-05-28 14:20:42','2025-06-14 16:42:15'),('fd20314e-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123471','Nissan','Altima',2021,'Black',101042,'2025-05-25',24000.00,'2025-07-01',27000.00,'sold','2025-05-28 14:21:04','2025-06-14 16:42:15'),('fd205280-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123472','Hyundai','Elantra',2022,NULL,29248,'2025-05-30',18000.00,'2025-07-05',21000.00,'sold','2025-05-28 14:21:04','2025-06-14 16:42:15'),('fd209ab0-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123475','Kia','Sorento',2020,'White',33117,'2025-06-10',28000.00,'2025-07-20',31000.00,'pending','2025-05-28 14:21:04','2025-06-14 16:42:15');
+INSERT INTO `cars` VALUES ('12fe0221-fd19-4fe5-9b14-b37926742470','36debc90-59df-4db4-af5d-78ef4c001ae2','TEST987654321EFGH','Honda','Civic',2021,'Red',67522,'2023-02-20',22000.00,'2025-05-15',25000.00,'sold','2025-05-28 11:56:07','2025-06-14 16:42:15'),('2cc31065-0fb7-4609-8d08-51da64d5c4cc','36debc90-59df-4db4-af5d-78ef4c001ae2','A2345678912145678','Nissan','Altima',2020,'White',73201,'2025-05-13',31000.00,'2025-06-02',45000.00,'sold','2025-06-02 16:47:15','2025-06-14 16:42:15'),('6b2de218-ba50-4c64-ae13-d874915ab5dd','36debc90-59df-4db4-af5d-78ef4c001ae2','TEST555666777IJKL','Ford','Focus',2019,'White',153440,'2023-03-10',18000.00,'2024-01-20',20000.00,'sold','2025-05-28 11:56:07','2025-06-14 16:42:15'),('701922e2-fbe6-41b4-a7dd-3ee5fb0c360f','36debc90-59df-4db4-af5d-78ef4c001ae2','JN1CA21D8XT223244','NISSAN','Maxima',1999,'White',137596,'2025-06-13',5000.00,'2025-07-01',6000.00,'pending','2025-06-14 16:26:44','2025-07-01 21:59:49'),('9d1d3604-d2cf-4cd9-8b28-94ad6a72262b','36debc90-59df-4db4-af5d-78ef4c001ae2','JT2BG22KXY0423980','TOYOTA','Camry',2000,'White',0,'2025-06-26',12000.00,NULL,NULL,'in_repair','2025-06-28 22:06:51','2025-07-06 03:02:12'),('b701adfa-c806-4b19-8bc1-36adde764ca9','36debc90-59df-4db4-af5d-78ef4c001ae2','5XYZG3ABXCG095539','HYUNDAI','Santa Fe',2012,'Silver',0,'2025-06-07',5000.00,NULL,NULL,'in_stock','2025-07-06 01:28:53','2025-07-06 01:28:53'),('ba94c218-59ac-4f26-ae5b-21d6fec1bc88','36debc90-59df-4db4-af5d-78ef4c001ae2','JM1GJ1V51F1181005','MAZDA','Mazda6',2015,'White',0,'2025-07-05',25000.00,NULL,NULL,'pending','2025-07-06 03:06:19','2025-07-06 03:06:36'),('bcb8f8ee-0489-4509-a8d8-ac5404440090','36debc90-59df-4db4-af5d-78ef4c001ae2','12345678912345678','Nissan','Altima',2020,'White',17663,'2025-05-27',13000.00,NULL,NULL,'in_repair','2025-05-27 17:52:28','2025-07-06 03:02:28'),('c3306a8c-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123456','BMW','3 Series',2020,NULL,65528,'2025-03-15',25000.00,'2025-04-20',28500.00,'sold','2025-05-28 14:19:27','2025-06-14 16:42:15'),('c339a74c-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123457','BMW','X5',2019,NULL,64650,'2025-03-10',35000.00,'2025-04-25',39000.00,'sold','2025-05-28 14:19:27','2025-06-14 16:42:15'),('c339a9a1-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123458','Mercedes','C-Class',2021,NULL,116668,'2025-03-20',30000.00,'2025-05-05',34000.00,'sold','2025-05-28 14:19:27','2025-06-14 16:42:15'),('c339e0be-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123459','Mercedes','E-Class',2020,NULL,179389,'2025-03-25',40000.00,'2025-05-10',45000.00,'sold','2025-05-28 14:19:27','2025-06-14 16:42:15'),('c33a0d9e-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123460','Audi','A4',2021,NULL,136942,'2025-04-01',28000.00,'2025-05-15',32000.00,'sold','2025-05-28 14:19:27','2025-06-14 16:42:15'),('ca4b012b-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123461','Audi','Q5',2020,NULL,136544,'2025-04-05',38000.00,'2025-05-20',42000.00,'sold','2025-05-28 14:19:39','2025-06-14 16:42:15'),('ca4b3be8-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123462','Toyota','Camry',2022,NULL,61896,'2025-04-10',22000.00,'2025-05-25',25000.00,'sold','2025-05-28 14:19:39','2025-06-14 16:42:15'),('ca4b615d-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123463','Toyota','RAV4',2021,NULL,89845,'2025-04-15',26000.00,'2025-05-30',29000.00,'sold','2025-05-28 14:19:39','2025-06-14 16:42:15'),('ca4b8aba-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123464','Honda','Accord',2022,NULL,53540,'2025-04-20',24000.00,'2025-06-01',27000.00,'sold','2025-05-28 14:19:39','2025-06-14 16:42:15'),('ca4cd307-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123465','Honda','CR-V',2021,NULL,188164,'2025-04-25',27000.00,'2025-06-05',30000.00,'sold','2025-05-28 14:19:39','2025-06-14 16:42:15'),('f02e727f-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123466','Ford','F-150',2020,NULL,76509,'2025-05-01',32000.00,'2025-06-10',36000.00,'sold','2025-05-28 14:20:42','2025-06-14 16:42:15'),('f02e99fc-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123467','Ford','Escape',2021,NULL,61946,'2025-05-05',23000.00,'2025-06-15',26000.00,'sold','2025-05-28 14:20:42','2025-06-14 16:42:15'),('f02eacbb-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123468','Chevrolet','Malibu',2022,NULL,70205,'2025-05-10',21000.00,'2025-06-20',24000.00,'sold','2025-05-28 14:20:42','2025-06-14 16:42:15'),('f02eb1f4-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123469','Chevrolet','Equinox',2021,NULL,155187,'2025-05-15',25000.00,'2025-06-25',28000.00,'sold','2025-05-28 14:20:42','2025-06-14 16:42:15'),('f02eca5a-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123470','Nissan','Altima',2022,NULL,155321,'2025-05-20',20000.00,'2025-06-30',23000.00,'sold','2025-05-28 14:20:42','2025-06-14 16:42:15'),('fd20314e-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123471','Nissan','Altima',2021,'Black',101042,'2025-05-25',24000.00,'2025-07-01',27000.00,'sold','2025-05-28 14:21:04','2025-06-14 16:42:15'),('fd205280-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123472','Hyundai','Elantra',2022,NULL,29248,'2025-05-30',18000.00,'2025-07-05',21000.00,'sold','2025-05-28 14:21:04','2025-06-14 16:42:15'),('fd209ab0-3bce-11f0-ab0b-6479f0559d3f','36debc90-59df-4db4-af5d-78ef4c001ae2','WBAFR7C50BC123475','Kia','Sorento',2020,'White',33117,'2025-06-10',28000.00,'2025-07-20',31000.00,'pending','2025-05-28 14:21:04','2025-06-14 16:42:15');
 /*!40000 ALTER TABLE `cars` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -63,14 +71,14 @@ DROP TABLE IF EXISTS `expense_attachments`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `expense_attachments` (
-  `id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
-  `expense_id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
-  `file_name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `expense_id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `file_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `file_size` int NOT NULL,
-  `file_type` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `storage_url` varchar(500) COLLATE utf8mb4_general_ci NOT NULL,
-  `storage_key` varchar(500) COLLATE utf8mb4_general_ci NOT NULL,
-  `uploaded_by` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
+  `file_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `storage_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `storage_key` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `uploaded_by` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `uploaded_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -98,12 +106,12 @@ DROP TABLE IF EXISTS `license_tiers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `license_tiers` (
-  `id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
-  `tier_name` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `display_name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `tier_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `display_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `car_limit` int NOT NULL,
   `monthly_price` decimal(8,2) NOT NULL,
-  `stripe_price_id` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `stripe_price_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `is_available_online` tinyint(1) DEFAULT '1',
   `sort_order` int DEFAULT '0',
   `is_active` tinyint(1) DEFAULT '1',
@@ -132,14 +140,14 @@ DROP TABLE IF EXISTS `maintenance_attachments`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `maintenance_attachments` (
-  `id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
-  `maintenance_id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
-  `file_name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `maintenance_id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `file_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `file_size` int NOT NULL,
-  `file_type` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `storage_url` varchar(500) COLLATE utf8mb4_general_ci NOT NULL,
-  `storage_key` varchar(500) COLLATE utf8mb4_general_ci NOT NULL,
-  `uploaded_by` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
+  `file_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `storage_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `storage_key` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `uploaded_by` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `uploaded_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -167,9 +175,9 @@ DROP TABLE IF EXISTS `maintenance_categories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `maintenance_categories` (
-  `id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
-  `name` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `organization_id` varchar(36) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `organization_id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `is_default` tinyint(1) DEFAULT '0',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -185,7 +193,7 @@ CREATE TABLE `maintenance_categories` (
 
 LOCK TABLES `maintenance_categories` WRITE;
 /*!40000 ALTER TABLE `maintenance_categories` DISABLE KEYS */;
-INSERT INTO `maintenance_categories` VALUES ('10389d23-be57-4ad9-801c-88566a025011','General Maintenance',NULL,1,'2025-05-27 17:13:00','2025-06-17 23:35:02'),('22020294-8bb6-43ca-b7fe-a06ac012ea42','Interior',NULL,1,'2025-05-27 17:13:00','2025-06-17 23:35:02'),('415f9500-cdd4-4596-a015-90f7f0ba7770','Transmission',NULL,1,'2025-05-27 17:13:00','2025-06-17 23:35:02'),('428f70fd-37be-4e4a-a998-d3c577835589','Tires',NULL,1,'2025-05-27 17:13:00','2025-06-17 23:35:02'),('66d5a74a-8583-47e4-86d6-6635cee717bf','Engine',NULL,1,'2025-05-27 17:13:00','2025-06-17 23:35:02'),('68b699b5-18d4-42a7-987a-d969bcce0a03','Body',NULL,1,'2025-05-27 17:13:00','2025-06-17 23:35:02'),('722162dc-700c-43a8-9962-61e17a58162d','Custom Engine Work 1','36debc90-59df-4db4-af5d-78ef4c001ae2',0,'2025-06-17 23:36:37','2025-06-17 23:45:14'),('7e755154-d85c-4993-beab-51d11d033fb9','Brakes',NULL,1,'2025-05-27 17:13:00','2025-06-17 23:35:02'),('85ea4c05-f95c-48bb-84bc-10e674419315','Test Category 2','36debc90-59df-4db4-af5d-78ef4c001ae2',0,'2025-06-17 23:45:25','2025-06-17 23:45:25'),('8e8ac303-493a-11f0-acc9-bcec23c373a5','Taxes',NULL,1,'2025-06-14 16:13:49','2025-06-17 23:35:02'),('8e8ac62c-493a-11f0-acc9-bcec23c373a5','Fees',NULL,1,'2025-06-14 16:13:49','2025-06-17 23:35:02'),('8e8ac69f-493a-11f0-acc9-bcec23c373a5','In State Tax',NULL,1,'2025-06-14 16:13:49','2025-06-17 23:35:02'),('8e8ac715-493a-11f0-acc9-bcec23c373a5','Out of State Tax',NULL,1,'2025-06-14 16:13:49','2025-06-17 23:35:02'),('987ece51-59eb-4458-a838-fa033fb67b17','Suspension',NULL,1,'2025-05-27 17:13:00','2025-06-17 23:35:02'),('c8df32ab-ef2b-48da-a089-17781d6c7b97','Electrical',NULL,1,'2025-05-27 17:13:00','2025-06-17 23:35:02'),('cae24cb3-094a-4ed4-baa0-2a198aa84c19','Other',NULL,1,'2025-05-27 17:13:00','2025-06-17 23:35:02'),('d19bfc90-3c11-11f0-ab0b-6479f0559d3f','Gas',NULL,1,'2025-05-28 22:19:27','2025-06-17 23:35:02'),('d19c30eb-3c11-11f0-ab0b-6479f0559d3f','Holding Cost',NULL,1,'2025-05-28 22:19:27','2025-06-17 23:35:02'),('d19c36dc-3c11-11f0-ab0b-6479f0559d3f','Towing',NULL,1,'2025-05-28 22:19:27','2025-06-17 23:35:02'),('d19c3bbe-3c11-11f0-ab0b-6479f0559d3f','Parking',NULL,1,'2025-05-28 22:19:27','2025-06-17 23:35:02'),('e2084313-7212-45cc-8e0f-d65db5ca8189','Test Category 3','36debc90-59df-4db4-af5d-78ef4c001ae2',0,'2025-06-17 23:57:57','2025-06-17 23:57:57'),('ecfe82a3-c143-4d23-b331-d55cd9e253cf','Oil Change',NULL,1,'2025-05-27 17:13:00','2025-06-17 23:35:02');
+INSERT INTO `maintenance_categories` VALUES ('10389d23-be57-4ad9-801c-88566a025011','General Maintenance',NULL,1,'2025-05-27 17:13:00','2025-06-17 23:35:02'),('22020294-8bb6-43ca-b7fe-a06ac012ea42','Interior',NULL,1,'2025-05-27 17:13:00','2025-06-17 23:35:02'),('415f9500-cdd4-4596-a015-90f7f0ba7770','Transmission',NULL,1,'2025-05-27 17:13:00','2025-06-17 23:35:02'),('428f70fd-37be-4e4a-a998-d3c577835589','Tires',NULL,1,'2025-05-27 17:13:00','2025-06-17 23:35:02'),('66d5a74a-8583-47e4-86d6-6635cee717bf','Engine',NULL,1,'2025-05-27 17:13:00','2025-06-17 23:35:02'),('68b699b5-18d4-42a7-987a-d969bcce0a03','Body',NULL,1,'2025-05-27 17:13:00','2025-06-17 23:35:02'),('722162dc-700c-43a8-9962-61e17a58162d','Custom Engine Work 1','36debc90-59df-4db4-af5d-78ef4c001ae2',0,'2025-06-17 23:36:37','2025-06-17 23:45:14'),('7e755154-d85c-4993-beab-51d11d033fb9','Brakes',NULL,1,'2025-05-27 17:13:00','2025-06-17 23:35:02'),('8e8ac303-493a-11f0-acc9-bcec23c373a5','Taxes',NULL,1,'2025-06-14 16:13:49','2025-06-17 23:35:02'),('8e8ac62c-493a-11f0-acc9-bcec23c373a5','Fees',NULL,1,'2025-06-14 16:13:49','2025-06-17 23:35:02'),('8e8ac69f-493a-11f0-acc9-bcec23c373a5','In State Tax',NULL,1,'2025-06-14 16:13:49','2025-06-17 23:35:02'),('8e8ac715-493a-11f0-acc9-bcec23c373a5','Out of State Tax',NULL,1,'2025-06-14 16:13:49','2025-06-17 23:35:02'),('987ece51-59eb-4458-a838-fa033fb67b17','Suspension',NULL,1,'2025-05-27 17:13:00','2025-06-17 23:35:02'),('a1b2c3d4-5e6f-7890-abcd-ef1234567890','Fuel System',NULL,1,'2025-07-06 01:09:53','2025-07-06 01:09:53'),('b2c3d4e5-6f78-9012-bcde-f23456789012','Cooling System',NULL,1,'2025-07-06 01:09:53','2025-07-06 01:09:53'),('c3d4e5f6-7890-1234-cdef-345678901234','Pre-Sale Inspection',NULL,1,'2025-07-06 01:09:54','2025-07-06 01:09:54'),('c8df32ab-ef2b-48da-a089-17781d6c7b97','Electrical',NULL,1,'2025-05-27 17:13:00','2025-06-17 23:35:02'),('cae24cb3-094a-4ed4-baa0-2a198aa84c19','Other',NULL,1,'2025-05-27 17:13:00','2025-06-17 23:35:02'),('d19bfc90-3c11-11f0-ab0b-6479f0559d3f','Gas',NULL,1,'2025-05-28 22:19:27','2025-06-17 23:35:02'),('d19c30eb-3c11-11f0-ab0b-6479f0559d3f','Holding Cost',NULL,1,'2025-05-28 22:19:27','2025-06-17 23:35:02'),('d19c36dc-3c11-11f0-ab0b-6479f0559d3f','Towing',NULL,1,'2025-05-28 22:19:27','2025-06-17 23:35:02'),('d19c3bbe-3c11-11f0-ab0b-6479f0559d3f','Parking',NULL,1,'2025-05-28 22:19:27','2025-06-17 23:35:02'),('d4e5f6a7-8901-2345-def0-456789012345','Diagnostic',NULL,1,'2025-07-06 01:09:54','2025-07-06 01:09:54'),('e5f6a7b8-9012-3456-ef01-567890123456','Detailing',NULL,1,'2025-07-06 01:09:54','2025-07-06 01:09:54'),('ecfe82a3-c143-4d23-b331-d55cd9e253cf','Oil Change',NULL,1,'2025-05-27 17:13:00','2025-06-17 23:35:02'),('f6a7b8c9-0123-4567-f012-678901234567','Battery',NULL,1,'2025-07-06 01:09:54','2025-07-06 01:09:54');
 /*!40000 ALTER TABLE `maintenance_categories` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -197,14 +205,14 @@ DROP TABLE IF EXISTS `maintenance_records`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `maintenance_records` (
-  `id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
-  `car_id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
-  `category_id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
-  `description` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `car_id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `category_id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `cost` decimal(10,2) NOT NULL,
   `maintenance_date` date NOT NULL,
-  `vendor` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `notes` text COLLATE utf8mb4_general_ci,
+  `vendor` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `notes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -233,11 +241,13 @@ DROP TABLE IF EXISTS `organization_expense_categories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `organization_expense_categories` (
-  `id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
-  `organization_id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
-  `category_name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `organization_id` varchar(36) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `category_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `is_recurring` tinyint(1) DEFAULT '0',
   `created_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `is_default` tinyint(1) DEFAULT '0',
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `organization_id` (`organization_id`),
   CONSTRAINT `organization_expense_categories_ibfk_1` FOREIGN KEY (`organization_id`) REFERENCES `organizations` (`id`) ON DELETE CASCADE
@@ -250,7 +260,7 @@ CREATE TABLE `organization_expense_categories` (
 
 LOCK TABLES `organization_expense_categories` WRITE;
 /*!40000 ALTER TABLE `organization_expense_categories` DISABLE KEYS */;
-INSERT INTO `organization_expense_categories` VALUES ('2d9f6eb4-2936-4618-a2b3-93fefb8d6838','36debc90-59df-4db4-af5d-78ef4c001ae2','Utilities',1,'2025-06-16 22:48:52'),('71b5be56-d683-4df0-8efe-65fe250f6134','36debc90-59df-4db4-af5d-78ef4c001ae2','Phone',0,'2025-06-18 02:10:11'),('886fcbc9-f9e3-4d34-b61e-c64f141a6d09','36debc90-59df-4db4-af5d-78ef4c001ae2','Office Rent',1,'2025-06-16 22:48:44'),('946db259-a55f-454d-9a72-64e6897a1fcf','36debc90-59df-4db4-af5d-78ef4c001ae2','Marketing',1,'2025-06-17 01:58:21'),('ba752ef1-f356-4125-a19c-62243499881f','36debc90-59df-4db4-af5d-78ef4c001ae2','Internet',1,'2025-06-17 02:39:27');
+INSERT INTO `organization_expense_categories` VALUES ('2d9f6eb4-2936-4618-a2b3-93fefb8d6838',NULL,'Utilities',1,'2025-06-16 22:48:52',1,'2025-07-06 00:45:07'),('3f599b1a-0f1e-4c5d-9a1d-fa7db58d1e03',NULL,'Legal & Professional',0,'2025-07-06 00:45:09',0,'2025-07-06 01:09:55'),('4acc39cf-6ef2-492f-a4cd-89560a21ab0e',NULL,'Office Supplies',0,'2025-07-06 00:45:08',1,'2025-07-06 00:45:08'),('58b92e68-e5d8-4f9e-be39-afc4411f367a',NULL,'Building Maintenance',0,'2025-07-06 00:45:09',0,'2025-07-06 01:09:55'),('71b5be56-d683-4df0-8efe-65fe250f6134',NULL,'Phone',1,'2025-06-18 02:10:11',0,'2025-07-06 01:09:55'),('7f2a8c94-1b5e-4d3f-9c6a-e8b4f7d2a1c5',NULL,'Fuel',0,'2025-07-06 01:09:57',1,'2025-07-06 01:09:57'),('886fcbc9-f9e3-4d34-b61e-c64f141a6d09',NULL,'Rent',1,'2025-06-16 22:48:44',1,'2025-07-06 00:45:07'),('935d15b1-8eb8-44d7-b64d-c8076ae0e4b4',NULL,'Other',0,'2025-07-06 00:45:09',1,'2025-07-06 00:45:09'),('946db259-a55f-454d-9a72-64e6897a1fcf',NULL,'Advertising & Marketing',0,'2025-06-17 01:58:21',1,'2025-07-06 01:09:57'),('ba752ef1-f356-4125-a19c-62243499881f',NULL,'Internet',1,'2025-06-17 02:39:27',0,'2025-07-06 01:09:56'),('ce5d3483-2e33-4038-93b4-e58fa656c0f1',NULL,'Software',1,'2025-07-06 00:45:08',0,'2025-07-06 01:09:56'),('ee3b51a5-fea5-4b8d-83fa-f9ef97771611',NULL,'Insurance',1,'2025-07-06 00:45:08',1,'2025-07-06 00:45:08');
 /*!40000 ALTER TABLE `organization_expense_categories` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -262,15 +272,15 @@ DROP TABLE IF EXISTS `organization_expenses`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `organization_expenses` (
-  `id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
-  `organization_id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
-  `category_id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
+  `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `organization_id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `category_id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `amount` decimal(10,2) NOT NULL,
-  `description` text COLLATE utf8mb4_general_ci,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   `expense_date` date NOT NULL,
   `is_recurring` tinyint(1) DEFAULT '0',
-  `recurring_frequency` enum('monthly','quarterly','annually') COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `created_by_user_id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
+  `recurring_frequency` enum('monthly','quarterly','annually') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `created_by_user_id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -301,16 +311,16 @@ DROP TABLE IF EXISTS `organization_licenses`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `organization_licenses` (
-  `id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
-  `organization_id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
-  `license_type` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `organization_id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `license_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `car_limit` int NOT NULL,
   `is_active` tinyint(1) DEFAULT '1',
   `is_free_account` tinyint(1) DEFAULT '0',
-  `free_reason` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `stripe_customer_id` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `stripe_subscription_id` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `subscription_status` enum('active','past_due','canceled','incomplete','trialing','unpaid') COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `free_reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `stripe_customer_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `stripe_subscription_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `subscription_status` enum('active','past_due','canceled','incomplete','trialing','unpaid') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `current_period_start` timestamp NULL DEFAULT NULL,
   `current_period_end` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
@@ -341,11 +351,11 @@ DROP TABLE IF EXISTS `organizations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `organizations` (
-  `id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
-  `name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `address` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `phone` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `email` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `phone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
@@ -358,7 +368,7 @@ CREATE TABLE `organizations` (
 
 LOCK TABLES `organizations` WRITE;
 /*!40000 ALTER TABLE `organizations` DISABLE KEYS */;
-INSERT INTO `organizations` VALUES ('36debc90-59df-4db4-af5d-78ef4c001ae2','Admin Organization',NULL,NULL,'admin@carfin.com','2025-05-27 17:13:00','2025-05-27 17:13:00'),('3f0a0b11-3ae6-4a88-b16d-317023fddb83','devtest',NULL,NULL,'a.jonline@yahoo.com','2025-07-01 05:26:53','2025-07-01 05:26:53');
+INSERT INTO `organizations` VALUES ('36debc90-59df-4db4-af5d-78ef4c001ae2','Demo',NULL,NULL,'admin@carfin.com','2025-05-27 17:13:00','2025-07-06 05:24:39'),('3f0a0b11-3ae6-4a88-b16d-317023fddb83','devtest',NULL,NULL,'a.jonline@yahoo.com','2025-07-01 05:26:53','2025-07-01 05:26:53');
 /*!40000 ALTER TABLE `organizations` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -370,15 +380,15 @@ DROP TABLE IF EXISTS `stripe_events`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `stripe_events` (
-  `id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
-  `stripe_event_id` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `event_type` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `organization_id` varchar(36) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `license_id` varchar(36) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `stripe_event_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `event_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `organization_id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `license_id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `processed_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `event_data` json DEFAULT NULL,
-  `processing_status` enum('pending','processed','failed') COLLATE utf8mb4_general_ci DEFAULT 'processed',
-  `error_message` text COLLATE utf8mb4_general_ci,
+  `processing_status` enum('pending','processed','failed') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT 'processed',
+  `error_message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   PRIMARY KEY (`id`),
   UNIQUE KEY `stripe_event_id` (`stripe_event_id`),
   KEY `organization_id` (`organization_id`),
@@ -399,6 +409,33 @@ INSERT INTO `stripe_events` VALUES ('447f15d1-9d21-4de1-afad-955b77e4fb45','evt_
 UNLOCK TABLES;
 
 --
+-- Table structure for table `system_info`
+--
+
+DROP TABLE IF EXISTS `system_info`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `system_info` (
+  `id` varchar(36) NOT NULL,
+  `info_key` varchar(100) NOT NULL,
+  `info_value` text NOT NULL,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `info_key` (`info_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `system_info`
+--
+
+LOCK TABLES `system_info` WRITE;
+/*!40000 ALTER TABLE `system_info` DISABLE KEYS */;
+INSERT INTO `system_info` VALUES ('4c64b15e-9fbc-4f9e-8bfd-53ed019f8a7d','default_categories_last_modified','1751778520404','2025-07-06 05:09:06');
+/*!40000 ALTER TABLE `system_info` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `user_roles`
 --
 
@@ -407,7 +444,7 @@ DROP TABLE IF EXISTS `user_roles`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user_roles` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `role_name` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
+  `role_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `role_name` (`role_name`)
@@ -432,12 +469,12 @@ DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `users` (
-  `id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
-  `organization_id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
-  `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `password` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `first_name` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `last_name` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `organization_id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `password` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `first_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `last_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `role_id` int DEFAULT '3',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -456,13 +493,14 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES ('1289b2c8-5228-4da3-b6ed-04ab534b3c27','36debc90-59df-4db4-af5d-78ef4c001ae2','ma@carfin.com','$2b$10$mUFkQJaHjtiVgWAlSIh.V.xa4qoTopVW1K3J5TdatgknanOZuXH.O','Manager','User',2,'2025-05-27 17:13:00','2025-06-18 02:08:08'),('84259fc4-0cfd-4585-a1fa-8a6d36be427b','36debc90-59df-4db4-af5d-78ef4c001ae2','op@carfin.com','$2b$10$mUFkQJaHjtiVgWAlSIh.V.xa4qoTopVW1K3J5TdatgknanOZuXH.O','Operator','User',3,'2025-05-27 17:13:00','2025-06-18 02:08:08'),('8a010f1c-59c0-421e-bc32-c79fc2a24ed4','3f0a0b11-3ae6-4a88-b16d-317023fddb83','a.jonline@yahoo.com','$2b$10$XdLT6T1Dpt5ZB00PWA6zD.Qfktfahzvc2R2/VTK.nUANAvSV51tqO','Owner','User',1,'2025-07-01 05:26:54','2025-07-01 23:12:52'),('b39334f8-e129-4949-8fd6-eb628bffdbd5','36debc90-59df-4db4-af5d-78ef4c001ae2','admin@carfin.com','$2b$10$VvJMSLVl6Eso/E1alp63J.Tpw7lO3IKeO0QQoOQkwcEeFaddaWQDG','Admin','User',1,'2025-05-27 17:13:00','2025-06-18 22:42:45');
+INSERT INTO `users` VALUES ('1289b2c8-5228-4da3-b6ed-04ab534b3c27','36debc90-59df-4db4-af5d-78ef4c001ae2','ma@demo.org','$2b$10$mUFkQJaHjtiVgWAlSIh.V.xa4qoTopVW1K3J5TdatgknanOZuXH.O','Manager','User',2,'2025-05-27 17:13:00','2025-07-06 05:24:40'),('84259fc4-0cfd-4585-a1fa-8a6d36be427b','36debc90-59df-4db4-af5d-78ef4c001ae2','op@demo.org','$2b$10$mUFkQJaHjtiVgWAlSIh.V.xa4qoTopVW1K3J5TdatgknanOZuXH.O','Operator','User',3,'2025-05-27 17:13:00','2025-07-06 05:24:40'),('8a010f1c-59c0-421e-bc32-c79fc2a24ed4','3f0a0b11-3ae6-4a88-b16d-317023fddb83','a.jonline@yahoo.com','$2b$10$XdLT6T1Dpt5ZB00PWA6zD.Qfktfahzvc2R2/VTK.nUANAvSV51tqO','Owner','User',1,'2025-07-01 05:26:54','2025-07-01 23:12:52'),('b39334f8-e129-4949-8fd6-eb628bffdbd5','36debc90-59df-4db4-af5d-78ef4c001ae2','ow@demo.org','$2b$10$VvJMSLVl6Eso/E1alp63J.Tpw7lO3IKeO0QQoOQkwcEeFaddaWQDG','Owner','User',1,'2025-05-27 17:13:00','2025-07-06 05:27:30');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Dumping routines for database 'carfindev_dancenight'
+-- Dumping routines for database 'carledgr_demo'
 --
+SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -473,4 +511,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-07-03  8:03:52
+-- Dump completed on 2025-07-05 22:32:28
