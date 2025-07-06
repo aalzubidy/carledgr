@@ -422,9 +422,10 @@ const getDashboardSummary = async (organizationId) => {
       SUM(CASE WHEN status = 'in_stock' THEN 1 ELSE 0 END) as in_stock,
       SUM(CASE WHEN status = 'sold' THEN 1 ELSE 0 END) as sold,
       SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+      SUM(CASE WHEN status = 'in_repair' THEN 1 ELSE 0 END) as in_repair,
       
-      -- Current inventory value (only in_stock cars)
-      COALESCE(SUM(CASE WHEN status = 'in_stock' THEN purchase_price ELSE 0 END), 0) as current_inventory_value,
+      -- Current inventory value (in_stock and in_repair cars)
+      COALESCE(SUM(CASE WHEN status IN ('in_stock', 'in_repair') THEN purchase_price ELSE 0 END), 0) as current_inventory_value,
       
       -- Cars sold this month
       SUM(CASE 
@@ -486,6 +487,7 @@ const getDashboardSummary = async (organizationId) => {
     in_stock: result.in_stock || 0,
     sold: result.sold || 0,
     pending: result.pending || 0,
+    in_repair: result.in_repair || 0,
     current_inventory_value: parseFloat(result.current_inventory_value) || 0,
     cars_sold_this_month: result.cars_sold_this_month || 0,
     profit_this_month: profitThisMonth || 0

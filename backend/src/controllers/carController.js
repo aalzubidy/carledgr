@@ -64,7 +64,7 @@ const createNewCar = async (req, res, next) => {
     const organization_id = req.user.organization_id;
     
     const id = uuidv4();
-    const status = 'in_stock'; // New cars are always in stock initially
+    const status = 'pending'; // New cars start as pending by default
     
     await createCar({
       id,

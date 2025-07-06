@@ -3,6 +3,8 @@ const logger = require('../utils/logger');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const { migrateLicensing } = require('./migrations/add-licensing');
+const fs = require('fs');
+const path = require('path');
 
 // SQL statements to create the database schema
 const createTableStatements = [
@@ -53,7 +55,7 @@ const createTableStatements = [
     purchase_price DECIMAL(10, 2) NOT NULL,
     sale_date DATE,
     sale_price DECIMAL(10, 2),
-    status ENUM('in_stock', 'sold', 'pending') DEFAULT 'in_stock',
+    status ENUM('in_stock', 'sold', 'pending', 'in_repair') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (organization_id) REFERENCES organizations(id)
@@ -89,10 +91,12 @@ const createTableStatements = [
   // Organization Expense Categories table
   `CREATE TABLE IF NOT EXISTS organization_expense_categories (
     id VARCHAR(36) PRIMARY KEY,
-    organization_id VARCHAR(36) NOT NULL,
+    organization_id VARCHAR(36) NULL,
     category_name VARCHAR(100) NOT NULL,
     is_recurring BOOLEAN DEFAULT FALSE,
+    is_default BOOLEAN DEFAULT FALSE,
     created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
   )`,
 
@@ -112,27 +116,254 @@ const createTableStatements = [
     FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES organization_expense_categories(id),
     FOREIGN KEY (created_by_user_id) REFERENCES users(id)
+  )`,
+
+  // System Info table
+  `CREATE TABLE IF NOT EXISTS system_info (
+    id VARCHAR(36) PRIMARY KEY,
+    info_key VARCHAR(100) NOT NULL UNIQUE,
+    info_value TEXT NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
   )`
 ];
 
-// Default maintenance categories
-const defaultCategories = [
-  'Engine',
-  'Transmission',
-  'Brakes',
-  'Suspension',
-  'Electrical',
-  'Body',
-  'Interior',
-  'Tires',
-  'Oil Change',
-  'General Maintenance',
-  'Other',
-  'Taxes',
-  'Fees',
-  'In State Tax',
-  'Out of State Tax'
-];
+// Helper functions for system info management
+async function getSystemInfo(connection, key) {
+  try {
+    const [rows] = await connection.execute(
+      'SELECT info_value FROM system_info WHERE info_key = ?',
+      [key]
+    );
+    return rows.length > 0 ? rows[0].info_value : null;
+  } catch (error) {
+    logger.error(`Error getting system info for key ${key}: ${error.message}`);
+    return null;
+  }
+}
+
+async function setSystemInfo(connection, key, value) {
+  try {
+    await connection.execute(
+      'INSERT INTO system_info (id, info_key, info_value) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE info_value = VALUES(info_value), updated_at = CURRENT_TIMESTAMP',
+      [uuidv4(), key, value]
+    );
+  } catch (error) {
+    logger.error(`Error setting system info for key ${key}: ${error.message}`);
+  }
+}
+
+function getFileLastModified(filePath) {
+  try {
+    const stats = fs.statSync(filePath);
+    return stats.mtime.getTime();
+  } catch (error) {
+    logger.error(`Error getting file modification time for ${filePath}: ${error.message}`);
+    return 0;
+  }
+}
+
+// Load default categories from config
+function loadDefaultCategories() {
+  try {
+    const configPath = path.join(__dirname, '../../config/default-categories.json');
+    const configData = fs.readFileSync(configPath, 'utf8');
+    return JSON.parse(configData);
+  } catch (error) {
+    logger.error(`Failed to load default categories config: ${error.message}`);
+    // Fallback to hardcoded maintenance categories for backward compatibility
+    return {
+      maintenance_categories: [
+        { id: null, name: 'Engine' },
+        { id: null, name: 'Transmission' },
+        { id: null, name: 'Brakes' },
+        { id: null, name: 'Suspension' },
+        { id: null, name: 'Electrical' },
+        { id: null, name: 'Body' },
+        { id: null, name: 'Interior' },
+        { id: null, name: 'Tires' },
+        { id: null, name: 'Oil Change' },
+        { id: null, name: 'General Maintenance' },
+        { id: null, name: 'Other' },
+        { id: null, name: 'Taxes' },
+        { id: null, name: 'Fees' },
+        { id: null, name: 'In State Tax' },
+        { id: null, name: 'Out of State Tax' }
+      ],
+      expense_categories: [
+        { id: null, name: 'Rent', is_recurring: true },
+        { id: null, name: 'Utilities', is_recurring: true },
+        { id: null, name: 'Insurance', is_recurring: true },
+        { id: null, name: 'Office Supplies', is_recurring: false }
+      ]
+    };
+  }
+}
+
+// Initialize maintenance categories
+async function initializeMaintenanceCategories(connection, categories) {
+  try {
+    // First, get all current default categories
+    const [currentDefaults] = await connection.execute(
+      'SELECT id, name FROM maintenance_categories WHERE is_default = TRUE AND organization_id IS NULL'
+    );
+    
+    // Create a Set of category IDs and names from config for quick lookup
+    const configCategoryIds = new Set(categories.filter(c => c.id).map(c => c.id));
+    const configCategoryNames = new Set(categories.map(c => c.name));
+    
+    // Mark categories as no longer default if they're not in config
+    for (const currentDefault of currentDefaults) {
+      const isInConfig = configCategoryIds.has(currentDefault.id) || configCategoryNames.has(currentDefault.name);
+      if (!isInConfig) {
+        await connection.execute(
+          'UPDATE maintenance_categories SET is_default = FALSE WHERE id = ?',
+          [currentDefault.id]
+        );
+        logger.info(`Marked maintenance category as no longer default: ${currentDefault.name} (${currentDefault.id})`);
+      }
+    }
+    
+    // Process categories from config
+    for (const category of categories) {
+      try {
+        if (category.id) {
+          // Check if category with this ID exists
+          const [existing] = await connection.execute(
+            'SELECT id, name, is_default FROM maintenance_categories WHERE id = ?',
+            [category.id]
+          );
+          
+          if (existing.length > 0) {
+            // Update existing category name and ensure it's marked as default
+            if (existing[0].name !== category.name || !existing[0].is_default) {
+              await connection.execute(
+                'UPDATE maintenance_categories SET name = ?, is_default = TRUE, organization_id = NULL WHERE id = ?',
+                [category.name, category.id]
+              );
+              logger.info(`Updated maintenance category: ${category.name} (${category.id})`);
+            }
+          } else {
+            // Insert new category with specified ID
+            await connection.execute(
+              'INSERT INTO maintenance_categories (id, name, organization_id, is_default) VALUES (?, ?, NULL, TRUE)',
+              [category.id, category.name]
+            );
+            logger.info(`Created maintenance category: ${category.name} (${category.id})`);
+          }
+        } else {
+          // Check if category with this name exists as default
+          const [existing] = await connection.execute(
+            'SELECT id, is_default FROM maintenance_categories WHERE name = ? AND organization_id IS NULL',
+            [category.name]
+          );
+          
+          if (existing.length === 0) {
+            // Insert new category with generated ID
+            await connection.execute(
+              'INSERT INTO maintenance_categories (id, name, organization_id, is_default) VALUES (?, ?, NULL, TRUE)',
+              [uuidv4(), category.name]
+            );
+            logger.info(`Created maintenance category: ${category.name}`);
+          } else if (!existing[0].is_default) {
+            // Re-mark as default if it was previously unmarked
+            await connection.execute(
+              'UPDATE maintenance_categories SET is_default = TRUE WHERE name = ? AND organization_id IS NULL',
+              [category.name]
+            );
+            logger.info(`Re-marked maintenance category as default: ${category.name}`);
+          }
+        }
+      } catch (error) {
+        logger.error(`Error initializing maintenance category ${category.name}: ${error.message}`);
+      }
+    }
+  } catch (error) {
+    logger.error(`Error in maintenance categories initialization: ${error.message}`);
+  }
+}
+
+// Initialize expense categories
+async function initializeExpenseCategories(connection, categories) {
+  try {
+    // First, get all current default categories
+    const [currentDefaults] = await connection.execute(
+      'SELECT id, category_name FROM organization_expense_categories WHERE is_default = TRUE AND organization_id IS NULL'
+    );
+    
+    // Create a Set of category IDs and names from config for quick lookup
+    const configCategoryIds = new Set(categories.filter(c => c.id).map(c => c.id));
+    const configCategoryNames = new Set(categories.map(c => c.name));
+    
+    // Mark categories as no longer default if they're not in config
+    for (const currentDefault of currentDefaults) {
+      const isInConfig = configCategoryIds.has(currentDefault.id) || configCategoryNames.has(currentDefault.category_name);
+      if (!isInConfig) {
+        await connection.execute(
+          'UPDATE organization_expense_categories SET is_default = FALSE WHERE id = ?',
+          [currentDefault.id]
+        );
+        logger.info(`Marked expense category as no longer default: ${currentDefault.category_name} (${currentDefault.id})`);
+      }
+    }
+    
+    // Process categories from config
+    for (const category of categories) {
+      try {
+        if (category.id) {
+          // Check if category with this ID exists
+          const [existing] = await connection.execute(
+            'SELECT id, category_name, is_recurring, is_default FROM organization_expense_categories WHERE id = ?',
+            [category.id]
+          );
+          
+          if (existing.length > 0) {
+            // Update existing category and ensure it's marked as default
+            if (existing[0].category_name !== category.name || existing[0].is_recurring !== category.is_recurring || !existing[0].is_default) {
+              await connection.execute(
+                'UPDATE organization_expense_categories SET category_name = ?, is_recurring = ?, is_default = TRUE, organization_id = NULL WHERE id = ?',
+                [category.name, category.is_recurring, category.id]
+              );
+              logger.info(`Updated expense category: ${category.name} (${category.id})`);
+            }
+          } else {
+            // Insert new category with specified ID
+            await connection.execute(
+              'INSERT INTO organization_expense_categories (id, organization_id, category_name, is_recurring, is_default) VALUES (?, NULL, ?, ?, TRUE)',
+              [category.id, category.name, category.is_recurring]
+            );
+            logger.info(`Created expense category: ${category.name} (${category.id})`);
+          }
+        } else {
+          // Check if category with this name exists as default
+          const [existing] = await connection.execute(
+            'SELECT id, is_default, is_recurring FROM organization_expense_categories WHERE category_name = ? AND organization_id IS NULL',
+            [category.name]
+          );
+          
+          if (existing.length === 0) {
+            // Insert new category with generated ID
+            await connection.execute(
+              'INSERT INTO organization_expense_categories (id, organization_id, category_name, is_recurring, is_default) VALUES (?, NULL, ?, ?, TRUE)',
+              [uuidv4(), category.name, category.is_recurring]
+            );
+            logger.info(`Created expense category: ${category.name}`);
+          } else if (!existing[0].is_default || existing[0].is_recurring !== category.is_recurring) {
+            // Re-mark as default and update properties if needed
+            await connection.execute(
+              'UPDATE organization_expense_categories SET is_default = TRUE, is_recurring = ? WHERE category_name = ? AND organization_id IS NULL',
+              [category.is_recurring, category.name]
+            );
+            logger.info(`Re-marked expense category as default: ${category.name}`);
+          }
+        }
+      } catch (error) {
+        logger.error(`Error initializing expense category ${category.name}: ${error.message}`);
+      }
+    }
+  } catch (error) {
+    logger.error(`Error in expense categories initialization: ${error.message}`);
+  }
+}
 
 // Initialize the database schema
 async function initializeSchema() {
@@ -147,98 +378,35 @@ async function initializeSchema() {
       logger.info('Table created successfully');
     }
 
-    // Check if default roles exist
-    const [roles] = await connection.execute('SELECT * FROM user_roles LIMIT 1');
+    // Load default categories from config
+    const defaultCategories = loadDefaultCategories();
     
-    if (roles.length === 0) {
-      // Create default roles
-      await connection.execute('INSERT INTO user_roles (id, role_name) VALUES (1, "owner")');
-      await connection.execute('INSERT INTO user_roles (id, role_name) VALUES (2, "manager")');
-      await connection.execute('INSERT INTO user_roles (id, role_name) VALUES (3, "operator")');
-      
-      logger.info('Default user roles created');
-    }
-
-    // Migration: Update existing users to use role_id instead of role (if needed)
-    try {
-      // Check if role_id column exists
-      const [columns] = await connection.execute('DESCRIBE users');
-      const hasRoleId = columns.some(col => col.Field === 'role_id');
-      const hasOldRole = columns.some(col => col.Field === 'role');
-      
-      if (hasOldRole && hasRoleId) {
-        // Migrate existing users from role to role_id
-        await connection.execute('UPDATE users SET role_id = 1 WHERE role IN ("admin", "owner")');
-        await connection.execute('UPDATE users SET role_id = 2 WHERE role = "manager"');
-        await connection.execute('UPDATE users SET role_id = 3 WHERE role IN ("user", "operator")');
-        
-        // Drop the old role column
-        await connection.execute('ALTER TABLE users DROP COLUMN role');
-        
-        logger.info('Migrated users from role to role_id system');
-      }
-    } catch (migrationError) {
-      logger.error(`Migration error: ${migrationError.message}`);
-    }
-
-    // Check if default maintenance categories exist
-    const [categories] = await connection.execute('SELECT * FROM maintenance_categories LIMIT 1');
+    // Check if default categories need to be synced
+    const configPath = path.join(__dirname, '../../config/default-categories.json');
+    const currentFileModTime = getFileLastModified(configPath);
+    const lastSyncTime = await getSystemInfo(connection, 'default_categories_last_modified');
     
-    if (categories.length === 0) {
-      // Insert default maintenance categories
-      for (const category of defaultCategories) {
-        await connection.execute(
-          'INSERT INTO maintenance_categories (id, name, organization_id, is_default) VALUES (?, ?, NULL, TRUE)',
-          [uuidv4(), category]
-        );
-      }
+    const needsSync = !lastSyncTime || currentFileModTime > parseInt(lastSyncTime);
+    
+    if (needsSync) {
+      logger.info('Default categories config has been modified, syncing...');
       
-      logger.info('Default maintenance categories created');
+      // Initialize maintenance categories
+      await initializeMaintenanceCategories(connection, defaultCategories.maintenance_categories);
+      
+      // Initialize expense categories
+      await initializeExpenseCategories(connection, defaultCategories.expense_categories);
+      
+      // Update the last sync time
+      await setSystemInfo(connection, 'default_categories_last_modified', currentFileModTime.toString());
+      
+      logger.info('Default categories sync completed');
     } else {
-      // Migration: Check if the new columns exist and update existing categories
-      try {
-        const [existingDefaults] = await connection.execute('SELECT COUNT(*) as count FROM maintenance_categories WHERE is_default = TRUE');
-        
-        if (existingDefaults[0].count === 0) {
-          // Update all existing categories to be default
-          await connection.execute('UPDATE maintenance_categories SET is_default = TRUE, organization_id = NULL WHERE organization_id IS NULL OR organization_id = ""');
-          logger.info('Migrated existing maintenance categories to default status');
-        }
-      } catch (migrationError) {
-        // If the columns don't exist yet, that's fine - they'll be added by the table creation
-        if (migrationError.message.includes('Unknown column')) {
-          logger.info('New columns not yet present, skipping migration');
-        } else {
-          throw migrationError;
-        }
-      }
+      logger.info('Default categories are up to date, skipping sync');
     }
 
     await connection.commit();
     logger.info('Database schema initialized successfully');
-    
-    // Check if license tables exist and run migration only if needed
-    const [licenseTables] = await connection.execute(`
-      SELECT COUNT(*) as count 
-      FROM information_schema.tables 
-      WHERE table_schema = DATABASE() 
-      AND table_name IN ('license_tiers', 'organization_licenses', 'stripe_events')
-    `);
-    
-    if (licenseTables[0].count < 3) {
-      // License tables don't exist or are incomplete, run migration
-      logger.info('License tables missing, running licensing migration...');
-      await migrateLicensing();
-    } else {
-      // Check if default license tiers exist
-      const [defaultTiers] = await connection.execute('SELECT COUNT(*) as count FROM license_tiers');
-      if (defaultTiers[0].count === 0) {
-        logger.info('License tables exist but no default tiers found, running licensing migration...');
-        await migrateLicensing();
-      } else {
-        logger.info('License system already initialized, skipping migration');
-      }
-    }
     
   } catch (error) {
     await connection.rollback();

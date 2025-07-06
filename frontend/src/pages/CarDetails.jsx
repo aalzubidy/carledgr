@@ -421,6 +421,7 @@ function CarDetails({ carId }) {
           .status-in_stock { background-color: #e8f5e8; color: #2e7d32; }
           .status-sold { background-color: #e3f2fd; color: #1976d2; }
           .status-pending { background-color: #fff3e0; color: #f57c00; }
+          .status-in_repair { background-color: #fce4ec; color: #c2185b; }
           .maintenance-section {
             margin-top: 40px;
           }
@@ -790,9 +791,10 @@ function CarDetails({ carId }) {
                     value={carFormData.status}
                     onChange={handleCarFormChange}
                   >
-                    <option value="in_stock">{t('status.in_stock')}</option>
-                    <option value="sold">{t('status.sold')}</option>
-                    <option value="pending">{t('status.pending')}</option>
+                                            <option value="in_stock">{t('status.in_stock')}</option>
+                        <option value="sold">{t('status.sold')}</option>
+                        <option value="pending">{t('status.pending')}</option>
+                        <option value="in_repair">{t('status.in_repair')}</option>
                   </select>
                 </div>
               </div>

@@ -63,7 +63,7 @@ const rules = {
     ],
     update: [
       param('id').notEmpty().withMessage('Car ID is required'),
-      body('status').optional().isIn(['in_stock', 'sold', 'pending']).withMessage('Invalid status specified')
+      body('status').optional().isIn(['in_stock', 'sold', 'pending', 'in_repair']).withMessage('Invalid status specified')
     ],
     search: [
       query('make').optional(),

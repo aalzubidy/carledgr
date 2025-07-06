@@ -21,7 +21,7 @@
   },
   "navigation": {
     "dashboard": "لوحة التحكم",
-    "cars": "السيارات",
+    "cars": "مخزون السيارات",
     "maintenance": "الصيانة",
     "reports": "التقارير",
     "expenses": "مصاريف الوكالة",
@@ -34,6 +34,7 @@
     "inStock": "في المخزون",
     "sold": "مباعة",
     "pending": "معلقة",
+    "inRepair": "قيد الإصلاح",
     "inventoryValue": "قيمة المخزون",
     "currentInventoryValue": "قيمة المخزون الحالية",
     "financials": "الماليات",
@@ -142,7 +143,8 @@
   "status": {
     "in_stock": "في المخزون",
     "sold": "مباعة",
-    "pending": "معلقة"
+    "pending": "معلقة",
+    "in_repair": "قيد الإصلاح"
   },
   "categories": {
     "Engine": "المحرك",
@@ -232,6 +234,7 @@
   },
   "settings": {
     "title": "الإعدادات",
+    "licenseUsage": "استخدام الترخيص",
     "expenseCategories": "فئات المصاريف",
     "maintenanceCategories": "فئات الصيانة",
     "numberOfMaintenance": "عدد سجلات الصيانة",

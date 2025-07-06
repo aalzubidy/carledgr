@@ -156,7 +156,8 @@ const getCarStatistics = async (organizationId) => {
       COUNT(*) as total,
       SUM(CASE WHEN status = 'in_stock' THEN 1 ELSE 0 END) as in_stock,
       SUM(CASE WHEN status = 'sold' THEN 1 ELSE 0 END) as sold,
-      SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending
+      SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+      SUM(CASE WHEN status = 'in_repair' THEN 1 ELSE 0 END) as in_repair
     FROM cars 
     WHERE organization_id = ?
   `;

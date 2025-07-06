@@ -85,7 +85,8 @@ function SettingsPage() {
       const term = searchTerm.toLowerCase()
       return (
         category.category_name.toLowerCase().includes(term) ||
-        (category.is_recurring ? 'recurring' : 'one-time').includes(term)
+        (category.is_recurring ? 'recurring' : 'one-time').includes(term) ||
+        (category.is_default ? 'default' : 'custom').includes(term)
       )
     })
     setFilteredCategories(filtered)
@@ -147,7 +148,7 @@ function SettingsPage() {
       } else if (column === 'created_date') {
         aVal = new Date(aVal)
         bVal = new Date(bVal)
-      } else if (column === 'is_recurring') {
+      } else if (column === 'is_recurring' || column === 'is_default') {
         aVal = aVal ? 1 : 0
         bVal = bVal ? 1 : 0
       } else {
@@ -181,6 +182,11 @@ function SettingsPage() {
   }
 
   const handleEditCategory = (category) => {
+    if (category.is_default) {
+      showError(t('settings.readOnly'))
+      return
+    }
+    
     setEditingCategory(category)
     setFormData({
       category_name: category.category_name,
@@ -190,6 +196,11 @@ function SettingsPage() {
   }
 
   const handleDeleteCategory = (category) => {
+    if (category.is_default) {
+      showError(t('settings.readOnly'))
+      return
+    }
+    
     setDeleteData({
       category,
       action: '',
@@ -760,10 +771,13 @@ function SettingsPage() {
         <table className="data-table">
         <thead>
           <tr>
-            <th className="sortable" onClick={() => handleSort('category_name')} style={{ width: '50%' }}>
+            <th className="sortable" onClick={() => handleSort('category_name')} style={{ width: '35%' }}>
               {t('settings.categoryName')} {getSortIcon('category_name')}
             </th>
-            <th className="sortable" onClick={() => handleSort('expense_count')} style={{ width: '25%' }}>
+            <th className="sortable" onClick={() => handleSort('is_default')} style={{ width: '20%' }}>
+              {t('settings.categoryType')} {getSortIcon('is_default')}
+            </th>
+            <th className="sortable" onClick={() => handleSort('expense_count')} style={{ width: '20%' }}>
               {t('settings.numberOfExpenses')} {getSortIcon('expense_count')}
             </th>
             <th style={{ width: '25%' }}>{t('common.actions')}</th>
@@ -774,6 +788,11 @@ function SettingsPage() {
             <tr key={category.id}>
               <td>{category.category_name}</td>
               <td>
+                <span className={`badge ${category.is_default ? 'badge-secondary' : 'badge-primary'}`}>
+                  {category.is_default ? t('settings.defaultCategory') : t('settings.customCategory')}
+                </span>
+              </td>
+              <td>
                 <span className="expense-count">
                   {category.expense_count || 0}
                 </span>
@@ -782,36 +801,48 @@ function SettingsPage() {
                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                   <button 
                     onClick={() => handleEditCategory(category)}
-                    title={t('common.edit')}
+                    disabled={category.is_default}
+                    title={category.is_default ? t('settings.readOnly') : t('common.edit')}
                     style={{ 
                       background: 'none', 
                       border: 'none', 
                       fontSize: '18px', 
-                      cursor: 'pointer',
+                      cursor: category.is_default ? 'not-allowed' : 'pointer',
                       padding: '4px 8px',
                       borderRadius: '4px',
                       transition: 'background-color 0.2s',
-                      color: '#6c757d'
+                      color: category.is_default ? '#adb5bd' : '#6c757d',
+                      opacity: category.is_default ? 0.5 : 1
                     }}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                    onMouseEnter={(e) => {
+                      if (!category.is_default) {
+                        e.target.style.backgroundColor = '#f8f9fa'
+                      }
+                    }}
                     onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                   >
                     ✏️
                   </button>
                   <button 
                     onClick={() => handleDeleteCategory(category)}
-                    title={t('common.delete')}
+                    disabled={category.is_default}
+                    title={category.is_default ? t('settings.readOnly') : t('common.delete')}
                     style={{ 
                       background: 'none', 
                       border: 'none', 
                       fontSize: '18px', 
-                      cursor: 'pointer',
+                      cursor: category.is_default ? 'not-allowed' : 'pointer',
                       padding: '4px 8px',
                       borderRadius: '4px',
                       transition: 'background-color 0.2s',
-                      color: '#dc3545'
+                      color: category.is_default ? '#adb5bd' : '#dc3545',
+                      opacity: category.is_default ? 0.5 : 1
                     }}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = '#f8d7da'}
+                    onMouseEnter={(e) => {
+                      if (!category.is_default) {
+                        e.target.style.backgroundColor = '#f8d7da'
+                      }
+                    }}
                     onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                   >
                     🗑️
@@ -823,7 +854,7 @@ function SettingsPage() {
         </tbody>
         <tfoot>
           <tr>
-            <td colSpan="3" style={{ textAlign: 'center', fontWeight: 'bold', padding: '12px', backgroundColor: '#f8f9fa', borderTop: '2px solid #dee2e6' }}>
+            <td colSpan="4" style={{ textAlign: 'center', fontWeight: 'bold', padding: '12px', backgroundColor: '#f8f9fa', borderTop: '2px solid #dee2e6' }}>
               {t('common.total')}: {filteredCategories.length} {filteredCategories.length === 1 ? t('settings.category') : t('settings.categories')}
             </td>
           </tr>
@@ -1342,11 +1373,33 @@ function SettingsPage() {
           <h1>{t('settings.title')}</h1>
         </div>
 
+        {/* Settings Navigation */}
+        <div className="settings-navigation">
+          <div className="nav-pills">
+            <a href="#license" className="nav-pill">
+              📊 {t('settings.licenseUsage')}
+            </a>
+            <a href="#expense-categories" className="nav-pill">
+              💰 {t('settings.expenseCategories')}
+            </a>
+            <a href="#maintenance-categories" className="nav-pill">
+              🔧 {t('settings.maintenanceCategories')}
+            </a>
+            {isOwner && (
+              <a href="#user-management" className="nav-pill">
+                👥 {t('settings.userManagement')}
+              </a>
+            )}
+          </div>
+        </div>
+
         <div className="settings-content">
           {/* License Usage Section */}
-          {renderLicenseUsage()}
+          <div id="license">
+            {renderLicenseUsage()}
+          </div>
           
-          <div className="settings-section">
+          <div id="expense-categories" className="settings-section">
             <div className="table-container">
               <div className="table-header">
                 <h2>{t('settings.expenseCategories')}</h2>
@@ -1370,13 +1423,13 @@ function SettingsPage() {
             </div>
           </div>
 
-          <div className="settings-section" style={{ marginTop: '2rem' }}>
+          <div id="maintenance-categories" className="settings-section" style={{ marginTop: '2rem' }}>
             <MaintenanceCategories />
           </div>
 
           {/* User Management Section - Only for Owner role */}
           {isOwner && (
-            <div className="settings-section" style={{ marginTop: '2rem' }}>
+            <div id="user-management" className="settings-section" style={{ marginTop: '2rem' }}>
               <div className="table-container">
                 <div className="table-header">
                   <h2>{t('settings.userManagement')}</h2>

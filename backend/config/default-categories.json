@@ -1,0 +1,141 @@
+{
+  "maintenance_categories": [
+    {
+      "id": "f6a7b8c9-0123-4567-f012-678901234567",
+      "name": "Battery"
+    },
+    {
+      "id": "68b699b5-18d4-42a7-987a-d969bcce0a03",
+      "name": "Body"
+    },
+    {
+      "id": "7e755154-d85c-4993-beab-51d11d033fb9",
+      "name": "Brakes"
+    },
+    {
+      "id": "b2c3d4e5-6f78-9012-bcde-f23456789012",
+      "name": "Cooling System"
+    },
+    {
+      "id": "e5f6a7b8-9012-3456-ef01-567890123456",
+      "name": "Detailing"
+    },
+    {
+      "id": "d4e5f6a7-8901-2345-def0-456789012345",
+      "name": "Diagnostic"
+    },
+    {
+      "id": "c8df32ab-ef2b-48da-a089-17781d6c7b97",
+      "name": "Electrical"
+    },
+    {
+      "id": "66d5a74a-8583-47e4-86d6-6635cee717bf",
+      "name": "Engine"
+    },
+    {
+      "id": "8e8ac62c-493a-11f0-acc9-bcec23c373a5",
+      "name": "Fees"
+    },
+    {
+      "id": "a1b2c3d4-5e6f-7890-abcd-ef1234567890",
+      "name": "Fuel System"
+    },
+    {
+      "id": "d19bfc90-3c11-11f0-ab0b-6479f0559d3f",
+      "name": "Gas"
+    },
+    {
+      "id": "10389d23-be57-4ad9-801c-88566a025011",
+      "name": "General Maintenance"
+    },
+    {
+      "id": "d19c30eb-3c11-11f0-ab0b-6479f0559d3f",
+      "name": "Holding Cost"
+    },
+    {
+      "id": "8e8ac69f-493a-11f0-acc9-bcec23c373a5",
+      "name": "In State Tax"
+    },
+    {
+      "id": "22020294-8bb6-43ca-b7fe-a06ac012ea42",
+      "name": "Interior"
+    },
+    {
+      "id": "ecfe82a3-c143-4d23-b331-d55cd9e253cf",
+      "name": "Oil Change"
+    },
+    {
+      "id": "cae24cb3-094a-4ed4-baa0-2a198aa84c19",
+      "name": "Other"
+    },
+    {
+      "id": "8e8ac715-493a-11f0-acc9-bcec23c373a5",
+      "name": "Out of State Tax"
+    },
+    {
+      "id": "d19c3bbe-3c11-11f0-ab0b-6479f0559d3f",
+      "name": "Parking"
+    },
+    {
+      "id": "c3d4e5f6-7890-1234-cdef-345678901234",
+      "name": "Pre-Sale Inspection"
+    },
+    {
+      "id": "987ece51-59eb-4458-a838-fa033fb67b17",
+      "name": "Suspension"
+    },
+    {
+      "id": "8e8ac303-493a-11f0-acc9-bcec23c373a5",
+      "name": "Taxes"
+    },
+    {
+      "id": "428f70fd-37be-4e4a-a998-d3c577835589",
+      "name": "Tires"
+    },
+    {
+      "id": "d19c36dc-3c11-11f0-ab0b-6479f0559d3f",
+      "name": "Towing"
+    },
+    {
+      "id": "415f9500-cdd4-4596-a015-90f7f0ba7770",
+      "name": "Transmission"
+    }
+  ],
+  "expense_categories": [
+    {
+      "id": "946db259-a55f-454d-9a72-64e6897a1fcf",
+      "name": "Advertising & Marketing",
+      "is_recurring": false
+    },
+    {
+      "id": "7f2a8c94-1b5e-4d3f-9c6a-e8b4f7d2a1c5",
+      "name": "Fuel",
+      "is_recurring": false
+    },
+    {
+      "id": "ee3b51a5-fea5-4b8d-83fa-f9ef97771611",
+      "name": "Insurance",
+      "is_recurring": true
+    },
+    {
+      "id": "4acc39cf-6ef2-492f-a4cd-89560a21ab0e",
+      "name": "Office Supplies",
+      "is_recurring": false
+    },
+    {
+      "id": "935d15b1-8eb8-44d7-b64d-c8076ae0e4b4",
+      "name": "Other",
+      "is_recurring": false
+    },
+    {
+      "id": "886fcbc9-f9e3-4d34-b61e-c64f141a6d09",
+      "name": "Rent",
+      "is_recurring": true
+    },
+    {
+      "id": "2d9f6eb4-2936-4618-a2b3-93fefb8d6838",
+      "name": "Utilities",
+      "is_recurring": true
+    }
+  ]
+} 

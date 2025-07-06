@@ -145,49 +145,84 @@ function Layout({ children, activeRoute = '' }) {
   return (
     <div className="app-container">
       {/* Header */}
-      <header className="app-header">
-        <div className="header-left">
-          <img src="/cl-logo.png" alt="CarLedgr Logo" className="header-logo" />
-          <h1>{t('app.name')}</h1>
-        </div>
-        
-        <div className="header-right">
-          {user && (
-            <div className="user-dropdown">
-              <button 
-                className="user-dropdown-toggle"
-                onClick={() => setShowUserDropdown(!showUserDropdown)}
-              >
-                <div className="user-info">
-                  <div className="user-name">{user.firstName} {user.lastName}</div>
-                  <span className={`badge badge-${getRoleBadgeColor(user.roleId)}`}>
-                    {getUserRoleDisplayName()}
-                  </span>
-                </div>
-                <i className="fas fa-chevron-down"></i>
-              </button>
-              
-              {showUserDropdown && (
-                <div className="user-dropdown-menu">
-                  <button 
-                    className="dropdown-item"
-                    onClick={handleProfileClick}
-                  >
-                    <i className="fas fa-user-edit"></i>
-                    {t('profile.updateAccount')}
-                  </button>
-                  <hr className="dropdown-divider" />
-                  <button 
-                    className="dropdown-item text-danger"
-                    onClick={handleLogout}
-                  >
-                    <i className="fas fa-sign-out-alt"></i>
-                    {t('auth.logout')}
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+      <header style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        width: '100%',
+        height: '64px',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid #2c3e50',
+        zIndex: 1001
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          height: '100%',
+          width: '100%',
+          padding: '0 20px'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <img src="/cl-logo.png" alt="CarLedgr Logo" style={{
+              height: '40px',
+              width: 'auto'
+            }} />
+            <h1 style={{
+              color: '#2563eb',
+              fontSize: '24px',
+              margin: 0,
+              fontWeight: 600
+            }}>{t('app.name')}</h1>
+          </div>
+          
+          <div style={{
+            display: 'flex',
+            alignItems: 'center'
+          }}>
+            {user && (
+              <div className="user-dropdown">
+                <button 
+                  className="user-dropdown-toggle"
+                  onClick={() => setShowUserDropdown(!showUserDropdown)}
+                >
+                  <div className="user-info">
+                    <div className="user-name">{user.firstName} {user.lastName}</div>
+                    <span className={`badge badge-${getRoleBadgeColor(user.roleId)}`}>
+                      {getUserRoleDisplayName()}
+                    </span>
+                  </div>
+                  <i className="fas fa-chevron-down"></i>
+                </button>
+                
+                {showUserDropdown && (
+                  <div className="user-dropdown-menu">
+                    <button 
+                      className="dropdown-item"
+                      onClick={handleProfileClick}
+                    >
+                      <i className="fas fa-user-edit"></i>
+                      {t('profile.updateAccount')}
+                    </button>
+                    <hr className="dropdown-divider" />
+                    <button 
+                      className="dropdown-item text-danger"
+                      onClick={handleLogout}
+                    >
+                      <i className="fas fa-sign-out-alt"></i>
+                      {t('auth.logout')}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -243,6 +278,12 @@ function Layout({ children, activeRoute = '' }) {
               onClick={() => handleLanguageSelect('es')}
             >
               Español
+            </button>
+            <button 
+              className={`language-option ${currentLanguage === 'fr' ? 'active' : ''}`}
+              onClick={() => handleLanguageSelect('fr')}
+            >
+              Français
             </button>
             <button 
               className={`language-option ${currentLanguage === 'ar' ? 'active' : ''}`}

@@ -21,7 +21,7 @@
   },
   "navigation": {
     "dashboard": "Tablero",
-    "cars": "Vehículos",
+    "cars": "Inventario de Vehículos",
     "maintenance": "Mantenimiento",
     "reports": "Reportes",
     "expenses": "Gastos del Concesionario",
@@ -34,6 +34,7 @@
     "inStock": "En Stock",
     "sold": "Vendidos",
     "pending": "Pendientes",
+    "inRepair": "En Reparación",
     "inventoryValue": "Valor del Inventario",
     "currentInventoryValue": "Valor Actual del Inventario",
     "financials": "Finanzas",
@@ -143,7 +144,8 @@
   "status": {
     "in_stock": "En Stock",
     "sold": "Vendido",
-    "pending": "Pendiente"
+    "pending": "Pendiente",
+    "in_repair": "En Reparación"
   },
   "categories": {
     "Engine": "Motor",
@@ -237,6 +239,7 @@
   },
   "settings": {
     "title": "Configuración",
+    "licenseUsage": "Uso de Licencia",
     "expenseCategories": "Categorías de Gastos",
     "maintenanceCategories": "Categorías de Mantenimiento",
     "numberOfMaintenance": "Número de Registros de Mantenimiento",
