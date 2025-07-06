@@ -245,6 +245,12 @@ function Layout({ children, activeRoute = '' }) {
               Español
             </button>
             <button 
+              className={`language-option ${currentLanguage === 'fr' ? 'active' : ''}`}
+              onClick={() => handleLanguageSelect('fr')}
+            >
+              Français
+            </button>
+            <button 
               className={`language-option ${currentLanguage === 'ar' ? 'active' : ''}`}
               onClick={() => handleLanguageSelect('ar')}
             >

@@ -765,6 +765,11 @@ input[type="number"].form-control::-webkit-inner-spin-button {
   color: #856404;
 }
 
+.status-in_repair {
+  background: #fce4ec;
+  color: #c2185b;
+}
+
 /* Role badges */
 .role-badge {
   display: inline-block;

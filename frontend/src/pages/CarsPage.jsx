@@ -26,7 +26,7 @@ function CarsPage() {
     purchase_price: '',
     sale_date: '',
     sale_price: '',
-    status: 'in_stock'
+    status: 'pending'
   })
   const [vinDecoding, setVinDecoding] = useState(false)
   const decodeTimeoutRef = useRef(null)
@@ -137,7 +137,7 @@ function CarsPage() {
       purchase_price: '',
       sale_date: '',
       sale_price: '',
-      status: 'in_stock'
+      status: 'pending'
     })
     setVinDecoding(false)
     // Clear any existing VIN checking snackbar
@@ -536,6 +536,7 @@ function CarsPage() {
                       <option value="in_stock">{t('status.in_stock')}</option>
                       <option value="sold">{t('status.sold')}</option>
                       <option value="pending">{t('status.pending')}</option>
+                      <option value="in_repair">{t('status.in_repair')}</option>
                     </select>
                   </div>
                 </div>

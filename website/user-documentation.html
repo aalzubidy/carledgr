@@ -620,7 +620,7 @@
                             <li>Color</li>
                             <li>Mileage</li>
                             <li>Purchase date and price</li>
-                            <li>Current status (In Stock, Sold, Pending)</li>
+                            <li>Current status (defaults to "Pending" for new vehicles)</li>
                         </ul>
                     </li>
                     <li>Click <strong>"Save"</strong> to add the vehicle</li>
@@ -641,19 +641,24 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>In Stock</strong></td>
-                            <td>Vehicle is available for sale</td>
-                            <td>Completed repairs, ready for customer</td>
+                            <td><strong>Pending</strong></td>
+                            <td>Vehicle is awaiting initial processing</td>
+                            <td>Recently acquired, waiting on paperwork, or initial evaluation</td>
                         </tr>
                         <tr>
-                            <td><strong>Pending</strong></td>
-                            <td>Vehicle is being processed</td>
-                            <td>Under repair, awaiting parts, or being evaluated</td>
+                            <td><strong>In Repair</strong></td>
+                            <td>Vehicle is actively being worked on</td>
+                            <td>Under repair, restoration, or maintenance work</td>
+                        </tr>
+                        <tr>
+                            <td><strong>In Stock</strong></td>
+                            <td>Vehicle is available for sale</td>
+                            <td>Completed repairs, ready for customer purchase</td>
                         </tr>
                         <tr>
                             <td><strong>Sold</strong></td>
                             <td>Vehicle has been sold</td>
-                            <td>Transaction completed, no longer in active cars inventory</td>
+                            <td>Transaction completed, no longer in active inventory</td>
                         </tr>
                     </tbody>
                 </table>
@@ -707,27 +712,31 @@
                 </ol>
 
                 <h3>Maintenance Categories</h3>
-                <p>CarLedgr includes pre-configured categories for common maintenance types:</p>
+                <p>CarLedgr includes comprehensive pre-configured categories for all common maintenance types. These default categories are designed specifically for car dealerships and cannot be modified to ensure consistency across your organization:</p>
                 <div class="feature-grid">
                     <div class="feature-card">
-                        <h4>🔧 Mechanical</h4>
-                        <p>Engine, Transmission, Brakes, Suspension</p>
+                        <h4>🔧 Mechanical Systems</h4>
+                        <p>Engine, Transmission, Brakes, Suspension, Fuel System, Cooling System</p>
                     </div>
                     <div class="feature-card">
-                        <h4>⚡ Electrical</h4>
-                        <p>Lighting, Battery, Alternator, Wiring</p>
+                        <h4>⚡ Electrical Systems</h4>
+                        <p>Electrical, Battery, Diagnostic systems</p>
                     </div>
                     <div class="feature-card">
                         <h4>🚗 Body & Interior</h4>
-                        <p>Paint, Upholstery, Glass, Trim</p>
+                        <p>Body work, Interior repairs, Detailing</p>
                     </div>
                     <div class="feature-card">
                         <h4>🛞 Tires & Wheels</h4>
-                        <p>Tire replacement, Wheel alignment, Balancing</p>
+                        <p>Tire replacement, Wheel maintenance</p>
                     </div>
                     <div class="feature-card">
-                        <h4>🛢️ Fluids & Filters</h4>
-                        <p>Oil changes, Coolant, Brake fluid, Air filters</p>
+                        <h4>🛢️ Routine Maintenance</h4>
+                        <p>Oil Change, General Maintenance, Pre-Sale Inspection</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>💰 Taxes & Fees</h4>
+                        <p>Taxes, Fees, In State Tax, Out of State Tax, Gas, Holding Cost, Parking, Towing</p>
                     </div>
                     <div class="feature-card">
                         <h4>📋 Other</h4>
@@ -771,7 +780,7 @@
                 </div>
 
                 <h3>Types of Dealership Expenses</h3>
-                <p>CarLedgr includes a few predefined expense categories like Rent, Utilities, Insurance, and Office Supplies. The organization owner can create and customize additional categories to match your specific business needs.</p>
+                <p>CarLedgr includes predefined expense categories specifically designed for car dealerships: Rent, Utilities, Insurance, Office Supplies, Advertising & Marketing, Fuel, and Other. These default categories provide a solid foundation for tracking common dealership expenses. Organization owners can also create additional custom categories to match your specific business needs.</p>
 
                 <h3>Adding Expense Records</h3>
                 <ol>
@@ -819,7 +828,7 @@
                 <h4>1. Inventory Reports</h4>
                 <p>Get insights into your current inventory status:</p>
                 <ul>
-                    <li><strong>Inventory Status:</strong> Breakdown by In Stock, Sold, and Pending</li>
+                    <li><strong>Inventory Status:</strong> Breakdown by In Stock, Sold, Pending, and In Repair</li>
                     <li><strong>Inventory Value:</strong> Total value of unsold inventory</li>
                     <li><strong>Vehicle Distribution:</strong> List of vehicles within the specified time period and their purchase price, total maintenance costs, and total invetment (purchase price + maintenance costs)</li>
                 </ul>
@@ -831,6 +840,8 @@
                     <li><strong>All Maintenance Records:</strong> Total number of repair records</li>
                     <li><strong>Total Car Costs:</strong> The value of the cars in the inventory (without maintenance costs)</li>
                     <li><strong>Total Investment:</strong> The total of the cars in the inventory (purchase price + maintenance costs)</li>
+                    <li><strong>Total Cars:</strong> Total number of cars in the filtered dataset</li>
+                    <li><strong>Cars In Repair:</strong> Number of cars currently under repair or maintenance work</li>
                     <li><strong>Average Cost per Car:</strong> The average maintenance cost per car</li>
                     <li><strong>Models Breakdown:</strong> Total and average costs by car model</li>
                     <li><strong>Category Breakdown:</strong> Total and average costs by maintenance type</li>
@@ -889,21 +900,38 @@
                     <li><strong>Usage Percentage:</strong> How much of your limit is being used</li>
                 </ul>
 
-                <h3>Expense Categories Management</h3>
-                <p>Customize expense categories for your business:</p>
+                <h3>Category Management System</h3>
+                <p>CarLedgr uses a two-tier category system for both expenses and maintenance:</p>
+                
+                <h4>Default Categories</h4>
                 <ul>
-                    <li><strong>Add Categories:</strong> Create new expense types</li>
-                    <li><strong>Edit Categories:</strong> Modify existing category names, as well as it provides the ability to move all the expenses within this category to another category.</li>
-                    <li><strong>Delete Categories:</strong> Remove unused categories</li>
-                    <li><strong>Default Categories:</strong> System-provided standard categories (Cannot be edited or deleted)</li>
+                    <li><strong>System-Provided:</strong> Pre-configured categories designed specifically for car dealerships</li>
+                    <li><strong>Read-Only:</strong> Default categories cannot be edited or deleted to ensure consistency</li>
+                    <li><strong>Always Available:</strong> Default categories are available to all organizations</li>
+                    <li><strong>Visual Indicator:</strong> Marked with a "Default Category" badge in the settings table</li>
                 </ul>
 
-                <h3>Maintenance Categories Management</h3>
-                <p>Customize maintenance categories:</p>
+                <h4>Custom Categories</h4>
                 <ul>
-                    <li><strong>Standard Categories:</strong> Pre-configured maintenance types (Cannot be edited or deleted)</li>
-                    <li><strong>Custom Categories:</strong> Add categories specific to your business</li>
-                    <li><strong>Category Usage:</strong> Number of maintenance records in each category</li>
+                    <li><strong>Organization-Specific:</strong> Create categories unique to your business needs</li>
+                    <li><strong>Full Control:</strong> Custom categories can be edited, renamed, or deleted</li>
+                    <li><strong>Flexible Management:</strong> Move records between categories before deletion</li>
+                    <li><strong>Visual Indicator:</strong> Marked with a "Custom Category" badge in the settings table</li>
+                </ul>
+
+                <h4>Expense Categories</h4>
+                <p>Default expense categories include: Rent, Utilities, Insurance, Office Supplies, Advertising & Marketing, Fuel, and Other. Owners can create additional custom categories as needed.</p>
+
+                <h4>Maintenance Categories</h4>
+                <p>Comprehensive default maintenance categories cover all common repair types including Engine, Transmission, Brakes, Electrical, Body, Tires, Oil Change, Diagnostic, Detailing, Battery, Fuel System, Cooling System, Pre-Sale Inspection, and various taxes and fees. Owners can add custom categories for specialized services.</p>
+
+                <h4>Category Table Features</h4>
+                <ul>
+                    <li><strong>Category Type Column:</strong> Clearly shows whether each category is "Default" or "Custom"</li>
+                    <li><strong>Usage Tracking:</strong> Displays the number of records in each category</li>
+                    <li><strong>Smart Actions:</strong> Edit and delete buttons are automatically disabled for default categories</li>
+                    <li><strong>Search & Filter:</strong> Search by category name, type (default/custom), or usage frequency</li>
+                    <li><strong>Sorting:</strong> Sort by name, type, or usage count</li>
                 </ul>
 
                 <h3>User Management</h3>
@@ -977,7 +1005,7 @@
                     <li>✅ Generate all types of reports</li>
                     <li>✅ Access settings page</li>
                     <li>✅ Manage user accounts and roles</li>
-                    <li>✅ Create and manage expense and maintenance categories</li>
+                    <li>✅ Create and manage custom expense and maintenance categories (default categories are read-only)</li>
                     <li>✅ View license usage and billing information</li>
                 </ul>
 
@@ -1102,7 +1130,7 @@
                     <li><strong>VIN numbers:</strong> Full or partial VIN matching</li>
                     <li><strong>Vehicle details:</strong> Make, model, year, color</li>
                     <li><strong>Descriptions:</strong> Maintenance and expense descriptions</li>
-                    <li><strong>Categories:</strong> Maintenance and expense categories</li>
+                    <li><strong>Categories:</strong> Default and custom maintenance and expense categories</li>
                     <li><strong>Amounts:</strong> Cost and price values</li>
                 </ul>
 
@@ -1160,7 +1188,7 @@
                 <p>Yes, all data is encrypted, automatically backed up, and stored securely. Each organization's data is completely isolated.</p>
 
                 <h4>Can I customize categories?</h4>
-                <p>Owners can create custom maintenance and expense categories in the Settings section.</p>
+                <p>Yes, CarLedgr uses a two-tier category system. Default categories are provided for common dealership needs and cannot be modified to ensure consistency. Owners can create additional custom categories for specialized business needs in the Settings section. Both default and custom categories are clearly marked in the category management tables.</p>
 
                 <div class="alert alert-info">
                     <strong>Tip:</strong> Most questions can be answered by exploring the relevant section of this documentation or by contacting your organization's Owner or Manager.

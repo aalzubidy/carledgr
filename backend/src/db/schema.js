@@ -55,7 +55,7 @@ const createTableStatements = [
     purchase_price DECIMAL(10, 2) NOT NULL,
     sale_date DATE,
     sale_price DECIMAL(10, 2),
-    status ENUM('in_stock', 'sold', 'pending') DEFAULT 'in_stock',
+    status ENUM('in_stock', 'sold', 'pending', 'in_repair') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (organization_id) REFERENCES organizations(id)
@@ -116,10 +116,53 @@ const createTableStatements = [
     FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES organization_expense_categories(id),
     FOREIGN KEY (created_by_user_id) REFERENCES users(id)
+  )`,
+
+  // System Info table
+  `CREATE TABLE IF NOT EXISTS system_info (
+    id VARCHAR(36) PRIMARY KEY,
+    info_key VARCHAR(100) NOT NULL UNIQUE,
+    info_value TEXT NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
   )`
 ];
 
-// Load default categories from config file
+// Helper functions for system info management
+async function getSystemInfo(connection, key) {
+  try {
+    const [rows] = await connection.execute(
+      'SELECT info_value FROM system_info WHERE info_key = ?',
+      [key]
+    );
+    return rows.length > 0 ? rows[0].info_value : null;
+  } catch (error) {
+    logger.error(`Error getting system info for key ${key}: ${error.message}`);
+    return null;
+  }
+}
+
+async function setSystemInfo(connection, key, value) {
+  try {
+    await connection.execute(
+      'INSERT INTO system_info (id, info_key, info_value) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE info_value = VALUES(info_value), updated_at = CURRENT_TIMESTAMP',
+      [uuidv4(), key, value]
+    );
+  } catch (error) {
+    logger.error(`Error setting system info for key ${key}: ${error.message}`);
+  }
+}
+
+function getFileLastModified(filePath) {
+  try {
+    const stats = fs.statSync(filePath);
+    return stats.mtime.getTime();
+  } catch (error) {
+    logger.error(`Error getting file modification time for ${filePath}: ${error.message}`);
+    return 0;
+  }
+}
+
+// Load default categories from config
 function loadDefaultCategories() {
   try {
     const configPath = path.join(__dirname, '../../config/default-categories.json');
@@ -241,30 +284,6 @@ async function initializeMaintenanceCategories(connection, categories) {
 
 // Initialize expense categories
 async function initializeExpenseCategories(connection, categories) {
-  // First, migrate existing expense categories table if needed
-  try {
-    const [columns] = await connection.execute('DESCRIBE organization_expense_categories');
-    const hasIsDefault = columns.some(col => col.Field === 'is_default');
-    const hasUpdatedAt = columns.some(col => col.Field === 'updated_at');
-    
-    if (!hasIsDefault) {
-      await connection.execute('ALTER TABLE organization_expense_categories ADD COLUMN is_default BOOLEAN DEFAULT FALSE');
-      logger.info('Added is_default column to organization_expense_categories');
-    }
-    
-    if (!hasUpdatedAt) {
-      await connection.execute('ALTER TABLE organization_expense_categories ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP');
-      logger.info('Added updated_at column to organization_expense_categories');
-    }
-    
-    // Make organization_id nullable for default categories
-    await connection.execute('ALTER TABLE organization_expense_categories MODIFY organization_id VARCHAR(36) NULL');
-    logger.info('Made organization_id nullable for default expense categories');
-    
-  } catch (migrationError) {
-    logger.error(`Error migrating expense categories table: ${migrationError.message}`);
-  }
-  
   try {
     // First, get all current default categories
     const [currentDefaults] = await connection.execute(
@@ -359,74 +378,35 @@ async function initializeSchema() {
       logger.info('Table created successfully');
     }
 
-    // Check if default roles exist
-    const [roles] = await connection.execute('SELECT * FROM user_roles LIMIT 1');
-    
-    if (roles.length === 0) {
-      // Create default roles
-      await connection.execute('INSERT INTO user_roles (id, role_name) VALUES (1, "owner")');
-      await connection.execute('INSERT INTO user_roles (id, role_name) VALUES (2, "manager")');
-      await connection.execute('INSERT INTO user_roles (id, role_name) VALUES (3, "operator")');
-      
-      logger.info('Default user roles created');
-    }
-
-    // Migration: Update existing users to use role_id instead of role (if needed)
-    try {
-      // Check if role_id column exists
-      const [columns] = await connection.execute('DESCRIBE users');
-      const hasRoleId = columns.some(col => col.Field === 'role_id');
-      const hasOldRole = columns.some(col => col.Field === 'role');
-      
-      if (hasOldRole && hasRoleId) {
-        // Migrate existing users from role to role_id
-        await connection.execute('UPDATE users SET role_id = 1 WHERE role IN ("admin", "owner")');
-        await connection.execute('UPDATE users SET role_id = 2 WHERE role = "manager"');
-        await connection.execute('UPDATE users SET role_id = 3 WHERE role IN ("user", "operator")');
-        
-        // Drop the old role column
-        await connection.execute('ALTER TABLE users DROP COLUMN role');
-        
-        logger.info('Migrated users from role to role_id system');
-      }
-    } catch (migrationError) {
-      logger.error(`Migration error: ${migrationError.message}`);
-    }
-
     // Load default categories from config
     const defaultCategories = loadDefaultCategories();
     
-    // Initialize maintenance categories
-    await initializeMaintenanceCategories(connection, defaultCategories.maintenance_categories);
+    // Check if default categories need to be synced
+    const configPath = path.join(__dirname, '../../config/default-categories.json');
+    const currentFileModTime = getFileLastModified(configPath);
+    const lastSyncTime = await getSystemInfo(connection, 'default_categories_last_modified');
     
-    // Initialize expense categories
-    await initializeExpenseCategories(connection, defaultCategories.expense_categories);
+    const needsSync = !lastSyncTime || currentFileModTime > parseInt(lastSyncTime);
+    
+    if (needsSync) {
+      logger.info('Default categories config has been modified, syncing...');
+      
+      // Initialize maintenance categories
+      await initializeMaintenanceCategories(connection, defaultCategories.maintenance_categories);
+      
+      // Initialize expense categories
+      await initializeExpenseCategories(connection, defaultCategories.expense_categories);
+      
+      // Update the last sync time
+      await setSystemInfo(connection, 'default_categories_last_modified', currentFileModTime.toString());
+      
+      logger.info('Default categories sync completed');
+    } else {
+      logger.info('Default categories are up to date, skipping sync');
+    }
 
     await connection.commit();
     logger.info('Database schema initialized successfully');
-    
-    // Check if license tables exist and run migration only if needed
-    const [licenseTables] = await connection.execute(`
-      SELECT COUNT(*) as count 
-      FROM information_schema.tables 
-      WHERE table_schema = DATABASE() 
-      AND table_name IN ('license_tiers', 'organization_licenses', 'stripe_events')
-    `);
-    
-    if (licenseTables[0].count < 3) {
-      // License tables don't exist or are incomplete, run migration
-      logger.info('License tables missing, running licensing migration...');
-      await migrateLicensing();
-    } else {
-      // Check if default license tiers exist
-      const [defaultTiers] = await connection.execute('SELECT COUNT(*) as count FROM license_tiers');
-      if (defaultTiers[0].count === 0) {
-        logger.info('License tables exist but no default tiers found, running licensing migration...');
-        await migrateLicensing();
-      } else {
-        logger.info('License system already initialized, skipping migration');
-      }
-    }
     
   } catch (error) {
     await connection.rollback();

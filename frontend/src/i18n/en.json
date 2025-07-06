@@ -21,7 +21,7 @@
   },
   "navigation": {
     "dashboard": "Dashboard",
-    "cars": "Cars",
+    "cars": "Cars Inventory",
     "maintenance": "Maintenance",
     "reports": "Reports",
     "expenses": "Dealership Expenses",
@@ -34,6 +34,7 @@
     "inStock": "In Stock",
     "sold": "Sold",
     "pending": "Pending",
+    "inRepair": "In Repair",
     "inventoryValue": "Inventory Value",
     "currentInventoryValue": "Current Inventory Value",
     "financials": "Financials",
@@ -145,7 +146,8 @@
   "status": {
     "in_stock": "In Stock",
     "sold": "Sold",
-    "pending": "Pending"
+    "pending": "Pending",
+    "in_repair": "In Repair"
   },
   "categories": {
     "Engine": "Engine",
@@ -239,6 +241,7 @@
   },
   "settings": {
     "title": "Settings",
+    "licenseUsage": "License Usage",
     "expenseCategories": "Expense Categories",
     "maintenanceCategories": "Maintenance Categories",
     "addCategory": "Add Category",

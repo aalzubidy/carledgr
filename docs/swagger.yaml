@@ -899,7 +899,7 @@ components:
           nullable: true
         status:
           type: string
-          enum: [in_stock, sold, pending]
+          enum: [in_stock, sold, pending, in_repair]
         createdAt:
           type: string
           format: date-time
@@ -943,8 +943,8 @@ components:
           nullable: true
         status:
           type: string
-          enum: [in_stock, sold, pending]
-          default: in_stock
+          enum: [in_stock, sold, pending, in_repair]
+          default: pending
 
     MaintenanceCategory:
       type: object

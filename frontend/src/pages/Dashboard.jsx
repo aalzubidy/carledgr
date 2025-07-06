@@ -110,6 +110,7 @@ function Dashboard() {
   const inStock = dashboardData?.in_stock || 0
   const sold = dashboardData?.sold || 0
   const pending = dashboardData?.pending || 0
+  const inRepair = dashboardData?.in_repair || 0
   const inventoryValue = dashboardData?.current_inventory_value || 0
   const carsSoldThisMonth = dashboardData?.cars_sold_this_month || 0
   const profitThisMonth = dashboardData?.profit_this_month || 0
@@ -144,6 +145,12 @@ function Dashboard() {
           <h3>{t('dashboard.pending')}</h3>
           <div className="stat-value">{pending}</div>
           <p>{t('dashboard.pending')}</p>
+        </div>
+        
+        <div className="stat-card">
+          <h3>{t('dashboard.inRepair')}</h3>
+          <div className="stat-value">{inRepair}</div>
+          <p>{t('dashboard.inRepair')}</p>
         </div>
         
         <div className="stat-card">

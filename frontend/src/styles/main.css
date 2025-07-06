@@ -365,4 +365,68 @@ select.form-control {
 /* Override any Bootstrap modal backdrop */
 .modal-backdrop {
   display: none !important;
+}
+
+/* Settings Navigation Styles */
+.settings-navigation {
+  margin-bottom: 2rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.nav-pills {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.nav-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: #f8f9fa;
+  color: #495057;
+  text-decoration: none;
+  border-radius: 50px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.nav-pill:hover {
+  background-color: #e9ecef;
+  color: #212529;
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nav-pill:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+/* Smooth scrolling for anchor links */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Add some padding to sections for better anchor positioning */
+.settings-content > div[id] {
+  scroll-margin-top: 2rem;
+}
+
+/* Mobile responsive navigation */
+@media (max-width: 768px) {
+  .nav-pills {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .nav-pill {
+    justify-content: center;
+    padding: 0.875rem 1rem;
+    font-size: 0.95rem;
+  }
 } 

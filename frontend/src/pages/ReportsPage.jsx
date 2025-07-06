@@ -241,6 +241,7 @@ function ReportsPage() {
     const inStockCars = cars.filter(car => car.status === 'in_stock')
     const soldCars = cars.filter(car => car.status === 'sold')
     const pendingCars = cars.filter(car => car.status === 'pending')
+    const inRepairCars = cars.filter(car => car.status === 'in_repair')
     const currentInventoryValue = inStockCars.reduce((sum, car) => sum + (parseFloat(car.purchase_price) || 0), 0)
     
     return `
@@ -256,6 +257,14 @@ function ReportsPage() {
         <div class="stat-card">
           <div class="stat-label">${t('dashboard.sold')}</div>
           <div class="stat-value">${soldCars.length}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">${t('dashboard.pending')}</div>
+          <div class="stat-value">${pendingCars.length}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">${t('dashboard.inRepair')}</div>
+          <div class="stat-value">${inRepairCars.length}</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">${t('dashboard.currentInventoryValue')}</div>
@@ -423,6 +432,7 @@ function ReportsPage() {
     const totalCarCost = cars.reduce((sum, car) => sum + (parseFloat(car.purchase_price) || 0), 0)
     const totalMaintenanceCost = parseFloat(total_cost) || 0
     const totalInvestment = totalCarCost + totalMaintenanceCost
+    const inRepairCars = cars.filter(car => car.status === 'in_repair')
     
     let content = `
       <div class="stats-grid">
@@ -442,13 +452,17 @@ function ReportsPage() {
           <div class="stat-label">${t('reports.totalInvestment')}</div>
           <div class="stat-value">$${formatNumber(totalInvestment)}</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">${t('dashboard.totalCars')}</div>
-          <div class="stat-value">${cars.length}</div>
+        <div className="stat-card">
+          <div className="stat-label">${t('dashboard.totalCars')}</div>
+          <div className="stat-value">${cars.length}</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">${t('reports.averageProfit')}</div>
-          <div class="stat-value">$${formatNumber(cars.length > 0 ? totalMaintenanceCost / cars.length : 0)}</div>
+        <div className="stat-card">
+          <div className="stat-label">${t('dashboard.inRepair')}</div>
+          <div className="stat-value">${inRepairCars.length}</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">${t('reports.averageProfit')}</div>
+          <div className="stat-value">$${formatNumber(cars.length > 0 ? totalMaintenanceCost / cars.length : 0)}</div>
         </div>
       </div>
     `
@@ -563,6 +577,7 @@ function ReportsPage() {
     const inStockCars = cars.filter(car => car.status === 'in_stock')
     const soldCars = cars.filter(car => car.status === 'sold')
     const pendingCars = cars.filter(car => car.status === 'pending')
+    const inRepairCars = cars.filter(car => car.status === 'in_repair')
     const currentInventoryValue = inStockCars.reduce((sum, car) => sum + (parseFloat(car.purchase_price) || 0), 0)
     
     return (
@@ -585,6 +600,10 @@ function ReportsPage() {
             <div className="stat-card">
               <h3>{t('dashboard.pending')}</h3>
               <div className="stat-value">{pendingCars.length}</div>
+            </div>
+            <div className="stat-card">
+              <h3>{t('dashboard.inRepair')}</h3>
+              <div className="stat-value">{inRepairCars.length}</div>
             </div>
             <div className="stat-card">
               <h3>{t('dashboard.currentInventoryValue')}</h3>
@@ -791,6 +810,7 @@ function ReportsPage() {
     const totalCarCost = cars.reduce((sum, car) => sum + (parseFloat(car.purchase_price) || 0), 0)
     const totalMaintenanceCost = parseFloat(total_cost) || 0
     const totalInvestment = totalCarCost + totalMaintenanceCost
+    const inRepairCars = cars.filter(car => car.status === 'in_repair')
     
     return (
       <>
@@ -816,6 +836,10 @@ function ReportsPage() {
             <div className="stat-card">
               <h3>{t('dashboard.totalCars')}</h3>
               <div className="stat-value">{cars.length}</div>
+            </div>
+            <div className="stat-card">
+              <h3>{t('dashboard.inRepair')}</h3>
+              <div className="stat-value">{inRepairCars.length}</div>
             </div>
             <div className="stat-card">
               <h3>{t('reports.averageProfit')}</h3>
