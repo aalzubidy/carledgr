@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react'
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
+import ChartDataLabels from 'chartjs-plugin-datalabels'
+import { Pie } from 'react-chartjs-2'
 import { t } from '../utils/i18n.js'
 import { api } from '../utils/api.js'
 import Layout, { Loading, EmptyState } from '../components/Layout.jsx'
 import { showError } from '../utils/snackbar.js'
+
+// Register Chart.js components
+ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels)
 
 function Dashboard() {
   const [dashboardData, setDashboardData] = useState(null)
@@ -115,61 +121,110 @@ function Dashboard() {
   const carsSoldThisMonth = dashboardData?.cars_sold_this_month || 0
   const profitThisMonth = dashboardData?.profit_this_month || 0
 
+  // Prepare pie chart data
+  const pieChartData = {
+    labels: [
+      t('dashboard.inStock'),
+      t('dashboard.sold'),
+      t('dashboard.pending'),
+      t('dashboard.inRepair')
+    ],
+    datasets: [
+      {
+        data: [inStock, sold, pending, inRepair],
+        backgroundColor: [
+          '#2ECC71', // Green for In Stock
+          '#3498DB', // Blue for Sold
+          '#F39C12', // Orange for Pending
+          '#E74C3C'  // Red for In Repair
+        ],
+        borderColor: [
+          '#27AE60',
+          '#2980B9',
+          '#E67E22',
+          '#C0392B'
+        ],
+        borderWidth: 2,
+        hoverOffset: 4
+      }
+    ]
+  }
+
+  const pieChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '50%',
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          padding: 20,
+          usePointStyle: true,
+          font: {
+            size: 14
+          }
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            const label = context.label || ''
+            const value = context.parsed || 0
+            return `${label}: ${value}`
+          }
+        }
+      },
+      datalabels: {
+        display: true,
+        color: 'white',
+        font: {
+          weight: 'bold',
+          size: 16
+        },
+        formatter: function(value, context) {
+          // Only show the number if it's greater than 0
+          return value > 0 ? value : ''
+        }
+      }
+    }
+  }
+
   return (
     <Layout activeRoute="dashboard">
       <div className="dashboard-header">
         <h1>{t('dashboard.title')}</h1>
       </div>
       
-      <div className="stats-grid">
-        {/* Inventory Stats */}
-        <div className="stat-card">
-          <h3>{t('dashboard.totalCars')}</h3>
-          <div className="stat-value">{totalCars}</div>
-          <p>{t('dashboard.totalCars')}</p>
+      <div className="dashboard-content">
+        {/* Inventory Pie Chart */}
+        <div className="inventory-section">
+          <div className="chart-container">
+            <h2>{t('dashboard.inventory')} - {t('dashboard.totalCars')}: {totalCars}</h2>
+            <div className="pie-chart-wrapper">
+              <Pie data={pieChartData} options={pieChartOptions} />
+            </div>
+          </div>
         </div>
         
-        <div className="stat-card">
-          <h3>{t('dashboard.inStock')}</h3>
-          <div className="stat-value">{inStock}</div>
-          <p>{t('dashboard.inStock')}</p>
-        </div>
-        
-        <div className="stat-card">
-          <h3>{t('dashboard.sold')}</h3>
-          <div className="stat-value">{sold}</div>
-          <p>{t('dashboard.sold')}</p>
-        </div>
-        
-        <div className="stat-card">
-          <h3>{t('dashboard.pending')}</h3>
-          <div className="stat-value">{pending}</div>
-          <p>{t('dashboard.pending')}</p>
-        </div>
-        
-        <div className="stat-card">
-          <h3>{t('dashboard.inRepair')}</h3>
-          <div className="stat-value">{inRepair}</div>
-          <p>{t('dashboard.inRepair')}</p>
-        </div>
-        
-        <div className="stat-card">
-          <h3>{t('dashboard.inventoryValue')}</h3>
-          <div className="stat-value">${formatNumber(inventoryValue)}</div>
-          <p>{t('dashboard.inventoryValue')}</p>
-        </div>
-        
-        {/* Financial Stats */}
-        <div className="stat-card">
-          <h3>{t('dashboard.carsSoldThisMonth')}</h3>
-          <div className="stat-value">{carsSoldThisMonth}</div>
-          <p>{t('dashboard.carsSoldThisMonth')}</p>
-        </div>
-        
-        <div className="stat-card profit">
-          <h3>{t('dashboard.profitThisMonth')}</h3>
-          <div className="stat-value">${formatNumber(profitThisMonth)}</div>
-          <p>{t('dashboard.profitThisMonth')}</p>
+        {/* Financial Stats Cards */}
+        <div className="stats-grid">
+          <div className="stat-card">
+            <h3>{t('dashboard.carsSoldThisMonth')}</h3>
+            <div className="stat-value">{carsSoldThisMonth}</div>
+            <p>{t('dashboard.carsSoldThisMonth')}</p>
+          </div>
+          
+          <div className="stat-card profit">
+            <h3>{t('dashboard.profitThisMonth')}</h3>
+            <div className="stat-value">${formatNumber(profitThisMonth)}</div>
+            <p>{t('dashboard.profitThisMonth')}</p>
+          </div>
+          
+          <div className="stat-card">
+            <h3>{t('dashboard.inventoryValue')}</h3>
+            <div className="stat-value">${formatNumber(inventoryValue)}</div>
+            <p>{t('dashboard.inventoryValue')}</p>
+          </div>
         </div>
       </div>
       
