@@ -23,6 +23,7 @@ function CarDetails({ carId }) {
     model: '',
     year: '',
     color: '',
+    mileage: '',
     status: 'in_stock',
     purchase_date: '',
     purchase_price: '',
@@ -183,6 +184,7 @@ function CarDetails({ carId }) {
       model: carData.model || '',
       year: carData.year || '',
       color: carData.color || '',
+      mileage: carData.mileage || '',
       status: carData.status || 'in_stock',
       purchase_date: carData.purchase_date ? carData.purchase_date.split('T')[0] : '',
       purchase_price: carData.purchase_price || '',
@@ -277,6 +279,7 @@ function CarDetails({ carId }) {
       model: carFormData.model,
       year: parseInt(carFormData.year),
       color: carFormData.color,
+      mileage: carFormData.mileage ? parseInt(carFormData.mileage) : null,
       status: carFormData.status,
       purchase_date: carFormData.purchase_date,
       purchase_price: parseFloat(carFormData.purchase_price),
@@ -784,6 +787,20 @@ function CarDetails({ carId }) {
                   />
                 </div>
                 <div className="form-group">
+                  <label htmlFor="mileage">{t('cars.mileage')}</label>
+                  <input 
+                    type="number" 
+                    name="mileage" 
+                    className="form-control" 
+                    min="0" 
+                    value={carFormData.mileage}
+                    onChange={handleCarFormChange}
+                    placeholder="e.g., 50000"
+                  />
+                </div>
+              </div>
+              <div className="form-row single">
+                <div className="form-group">
                   <label htmlFor="status">{t('cars.status')}</label>
                   <select 
                     name="status" 
@@ -791,10 +808,10 @@ function CarDetails({ carId }) {
                     value={carFormData.status}
                     onChange={handleCarFormChange}
                   >
-                                            <option value="in_stock">{t('status.in_stock')}</option>
-                        <option value="sold">{t('status.sold')}</option>
-                        <option value="pending">{t('status.pending')}</option>
-                        <option value="in_repair">{t('status.in_repair')}</option>
+                    <option value="in_stock">{t('status.in_stock')}</option>
+                    <option value="sold">{t('status.sold')}</option>
+                    <option value="pending">{t('status.pending')}</option>
+                    <option value="in_repair">{t('status.in_repair')}</option>
                   </select>
                 </div>
               </div>

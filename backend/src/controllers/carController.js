@@ -56,6 +56,7 @@ const createNewCar = async (req, res, next) => {
       model, 
       year, 
       color, 
+      mileage, 
       purchase_date, 
       purchase_price
     } = req.body;
@@ -74,6 +75,7 @@ const createNewCar = async (req, res, next) => {
       model,
       year,
       color,
+      mileage: mileage || 0,
       purchase_date,
       purchase_price,
       sale_date: null,
@@ -109,6 +111,7 @@ const updateCarById = async (req, res, next) => {
       model, 
       year, 
       color, 
+      mileage, 
       purchase_date, 
       purchase_price, 
       sale_date, 
@@ -149,6 +152,7 @@ const updateCarById = async (req, res, next) => {
       model: model || car.model,
       year: year || car.year,
       color: color !== undefined ? color : car.color,
+      mileage: mileage !== undefined ? mileage : car.mileage,
       purchase_date: purchase_date || car.purchase_date,
       purchase_price: purchase_price || car.purchase_price,
       sale_date: sale_date !== undefined ? sale_date : car.sale_date,
