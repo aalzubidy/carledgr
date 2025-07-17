@@ -7,7 +7,7 @@
     "name": "CarLedgr",
     "version": "1.0.0",
     "defaultLanguage": "en",
-    "supportedLanguages": ["en", "ar", "es"]
+    "supportedLanguages": ["en", "ar", "es", "fr"]
   },
   "ui": {
     "itemsPerPage": 10,

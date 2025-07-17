@@ -19,11 +19,14 @@ function Layout({ children, activeRoute = '' }) {
   const [showProfileModal, setShowProfileModal] = useState(false)
   const [showUserDropdown, setShowUserDropdown] = useState(false)
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false)
+  const [showSupportDropdown, setShowSupportDropdown] = useState(false)
+  const [licenseInfo, setLicenseInfo] = useState(null)
 
   useEffect(() => {
     setCurrentLanguage(getCurrentLanguage())
     setupMobileSidebar()
     loadUserData()
+    loadLicenseInfo()
   }, [])
 
   // Close dropdowns when clicking outside
@@ -35,11 +38,14 @@ function Layout({ children, activeRoute = '' }) {
       if (showLanguageDropdown && !event.target.closest('.floating-language-selector')) {
         setShowLanguageDropdown(false)
       }
+      if (showSupportDropdown && !event.target.closest('.floating-support-selector')) {
+        setShowSupportDropdown(false)
+      }
     }
 
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [showUserDropdown, showLanguageDropdown])
+  }, [showUserDropdown, showLanguageDropdown, showSupportDropdown])
 
   const loadUserData = async () => {
     try {
@@ -63,12 +69,36 @@ function Layout({ children, activeRoute = '' }) {
     }
   }
 
+  const loadLicenseInfo = async () => {
+    try {
+      const license = await api.getLicenseInfo()
+      setLicenseInfo(license)
+    } catch (error) {
+      console.error('Error loading license info:', error)
+    }
+  }
+
   const handleLanguageSelect = async (newLanguage) => {
     setShowLanguageDropdown(false)
     await setLanguage(newLanguage)
     setCurrentLanguage(newLanguage)
     // Reload the current page with new language
     window.location.reload()
+  }
+
+  const handleSupportOption = (option) => {
+    setShowSupportDropdown(false)
+    
+    switch (option) {
+      case 'documentation':
+        window.open('https://carledgr.com/user-documentation.html', '_blank');
+        break;
+      case 'email':
+        window.open('mailto:support@carledgr.com', '_blank');
+        break;
+      default:
+        break;
+    }
   }
 
   const handleNavigation = (route) => {
@@ -141,6 +171,9 @@ function Layout({ children, activeRoute = '' }) {
       }
     }
   }
+
+  // Check if live chat is available (all tiers except starter)
+  const isLiveChatAvailable = licenseInfo && licenseInfo.license_type !== 'starter'
 
   return (
     <div className="app-container">
@@ -255,6 +288,34 @@ function Layout({ children, activeRoute = '' }) {
         user={user}
         onUserUpdate={handleUserUpdate}
       />
+
+      {/* Floating Support Selector */}
+      <div className="floating-support-selector">
+        <button 
+          className="floating-support-toggle"
+          onClick={() => setShowSupportDropdown(!showSupportDropdown)}
+          title="Help & Support"
+        >
+          ❓
+        </button>
+        
+        {showSupportDropdown && (
+          <div className="floating-support-menu">
+            <button 
+              className="support-option"
+              onClick={() => handleSupportOption('documentation')}
+            >
+              📚 Documentation
+            </button>
+            <button 
+              className="support-option"
+              onClick={() => handleSupportOption('email')}
+            >
+              📧 Email Support
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Floating Language Selector */}
       <div className="floating-language-selector">

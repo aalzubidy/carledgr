@@ -24,6 +24,12 @@ function LoginPage({ onLogin }) {
     setCurrentLanguage(getCurrentLanguage())
   }, [])
 
+  useEffect(() => {
+    if (window.Tawk_API && window.Tawk_API.hideWidget) {
+      window.Tawk_API.hideWidget();
+    }
+  }, []);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
