@@ -5,10 +5,8 @@ let config = {};
 // Load configuration
 async function loadConfig() {
     try {
-        console.log('Loading configuration...');
         const response = await fetch('config.json');
         config = await response.json();
-        console.log('Configuration loaded:', config);
         
         // Initialize Google Analytics if enabled
         if (config.analytics && config.analytics.googleAnalytics && config.analytics.googleAnalytics.enabled) {
@@ -56,8 +54,6 @@ function initializeGoogleAnalytics(measurementId) {
             custom_parameter_2: 'pricing_plan_viewed'
         }
     });
-    
-    console.log('Google Analytics initialized with ID:', measurementId);
 }
 
 // Analytics event tracking functions
@@ -69,7 +65,6 @@ function trackEvent(eventName, parameters = {}) {
             value: parameters.value || 0,
             ...parameters
         });
-        console.log('Analytics event tracked:', eventName, parameters);
     }
 }
 
@@ -91,7 +86,6 @@ function trackConversion(conversionName, conversionValue = 0, currency = 'USD') 
             value: conversionValue,
             currency: currency
         });
-        console.log('Conversion tracked:', conversionName, conversionValue);
     }
 }
 
@@ -146,10 +140,8 @@ function trackFormInteraction(formType, action) {
 // Load translations from JSON file
 async function loadTranslations() {
     try {
-        console.log('Loading translations...');
         const response = await fetch('translations.json');
         translations = await response.json();
-        console.log('Translations loaded:', Object.keys(translations).length, 'keys');
         
         // Initialize language after translations are loaded
         const savedLanguage = localStorage.getItem('carledgr-language') || 'en';
@@ -166,7 +158,6 @@ async function loadTranslations() {
 
 // Language switcher functionality
 function updateLanguage(lang) {
-    console.log('Updating language to:', lang);
     const previousLanguage = localStorage.getItem('carledgr-language') || 'en';
     
     const elements = document.querySelectorAll('[data-translate]');
@@ -322,7 +313,6 @@ document.head.appendChild(style);
 function handleFormSubmit(event) {
     event.preventDefault();
     // Add form submission logic here
-    console.log('Form submitted');
 }
 
 // Add loading state to buttons
@@ -667,7 +657,6 @@ function showErrorMessage(message) {
 
 // Consolidated DOMContentLoaded event handler
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing...');
     
     // 1. Load configuration and translations
     Promise.all([loadConfig(), loadTranslations()]);
