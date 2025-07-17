@@ -1,18 +1,18 @@
 {
   "app": {
-    "port": 3030,
+    "port": 3001,
     "environment": "development",
     "jwtSecret": "@avkcoffeeshop",
     "jwtExpiration": "6h"
   },
   "database": {
-    "host": "localhost",
-    "port": 3306,
-    "user": "root",
-    "password": "rootpass",
-    "database": "carfin",
-    "connectionLimit": 10,
-    "ssl": false
+    "host": "",
+    "port": 25060,
+    "user": "",
+    "password": "",
+    "database": "carledgr_demo",
+    "ssl": true,
+    "connectionLimit": 10
   },
   "stripe": {
     "secretKey": "",
@@ -25,8 +25,8 @@
   "email": {
     "provider": "resend",
     "resendApiKey": "",
-    "fromEmail": "support@yourcarledgrdomain.com",
-    "fromName": "CarLedgr Support",
+    "fromEmail": "noreply@carledgr.com",
+    "fromName": "CarLedgr Team",
     "smtp": {
       "host": "",
       "port": 465,
@@ -35,20 +35,20 @@
       "password": ""
     }
   },
-    "storage": {
+  "storage": {
     "provider": "s3",
-    "endpoint": "https://your-s3-endpoint.com",
-    "bucket": "",
+    "endpoint": "",
+    "bucket": "carledgr",
     "accessKeyId": "",
     "secretAccessKey": "",
-    "region": "auto",
-    "parentFolder": "",
+    "region": "us-east-1",
+    "parentFolder": "demo",
     "cdnEndpoint": "",
     "maxFileSize": 8388608,
     "allowedFileTypes": ["image/jpeg", "image/png", "image/webp", "application/pdf"]
-  },
-  "logging": {
+  },  
+"logging": {
     "level": "info",
-    "file": "logs/app.log"
+    "file": "/var/log/carledgr/backend/app.log"
   }
 } 
