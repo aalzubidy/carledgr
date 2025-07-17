@@ -5,10 +5,20 @@ This document outlines the complete Stripe integration for CarLedgr's subscripti
 ## Overview
 
 CarLedgr uses Stripe to handle monthly subscriptions for salvage car dealerships. The system automatically:
+- Provides a 15-day free trial for all new subscriptions
 - Creates organizations and user accounts when subscriptions are purchased
 - Manages license limits based on subscription tiers
 - Handles subscription status changes and payment failures
 - Sends welcome and notification emails
+
+## Trial Period
+
+All new subscriptions include a **15-day free trial** period:
+- No payment required during the trial
+- Full access to all plan features
+- Trial automatically converts to paid subscription unless canceled
+- Email notifications sent before trial ends
+- Subscription status shows as 'trialing' during the trial period
 
 ## Architecture
 
