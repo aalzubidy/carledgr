@@ -731,6 +731,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 trackDemoAccess(source);
                 // Don't prevent default - allow natural navigation to demo info page
             });
+        } else if (button.href && button.href.includes('app.carledgr.com')) {
+            // Handle login button clicks - track and allow natural navigation
+            button.addEventListener('click', function(e) {
+                // Track login attempts
+                trackEvent('login_click', {
+                    category: 'authentication',
+                    label: 'navigation_login'
+                });
+                // Don't prevent default - allow natural navigation to login page
+            });
         } else {
             // For other buttons that don't have demo URLs, show placeholder
             button.addEventListener('click', function(e) {

@@ -19,10 +19,10 @@
     "es": "Contacto",
     "fr": "Contact"
   },
-  "nav_demo": {
-    "en": "Try Our Live Demo",
-    "es": "Prueba Nuestra Demo",
-    "fr": "Essayez Notre Démo"
+  "nav_login": {
+    "en": "Login (Existing Customers)",
+    "es": "Iniciar Sesión (Clientes Existentes)",
+    "fr": "Connexion (Clients Existent)"
   },
   "hero_title": {
     "en": "Smart Dealership <span class=\"highlight\">Management Platform</span>",
