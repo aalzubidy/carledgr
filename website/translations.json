@@ -194,6 +194,21 @@
     "es": "Elige el plan que se ajuste al tamaño de tu concesionario e inventario",
     "fr": "Choisissez le plan qui correspond à la taille de votre concession et à votre inventaire"
   },
+  "trial_banner": {
+    "en": "Start with 15 days free! Cancel any time.",
+    "es": "Comienza con 15 días gratis! Cancelar en cualquier momento.",
+    "fr": "Commencez avec 15 jours gratuits ! Annuler à tout moment."
+  },
+  "trial_free": {
+    "en": "15 days free trial",
+    "es": "15 días de prueba gratis",
+    "fr": "15 jours d'essai gratuit"
+  },
+  "trial_then": {
+    "en": "then",
+    "es": "luego",
+    "fr": "puis"
+  },
   "plan_starter": {
     "en": "Starter",
     "es": "Inicial",
@@ -243,6 +258,11 @@
     "en": "Get Started",
     "es": "Comenzar",
     "fr": "Commencer"
+  },
+  "plan_start_trial": {
+    "en": "Start Free Trial",
+    "es": "Iniciar Prueba Gratis",
+    "fr": "Commencer l'Essai Gratuit"
   },
   "feature_vehicles_30": {
     "en": "Up to 30 active vehicles",
@@ -345,14 +365,19 @@
     "fr": "Prêt à rationaliser les opérations de votre concession ?"
   },
   "cta_desc": {
-    "en": "Join dealerships using CarLedgr to gain complete financial visibility and maximize profitability.",
-    "es": "Únete a concesionarios que usan CarLedgr para obtener visibilidad financiera completa y maximizar la rentabilidad.",
-    "fr": "Rejoignez les concessionnaires utilisant CarLedgr pour obtenir une visibilité financière complète et maximiser la rentabilité."
+    "en": "Start your 15-day free trial today. No credit card required. Join dealerships using CarLedgr to gain complete financial visibility and maximize profitability.",
+    "es": "Comienza tu prueba gratuita de 15 días hoy. No se requiere tarjeta de crédito. Únete a concesionarios que usan CarLedgr para obtener visibilidad financiera completa y maximizar la rentabilidad.",
+    "fr": "Commencez votre essai gratuit de 15 jours aujourd'hui. Aucune carte de crédit requise. Rejoignez les concessionnaires utilisant CarLedgr pour obtenir une visibilité financière complète et maximiser la rentabilité."
   },
   "cta_demo_btn": {
     "en": "Try Our Live Demo",
     "es": "Prueba Nuestra Demo",
     "fr": "Essayez Notre Démo"
+  },
+  "cta_trial_btn": {
+    "en": "Start Free Trial",
+    "es": "Iniciar Prueba Gratis",
+    "fr": "Commencer l'Essai Gratuit"
   },
   "cta_plan_btn": {
     "en": "Choose Your Plan",

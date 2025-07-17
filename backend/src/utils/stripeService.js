@@ -129,6 +129,9 @@ const createCheckoutSession = async (priceId, customerEmail, organizationName, s
         organization_name: organizationName,
         owner_email: customerEmail
       },
+      subscription_data: {
+        trial_period_days: 15
+      },
       success_url: successUrl,
       cancel_url: cancelUrl,
       allow_promotion_codes: true,
