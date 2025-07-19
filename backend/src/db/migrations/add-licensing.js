@@ -84,7 +84,7 @@ async function migrateLicensing() {
       { 
         tier_name: 'starter', 
         display_name: 'Starter Plan', 
-        car_limit: 30, 
+        car_limit: 20, 
         monthly_price: 79.99, 
         stripe_price_id: config.stripe?.starterPriceId || 'price_starter', 
         is_available_online: true, 
@@ -93,7 +93,7 @@ async function migrateLicensing() {
       { 
         tier_name: 'professional', 
         display_name: 'Professional Plan', 
-        car_limit: 75, 
+        car_limit: 50, 
         monthly_price: 119.99, 
         stripe_price_id: config.stripe?.professionalPriceId || 'price_professional', 
         is_available_online: true, 
@@ -102,7 +102,7 @@ async function migrateLicensing() {
       { 
         tier_name: 'business', 
         display_name: 'Business Plan', 
-        car_limit: 150, 
+        car_limit: 100, 
         monthly_price: 179.99, 
         stripe_price_id: config.stripe?.businessPriceId || 'price_business', 
         is_available_online: true, 

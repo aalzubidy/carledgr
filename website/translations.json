@@ -264,20 +264,20 @@
     "es": "Iniciar Prueba Gratis",
     "fr": "Commencer l'Essai Gratuit"
   },
-  "feature_vehicles_30": {
-    "en": "Up to 30 active vehicles",
-    "es": "Hasta 30 vehículos activos",
-    "fr": "Jusqu'à 30 véhicules actifs"
+  "feature_vehicles_20": {
+    "en": "Up to 20 active vehicles",
+    "es": "Hasta 20 vehículos activos",
+    "fr": "Jusqu'à 20 véhicules actifs"
   },
-  "feature_vehicles_75": {
-    "en": "Up to 75 active vehicles",
-    "es": "Hasta 75 vehículos activos",
-    "fr": "Jusqu'à 75 véhicules actifs"
+  "feature_vehicles_50": {
+    "en": "Up to 50 active vehicles",
+    "es": "Hasta 50 vehículos activos",
+    "fr": "Jusqu'à 50 véhicules actifs"
   },
-  "feature_vehicles_150": {
-    "en": "Up to 150 active vehicles",
-    "es": "Hasta 150 vehículos activos",
-    "fr": "Jusqu'à 150 véhicules actifs"
+  "feature_vehicles_100": {
+    "en": "Up to 100 active vehicles",
+    "es": "Hasta 100 vehículos activos",
+    "fr": "Jusqu'à 100 véhicules actifs"
   },
   "feature_vehicles_unlimited": {
     "en": "Unlimited active vehicles",
