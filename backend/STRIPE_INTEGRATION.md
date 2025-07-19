@@ -40,9 +40,9 @@ All new subscriptions include a **15-day free trial** period:
 
 | Plan | Cars | Price | Stripe Price ID |
 |------|------|-------|----------------|
-| Starter | 30 | $79.99 | `price_1RbVjX4bsQpEhvmDr2Oay1cp` |
-| Professional | 75 | $119.99 | `price_1RbVmE4bsQpEhvmD3L3HuwXI` |
-| Business | 150 | $179.99 | `price_1RbVmE4bsQpEhvmDDazrIF8x` |
+| Starter | 20 | $79.99 | `price_1RbVjX4bsQpEhvmDr2Oay1cp` |
+| Professional | 50 | $119.99 | `price_1RbVmE4bsQpEhvmD3L3HuwXI` |
+| Business | 100 | $179.99 | `price_1RbVmE4bsQpEhvmDDazrIF8x` |
 | Enterprise | 10,000 | $249.99 | `price_1Reixo4bsQpEhvmDRdHfN8oM` |
 | Champion | 10,000 | Free | (Admin only) |
 

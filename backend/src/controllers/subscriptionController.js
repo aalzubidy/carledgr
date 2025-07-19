@@ -71,7 +71,7 @@ const createSubscriptionCheckout = async (req, res, next) => {
 const getFeaturesByTier = (tierName) => {
   const features = {
     starter: [
-      'Up to 30 active cars',
+      'Up to 20 active cars',
       'Unlimited sold cars tracking',
       'Basic inventory management',
       'Expense tracking',
@@ -79,7 +79,7 @@ const getFeaturesByTier = (tierName) => {
       'Email support'
     ],
     professional: [
-      'Up to 75 active cars',
+      'Up to 50 active cars',
       'Unlimited sold cars tracking',
       'Advanced inventory management',
       'Detailed expense tracking',
@@ -88,7 +88,7 @@ const getFeaturesByTier = (tierName) => {
       'Priority email support'
     ],
     business: [
-      'Up to 150 active cars',
+      'Up to 100 active cars',
       'Unlimited sold cars tracking',
       'Full inventory management',
       'Complete expense tracking',
