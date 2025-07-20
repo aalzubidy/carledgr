@@ -27,7 +27,7 @@ app.carledgr.com {
 
 # Production backend API
 api.carledgr.com {
-    reverse_proxy localhost:3030
+    reverse_proxy localhost:3002
     encode gzip
     
     # Enable logging
