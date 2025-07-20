@@ -26,12 +26,36 @@ const pool = mysql.createPool(poolConfig);
 // Test database connection
 async function testConnection() {
   try {
+    logger.info('🔌 Testing database connection...');
+    logger.info(`📍 Connecting to: ${poolConfig.host}:${poolConfig.port}/${poolConfig.database}`);
+    logger.info(`👤 User: ${poolConfig.user}`);
+    logger.info(`🔐 SSL: ${poolConfig.ssl ? 'enabled' : 'disabled'}`);
+    
     const connection = await pool.getConnection();
-    logger.info('Database connection established successfully');
+    
+    // Test a simple query to ensure the database is working
+    await connection.execute('SELECT 1 as test');
+    
+    logger.info('✅ Database connection established successfully');
     connection.release();
     return true;
   } catch (error) {
-    logger.error(`Database connection failed: ${error.message}`);
+    logger.error('💥 Database connection failed!');
+    logger.error(`❌ Error: ${error.message}`);
+    logger.error(`🔍 Error code: ${error.code}`);
+    logger.error(`📋 Error details: ${error.sqlMessage || 'No SQL message'}`);
+    
+    // Provide helpful debugging info
+    if (error.code === 'ENOTFOUND') {
+      logger.error('🌐 DNS lookup failed - check hostname');
+    } else if (error.code === 'ECONNREFUSED') {
+      logger.error('🚫 Connection refused - check port and firewall');
+    } else if (error.code === 'ER_ACCESS_DENIED_ERROR') {
+      logger.error('🔑 Access denied - check username and password');
+    } else if (error.code === 'ER_BAD_DB_ERROR') {
+      logger.error('🗄️ Database not found - check database name');
+    }
+    
     return false;
   }
 }

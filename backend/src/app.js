@@ -70,8 +70,41 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/analytics', analyticsRoutes);
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+app.get('/health', async (req, res) => {
+  try {
+    const { testConnection } = require('./db/connection');
+    const { query } = require('./db/connection');
+    
+    // Test database connection
+    const dbConnected = await testConnection();
+    
+    if (!dbConnected) {
+      return res.status(503).json({ 
+        status: 'error', 
+        database: 'disconnected',
+        message: 'Database connection failed'
+      });
+    }
+    
+    // Test database tables exist
+    const tables = await query("SHOW TABLES");
+    const hasUserRoles = await query("SELECT COUNT(*) as count FROM user_roles");
+    
+    res.status(200).json({ 
+      status: 'ok',
+      database: 'connected',
+      tables: tables.length,
+      userRoles: hasUserRoles[0].count,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(503).json({ 
+      status: 'error', 
+      database: 'error',
+      message: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // 404 handler
