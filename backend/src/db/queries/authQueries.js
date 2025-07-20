@@ -28,9 +28,10 @@ const getAllRoles = async () => {
 // Get user by ID with role information
 const getUserById = async (userId) => {
   return query(`
-    SELECT u.*, r.role_name 
+    SELECT u.*, r.role_name, o.name as organization_name
     FROM users u 
     JOIN user_roles r ON u.role_id = r.id 
+    JOIN organizations o ON u.organization_id = o.id
     WHERE u.id = ?
   `, [userId]);
 };

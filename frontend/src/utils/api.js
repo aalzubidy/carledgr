@@ -591,12 +591,31 @@ const api = {
     return response;
   },
 
+  // License information with car count (for settings page - works with inactive licenses)
+  async getLicenseInfoWithUsage() {
+    const response = await makeRequest('/licenses/with-usage');
+    return response;
+  },
+
   // Stripe Customer Portal
   async createPortalSession(returnUrl) {
     return makeRequest('/stripe/create-portal-session', {
       method: 'POST',
       body: JSON.stringify({ return_url: returnUrl })
     });
+  },
+
+  // Internal Analytics
+  async trackEvent(eventData) {
+    try {
+      return makeRequest('/analytics/track', {
+        method: 'POST',
+        body: JSON.stringify(eventData)
+      });
+    } catch (error) {
+      // Don't let analytics errors break the app
+      console.log('Analytics tracking failed:', error);
+    }
   }
 };
 

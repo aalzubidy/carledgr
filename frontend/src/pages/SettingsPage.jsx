@@ -324,28 +324,24 @@ function SettingsPage() {
 
   const loadLicenseData = async () => {
     try {
-      // Get license information and cars data
-      const [licenseInfo, carsData] = await Promise.all([
-        api.getLicenseInfo(),
-        api.getCars()
-      ])
+      // Get license information with car count (works even for inactive licenses)
+      const licenseInfo = await api.getLicenseInfoWithUsage()
       
       setLicenseData(licenseInfo)
-      
-      // Count active cars (not sold)
-      const activeCars = carsData.filter(car => car.status !== 'sold')
-      setActiveCarsCount(activeCars.length)
+      setActiveCarsCount(licenseInfo.current_car_count || 0)
     } catch (error) {
       console.error('Error loading license data:', error)
       // Don't show error for this as it's not critical for the page function
     }
   }
 
-  const handleManageSubscription = async () => {
+  const handleManageSubscription = async (event) => {
     try {
       // Show loading state
       const button = event.target
       const originalText = button.textContent
+      const isActive = licenseData && licenseData.is_active
+      
       button.textContent = 'Opening...'
       button.disabled = true
 
@@ -362,9 +358,14 @@ function SettingsPage() {
       console.error('Error opening customer portal:', error)
       showError(error.message || 'Failed to open subscription management portal')
       
-      // Reset button
+      // Reset button to original state
       const button = event.target
-      button.textContent = '💳 Manage Subscription'
+      const isActive = licenseData && licenseData.is_active
+      if (isActive) {
+        button.textContent = '💳 Manage Subscription'
+      } else {
+        button.textContent = `🔄 ${t('settings.manageMembership')}`
+      }
       button.disabled = false
     }
   }
@@ -707,15 +708,29 @@ function SettingsPage() {
               <strong>Status:</strong> 
               <span style={{ 
                 color: licenseData.is_active ? '#28a745' : '#dc3545',
-                marginLeft: '5px'
+                marginLeft: '5px',
+                fontWeight: licenseData.is_active ? 'normal' : 'bold'
               }}>
                 {licenseData.is_active ? 'Active' : 'Inactive'}
               </span>
+              {!licenseData.is_active && (
+                                 <span style={{ 
+                   marginLeft: '10px',
+                   fontSize: '12px',
+                   color: '#856404',
+                   backgroundColor: '#fff3cd',
+                   padding: '2px 6px',
+                   borderRadius: '3px',
+                   border: '1px solid #ffeaa7'
+                 }}>
+                   {t('settings.subscriptionRequired')}
+                 </span>
+              )}
             </div>
           </div>
 
-          {/* Manage Subscription Button */}
-          {!licenseData.is_free_account && licenseData.is_active && (
+          {/* Subscription Management Buttons */}
+          {!licenseData.is_free_account && (
             <div style={{ 
               borderTop: '1px solid #dee2e6',
               paddingTop: '15px',
@@ -748,7 +763,10 @@ function SettingsPage() {
                 color: '#6c757d', 
                 margin: '8px 0 0 0' 
               }}>
-                Update payment method, view invoices, or cancel subscription
+                {licenseData.is_active 
+                  ? 'Update payment method, view invoices, or cancel subscription'
+                  : 'Reactivate your subscription or update billing information'
+                }
               </p>
             </div>
           )}
@@ -1394,10 +1412,33 @@ function SettingsPage() {
         </div>
 
         <div className="settings-content">
-          {/* License Usage Section */}
-          <div id="license">
-            {renderLicenseUsage()}
-          </div>
+                  {/* License Usage Section */}
+        <div id="license">
+          {/* Organization Name Header */}
+          {currentUser && (
+            <div style={{
+              backgroundColor: 'white',
+              border: '1px solid #dee2e6',
+              borderRadius: '10px',
+              padding: '20px',
+              marginBottom: '1rem',
+              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)'
+            }}>
+              <h2 style={{ 
+                margin: 0, 
+                color: '#2c3e50', 
+                fontSize: '1.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px'
+              }}>
+                <span>🏢</span>
+                {currentUser.organization_name || 'Organization'}
+              </h2>
+            </div>
+          )}
+          {renderLicenseUsage()}
+        </div>
           
           <div id="expense-categories" className="settings-section">
             <div className="table-container">

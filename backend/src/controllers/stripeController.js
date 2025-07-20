@@ -324,6 +324,14 @@ const handleSubscriptionUpdated = async (event) => {
       current_period_end: new Date(subscription.current_period_end * 1000)
     };
 
+    // Check for scheduled cancellation
+    if (subscription.cancel_at_period_end) {
+      logger.info(`Subscription ${subscription.id} scheduled for cancellation at period end`);
+      // Keep subscription active but track that it's scheduled for cancellation
+      // The actual deactivation will happen when subscription.deleted webhook fires
+      updates.subscription_status = 'active'; // Keep active until period ends
+    }
+
     // If price changed, update license tier
     if (priceId) {
       const [licenseTier] = await getLicenseTierByStripePrice(priceId);
@@ -352,10 +360,30 @@ const handleSubscriptionUpdated = async (event) => {
       }
     }
 
+    // Handle scheduled cancellation notification
+    if (subscription.cancel_at_period_end && !previousAttributes?.cancel_at_period_end) {
+      try {
+        const [org] = await getOrganizationById(organizationId);
+        if (org?.email) {
+          const cancelDate = new Date(subscription.current_period_end * 1000);
+          await sendSubscriptionStatusEmail(
+            org.name, 
+            org.email, 
+            'scheduled_cancellation',
+            `Your subscription will be canceled on ${cancelDate.toLocaleDateString()}`
+          );
+        }
+      } catch (emailError) {
+        logger.error(`Failed to send scheduled cancellation email: ${emailError.message}`);
+      }
+    }
+
     return {
       status: 'success',
       organization_id: organizationId,
-      subscription_status: subscription.status
+      subscription_status: subscription.status,
+      cancel_at_period_end: subscription.cancel_at_period_end,
+      current_period_end: subscription.current_period_end
     };
 
   } catch (error) {

@@ -159,7 +159,8 @@ const getCurrentUser = async (req, res, next) => {
       lastName: user.last_name,
       role: user.role_name,
       roleId: user.role_id,
-      organizationId: user.organization_id
+      organizationId: user.organization_id,
+      organization_name: user.organization_name
     });
     
   } catch (error) {
@@ -329,6 +330,23 @@ const forgotPassword = async (req, res, next) => {
   }
 };
 
+// Logout (for logging purposes - JWT is stateless)
+const logout = async (req, res, next) => {
+  try {
+    // Log the logout action
+    logger.info(`User ${req.user.id} (${req.user.email}) logged out`);
+    
+    // Since JWT is stateless, we just return success
+    // The frontend will remove the token from localStorage
+    res.json({ 
+      success: true, 
+      message: 'Logged out successfully' 
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   login,
   register,
@@ -337,5 +355,6 @@ module.exports = {
   getRoles,
   updateProfile,
   updatePassword,
-  forgotPassword
+  forgotPassword,
+  logout
 }; 

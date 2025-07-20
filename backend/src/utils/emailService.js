@@ -200,6 +200,10 @@ const sendSubscriptionStatusEmail = async (organizationName, ownerEmail, status,
         subject = 'CarLedgr - Subscription Reactivated';
         message = 'Great news! Your CarLedgr subscription is now active again.';
         break;
+      case 'scheduled_cancellation':
+        subject = 'CarLedgr - Subscription Cancellation Scheduled';
+        message = 'Your subscription has been scheduled for cancellation. You can reactivate anytime before the cancellation date.';
+        break;
       default:
         subject = 'CarLedgr - Subscription Update';
         message = `Your subscription status has been updated to: ${status}`;

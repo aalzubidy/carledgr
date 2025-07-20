@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://carledgr.com/sitemap.xml
+
+# Disallow sensitive areas (if any)
+Disallow: /admin/
+Disallow: /api/
+
+# Allow common crawl paths
+Allow: /img/
+Allow: /styles.css
+Allow: /script.js 

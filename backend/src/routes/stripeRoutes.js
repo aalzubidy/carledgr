@@ -4,6 +4,7 @@ const { handleWebhook } = require('../controllers/stripeController');
 const { createCheckoutSession, createPortalSession } = require('../utils/stripeService');
 const { authenticateJWT } = require('../middleware/auth');
 const { requireOrganization } = require('../middleware/roleAuth');
+const { checkLicenseViewOnly } = require('../middleware/licenseCheck');
 const { getLicenseWithTierByOrganizationId } = require('../db/queries/licenseQueries');
 
 // Webhook endpoint (needs raw body)
@@ -41,8 +42,8 @@ router.post('/create-checkout-session', async (req, res, next) => {
   }
 });
 
-// Create customer portal session for subscription management
-router.post('/create-portal-session', requireOrganization, async (req, res, next) => {
+// Create customer portal session for subscription management (allow inactive licenses)
+router.post('/create-portal-session', requireOrganization, checkLicenseViewOnly, async (req, res, next) => {
   try {
     const { return_url } = req.body;
     const organizationId = req.user.organization_id;
@@ -73,8 +74,8 @@ router.post('/create-portal-session', requireOrganization, async (req, res, next
   }
 });
 
-// Get subscription status
-router.get('/subscription-status', requireOrganization, async (req, res, next) => {
+// Get subscription status (allow inactive licenses)
+router.get('/subscription-status', requireOrganization, checkLicenseViewOnly, async (req, res, next) => {
   try {
     const organizationId = req.user.organization_id;
     const [license] = await getLicenseWithTierByOrganizationId(organizationId);
