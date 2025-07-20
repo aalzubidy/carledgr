@@ -115,8 +115,27 @@ const checkStatusChange = async (req, res, next) => {
   }
 };
 
+// Check license for viewing only (allows inactive licenses to be viewed)
+const checkLicenseViewOnly = async (req, res, next) => {
+  try {
+    const organizationId = req.user.organization_id;
+    const [license] = await getLicenseWithTierByOrganizationId(organizationId);
+    
+    if (!license) {
+      throw new ForbiddenError('No license found for organization. Please contact support.');
+    }
+    
+    // Allow viewing even if inactive - just attach license info
+    req.license = license;
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = { 
   checkLicenseLimit, 
   checkLicenseStatus, 
-  checkStatusChange 
+  checkStatusChange,
+  checkLicenseViewOnly
 }; 
