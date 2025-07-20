@@ -1,5 +1,6 @@
 # Admin Control Panel (local only)
 admincp/config/config.json
+admincp/config/config.json.tmp
 admincp/node_modules/
 admincp/npm-debug.log*
 admincp/yarn-debug.log*

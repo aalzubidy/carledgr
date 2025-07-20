@@ -130,53 +130,29 @@ async function migrateLicensing() {
     }
     console.log('✓ Default license tiers inserted');
     
-    // Get Admin Organization and assign Champion license
-    const [adminOrgs] = await connection.execute(
-      'SELECT id FROM organizations WHERE name = "Admin Organization" LIMIT 1'
-    );
-    
-    if (adminOrgs.length > 0) {
-      const adminOrgId = adminOrgs[0].id;
-      
-      // Check if license already exists
-      const [existingLicense] = await connection.execute(
-        'SELECT id FROM organization_licenses WHERE organization_id = ?',
-        [adminOrgId]
-      );
-      
-      if (existingLicense.length === 0) {
-        const licenseId = uuidv4();
-        await connection.execute(
-          `INSERT INTO organization_licenses 
-           (id, organization_id, license_type, car_limit, is_free_account, free_reason) 
-           VALUES (?, ?, 'champion', 10000, TRUE, 'admin_organization')`,
-          [licenseId, adminOrgId]
-        );
-        console.log('✓ Champion license assigned to Admin Organization');
-      } else {
-        console.log('✓ Admin Organization already has a license');
-      }
-    } else {
-      console.log('⚠ Admin Organization not found - will be created on next startup');
-    }
-    
     // Create default licenses for any existing organizations without licenses
     const [orgsWithoutLicense] = await connection.execute(`
       SELECT o.id, o.name 
       FROM organizations o 
       LEFT JOIN organization_licenses ol ON o.id = ol.organization_id 
-      WHERE ol.id IS NULL AND o.name != 'Admin Organization'
+      WHERE ol.id IS NULL
     `);
     
-    for (const org of orgsWithoutLicense) {
-      const licenseId = uuidv4();
-      await connection.execute(
-        `INSERT INTO organization_licenses 
-         (id, organization_id, license_type, car_limit, is_free_account, free_reason) 
-         VALUES (?, ?, 'champion', 10000, TRUE, 'existing_organization')`,
-        [licenseId, org.id]
-      );
-      console.log(`✓ Champion license assigned to existing organization: ${org.name}`);
+    if (orgsWithoutLicense.length > 0) {
+      console.log(`Found ${orgsWithoutLicense.length} organizations without licenses, assigning champion licenses...`);
+      
+      for (const org of orgsWithoutLicense) {
+        const licenseId = uuidv4();
+        await connection.execute(
+          `INSERT INTO organization_licenses 
+           (id, organization_id, license_type, car_limit, is_free_account, free_reason) 
+           VALUES (?, ?, 'champion', 10000, TRUE, 'existing_organization')`,
+          [licenseId, org.id]
+        );
+        console.log(`✓ Champion license assigned to existing organization: ${org.name}`);
+      }
+    } else {
+      console.log('✓ No organizations found that need licenses');
     }
     
     await connection.commit();

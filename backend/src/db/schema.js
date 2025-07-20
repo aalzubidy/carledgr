@@ -2,7 +2,6 @@ const { pool } = require('./connection');
 const logger = require('../utils/logger');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
-const { migrateLicensing } = require('./migrations/add-licensing');
 const fs = require('fs');
 const path = require('path');
 
@@ -116,6 +115,57 @@ const createTableStatements = [
     FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES organization_expense_categories(id),
     FOREIGN KEY (created_by_user_id) REFERENCES users(id)
+  )`,
+
+  // License Tiers table
+  `CREATE TABLE IF NOT EXISTS license_tiers (
+    id VARCHAR(36) PRIMARY KEY,
+    tier_name VARCHAR(50) NOT NULL UNIQUE,
+    display_name VARCHAR(100) NOT NULL,
+    car_limit INT NOT NULL,
+    monthly_price DECIMAL(8, 2) NOT NULL,
+    stripe_price_id VARCHAR(255) NULL,
+    is_available_online BOOLEAN DEFAULT TRUE,
+    sort_order INT DEFAULT 0,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  )`,
+
+  // Organization Licenses table
+  `CREATE TABLE IF NOT EXISTS organization_licenses (
+    id VARCHAR(36) PRIMARY KEY,
+    organization_id VARCHAR(36) NOT NULL,
+    license_type VARCHAR(50) NOT NULL,
+    car_limit INT NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    is_free_account BOOLEAN DEFAULT FALSE,
+    free_reason VARCHAR(255) NULL,
+    stripe_customer_id VARCHAR(255) NULL,
+    stripe_subscription_id VARCHAR(255) NULL,
+    subscription_status ENUM('active', 'past_due', 'canceled', 'incomplete', 'trialing', 'unpaid') NULL,
+    current_period_start TIMESTAMP NULL,
+    current_period_end TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE,
+    FOREIGN KEY (license_type) REFERENCES license_tiers(tier_name),
+    UNIQUE KEY unique_org_license (organization_id)
+  )`,
+
+  // Stripe Events table
+  `CREATE TABLE IF NOT EXISTS stripe_events (
+    id VARCHAR(36) PRIMARY KEY,
+    stripe_event_id VARCHAR(255) NOT NULL UNIQUE,
+    event_type VARCHAR(100) NOT NULL,
+    processed BOOLEAN DEFAULT FALSE,
+    organization_id VARCHAR(36) NULL,
+    subscription_id VARCHAR(255) NULL,
+    customer_id VARCHAR(255) NULL,
+    event_data JSON NOT NULL,
+    processed_at TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE SET NULL
   )`,
 
   // System Info table
@@ -365,31 +415,136 @@ async function initializeExpenseCategories(connection, categories) {
   }
 }
 
+// Initialize user roles
+async function initializeUserRoles(connection) {
+  try {
+    logger.info('Initializing user roles...');
+    
+    // Check if roles already exist
+    const [existingRoles] = await connection.execute('SELECT COUNT(*) as count FROM user_roles');
+    
+    if (existingRoles[0].count === 0) {
+      // Insert default user roles
+      const defaultRoles = [
+        { id: 1, role_name: 'owner' },
+        { id: 2, role_name: 'manager' },
+        { id: 3, role_name: 'operator' }
+      ];
+      
+      for (const role of defaultRoles) {
+        await connection.execute(
+          'INSERT INTO user_roles (id, role_name) VALUES (?, ?)',
+          [role.id, role.role_name]
+        );
+        logger.info(`Created user role: ${role.role_name} (${role.id})`);
+      }
+      
+      logger.info('✅ User roles initialized successfully');
+    } else {
+      logger.info('✅ User roles already exist, skipping initialization');
+    }
+  } catch (error) {
+    logger.error(`Error initializing user roles: ${error.message}`);
+    throw error;
+  }
+}
+
+// Initialize license tiers
+async function initializeLicenseTiers(connection) {
+  try {
+    logger.info('🏷️ Initializing license tiers...');
+    
+    // Check if license tiers already exist
+    const [existingTiers] = await connection.execute('SELECT COUNT(*) as count FROM license_tiers');
+    
+    if (existingTiers[0].count === 0) {
+      // Insert default license tiers
+      const defaultTiers = [
+        {
+          id: uuidv4(),
+          tier_name: 'starter',
+          display_name: 'Starter Plan',
+          car_limit: 25,
+          monthly_price: 29.99,
+          stripe_price_id: null,
+          sort_order: 1
+        },
+        {
+          id: uuidv4(),
+          tier_name: 'professional',
+          display_name: 'Professional Plan',
+          car_limit: 100,
+          monthly_price: 79.99,
+          stripe_price_id: null,
+          sort_order: 2
+        },
+        {
+          id: uuidv4(),
+          tier_name: 'enterprise',
+          display_name: 'Enterprise Plan',
+          car_limit: 500,
+          monthly_price: 199.99,
+          stripe_price_id: null,
+          sort_order: 3
+        },
+        {
+          id: uuidv4(),
+          tier_name: 'champion',
+          display_name: 'Champion Plan',
+          car_limit: 10000,
+          monthly_price: 0.00,
+          stripe_price_id: null,
+          sort_order: 4,
+          is_available_online: false
+        }
+      ];
+      
+      for (const tier of defaultTiers) {
+        await connection.execute(
+          `INSERT INTO license_tiers 
+           (id, tier_name, display_name, car_limit, monthly_price, stripe_price_id, sort_order, is_available_online) 
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [tier.id, tier.tier_name, tier.display_name, tier.car_limit, tier.monthly_price, tier.stripe_price_id, tier.sort_order, tier.is_available_online || true]
+        );
+        logger.info(`Created license tier: ${tier.tier_name} - ${tier.display_name}`);
+      }
+      
+      logger.info('✅ License tiers initialized successfully');
+    } else {
+      logger.info('✅ License tiers already exist, skipping initialization');
+    }
+  } catch (error) {
+    logger.error(`Error initializing license tiers: ${error.message}`);
+    throw error;
+  }
+}
+
 // Initialize the database schema
 async function initializeSchema() {
   const connection = await pool.getConnection();
   
   try {
+    logger.info('🔧 Starting database schema initialization...');
     await connection.beginTransaction();
     
-    // Create tables
-    for (const statement of createTableStatements) {
+    // Step 1: Create all tables
+    logger.info('📋 Creating database tables...');
+    for (let i = 0; i < createTableStatements.length; i++) {
+      const statement = createTableStatements[i];
       await connection.execute(statement);
-      logger.info('Table created successfully');
+      logger.info(`✅ Table ${i + 1}/${createTableStatements.length} created successfully`);
     }
+    
+    // Step 2: Initialize user roles (critical for system to function)
+    await initializeUserRoles(connection);
+    
+         // Step 3: Initialize license tiers
+     await initializeLicenseTiers(connection);
 
-    // Load default categories from config
-    const defaultCategories = loadDefaultCategories();
-    
-    // Check if default categories need to be synced
-    const configPath = path.join(__dirname, '../../config/default-categories.json');
-    const currentFileModTime = getFileLastModified(configPath);
-    const lastSyncTime = await getSystemInfo(connection, 'default_categories_last_modified');
-    
-    const needsSync = !lastSyncTime || currentFileModTime > parseInt(lastSyncTime);
-    
-    if (needsSync) {
-      logger.info('Default categories config has been modified, syncing...');
+    // Step 4: Initialize default categories
+    logger.info('📁 Initializing default categories...');
+    try {
+      const defaultCategories = loadDefaultCategories();
       
       // Initialize maintenance categories
       await initializeMaintenanceCategories(connection, defaultCategories.maintenance_categories);
@@ -398,19 +553,28 @@ async function initializeSchema() {
       await initializeExpenseCategories(connection, defaultCategories.expense_categories);
       
       // Update the last sync time
+      const configPath = path.join(__dirname, '../../config/default-categories.json');
+      const currentFileModTime = getFileLastModified(configPath);
       await setSystemInfo(connection, 'default_categories_last_modified', currentFileModTime.toString());
       
-      logger.info('Default categories sync completed');
-    } else {
-      logger.info('Default categories are up to date, skipping sync');
+      logger.info('✅ Default categories initialized successfully');
+    } catch (categoryError) {
+      logger.error(`Category initialization failed: ${categoryError.message}`);
+      // Categories are not critical, continue without them
+      logger.info('⚠️ Continuing without default categories...');
     }
 
     await connection.commit();
-    logger.info('Database schema initialized successfully');
+    logger.info('🎉 Database schema initialized successfully!');
+    
+    // Log summary of what was created
+    const [tables] = await connection.execute("SHOW TABLES");
+    logger.info(`📊 Database ready with ${tables.length} tables`);
     
   } catch (error) {
     await connection.rollback();
-    logger.error(`Failed to initialize database schema: ${error.message}`);
+    logger.error(`💥 Failed to initialize database schema: ${error.message}`);
+    logger.error(`Stack trace: ${error.stack}`);
     throw error;
   } finally {
     connection.release();
