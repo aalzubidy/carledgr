@@ -1,3 +1,10 @@
+# Admin Control Panel (local only)
+admincp/config/config.json
+admincp/node_modules/
+admincp/npm-debug.log*
+admincp/yarn-debug.log*
+admincp/yarn-error.log*
+
 # Dependencies
 backend/node_modules/
 frontend/node_modules/

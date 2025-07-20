@@ -1,29 +1,67 @@
 openapi: 3.0.0
 info:
   title: CarLedgr API
-  description: Car Finance Management System API
-  version: 1.0.0
+  description: |
+    Comprehensive dealership management system API for vehicle repair and resale businesses.
+    
+    **Authentication:** Most endpoints require JWT token in Authorization header: `Bearer <token>`
+    
+    **Organization Isolation:** All data is automatically scoped to the authenticated user's organization
+    
+    **License Enforcement:** Some endpoints check subscription status and car limits
+  version: 2.0.0
   contact:
     name: CarLedgr API Support
+    url: https://carledgr.com
+  license:
+    name: Proprietary
 servers:
-  - url: http://localhost:3000/api
+  - url: http://localhost:3030/api
     description: Development server
+  - url: https://demo-api.carledgr.com/api
+    description: Demo server
+  - url: https://api.carledgr.com/api
+    description: Production server
+
+security:
+  - BearerAuth: []
+
 paths:
+  # Authentication Endpoints
+  /auth/organizations:
+    get:
+      tags: [Authentication]
+      summary: Get all organizations
+      description: Public endpoint to get list of organizations for login dropdown
+      security: []
+      responses:
+        '200':
+          description: List of organizations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                    name:
+                      type: string
+
   /auth/login:
     post:
-      tags:
-        - Authentication
+      tags: [Authentication]
       summary: User login
+      security: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required:
-                - organization
-                - email
-                - password
+              required: [organization, email, password]
               properties:
                 organization:
                   type: string
@@ -31,10 +69,9 @@ paths:
                 email:
                   type: string
                   format: email
-                  description: User email
                 password:
                   type: string
-                  description: User password
+                  format: password
       responses:
         '200':
           description: Login successful
@@ -50,171 +87,214 @@ paths:
                     description: JWT token
         '401':
           $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
 
-  /auth/register:
+  /auth/logout:
     post:
-      tags:
-        - Authentication
-      summary: Register new user (Admin/Org Admin only)
-      security:
-        - bearerAuth: []
+      tags: [Authentication]
+      summary: User logout
+      description: Logs the logout action for audit purposes
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+
+  /auth/forgot-password:
+    post:
+      tags: [Authentication]
+      summary: Request password reset
+      security: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required:
-                - organization_id
-                - email
-                - password
-                - first_name
-                - last_name
+              required: [organization, email]
               properties:
-                organization_id:
+                organization:
                   type: string
-                  format: uuid
                 email:
                   type: string
                   format: email
-                password:
-                  type: string
-                first_name:
-                  type: string
-                last_name:
-                  type: string
-                role:
-                  type: string
-                  enum: [user, org_admin, admin]
-                  default: user
       responses:
-        '201':
-          description: User created successfully
+        '200':
+          description: Reset email sent
+        '404':
+          description: User not found
+
+  /auth/me:
+    get:
+      tags: [Authentication]
+      summary: Get current user profile
+      responses:
+        '200':
+          description: Current user info
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
 
-  /auth/organizations:
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register new user (Owner only)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUser'
+      responses:
+        '201':
+          description: User created
+        '403':
+          description: Insufficient permissions
+
+  /auth/roles:
     get:
-      tags:
-        - Authentication
-      summary: Get all organizations
+      tags: [Authentication]
+      summary: Get user roles (Owner only)
       responses:
         '200':
-          description: Organizations retrieved successfully
+          description: List of roles
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Organization'
+                  $ref: '#/components/schemas/Role'
 
-  /auth/me:
-    get:
-      tags:
-        - Authentication
-      summary: Get current user profile
-      security:
-        - bearerAuth: []
+  /auth/profile:
+    put:
+      tags: [Authentication]
+      summary: Update user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                  format: email
       responses:
         '200':
-          description: User profile retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+          description: Profile updated
 
+  /auth/password:
+    put:
+      tags: [Authentication]
+      summary: Update password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [current_password, new_password]
+              properties:
+                current_password:
+                  type: string
+                  format: password
+                new_password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Password updated
+
+  # Car Management
   /cars:
     get:
-      tags:
-        - Cars
+      tags: [Cars]
       summary: Get all cars
-      security:
-        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [in_stock, pending, sold]
+        - name: make
+          in: query
+          schema:
+            type: string
+        - name: model
+          in: query
+          schema:
+            type: string
+        - name: year
+          in: query
+          schema:
+            type: integer
       responses:
         '200':
-          description: Cars retrieved successfully
+          description: List of cars
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Car'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
 
     post:
-      tags:
-        - Cars
+      tags: [Cars]
       summary: Create new car
-      security:
-        - bearerAuth: []
+      description: Requires active license and available car slots
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CarInput'
+              $ref: '#/components/schemas/CreateCar'
       responses:
         '201':
-          description: Car created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Car'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+          description: Car created
+        '403':
+          description: License limit reached
 
   /cars/statistics:
     get:
-      tags:
-        - Cars
+      tags: [Cars]
       summary: Get car statistics
-      security:
-        - bearerAuth: []
       responses:
         '200':
-          description: Statistics retrieved successfully
+          description: Car statistics
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  totalCars:
-                    type: integer
-                  inStock:
-                    type: integer
-                  sold:
-                    type: integer
-                  pending:
-                    type: integer
+                $ref: '#/components/schemas/CarStatistics'
 
   /cars/search:
     get:
-      tags:
-        - Cars
+      tags: [Cars]
       summary: Search cars
-      security:
-        - bearerAuth: []
       parameters:
         - name: q
           in: query
-          description: Search query
+          required: true
           schema:
             type: string
+          description: Search query
+        - name: filters
+          in: query
+          schema:
+            type: string
+          description: JSON encoded filters
       responses:
         '200':
           description: Search results
@@ -224,16 +304,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Car'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
 
   /cars/{id}:
     get:
-      tags:
-        - Cars
+      tags: [Cars]
       summary: Get car by ID
-      security:
-        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -243,22 +318,17 @@ paths:
             format: uuid
       responses:
         '200':
-          description: Car retrieved successfully
+          description: Car details
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Car'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
         '404':
-          $ref: '#/components/responses/NotFound'
+          description: Car not found
 
     put:
-      tags:
-        - Cars
+      tags: [Cars]
       summary: Update car
-      security:
-        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -271,27 +341,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CarInput'
+              $ref: '#/components/schemas/UpdateCar'
       responses:
         '200':
-          description: Car updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Car'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+          description: Car updated
+        '403':
+          description: License limit would be exceeded
 
     delete:
-      tags:
-        - Cars
+      tags: [Cars]
       summary: Delete car
-      security:
-        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -300,75 +359,73 @@ paths:
             type: string
             format: uuid
       responses:
-        '204':
-          description: Car deleted successfully
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        '200':
+          description: Car deleted
 
+  # Maintenance Management
   /maintenance:
     get:
-      tags:
-        - Maintenance
+      tags: [Maintenance]
       summary: Get all maintenance records
-      security:
-        - bearerAuth: []
+      parameters:
+        - name: car_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: category_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
       responses:
         '200':
-          description: Maintenance records retrieved successfully
+          description: List of maintenance records
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/MaintenanceRecord'
+                  $ref: '#/components/schemas/Maintenance'
 
     post:
-      tags:
-        - Maintenance
+      tags: [Maintenance]
       summary: Create maintenance record
-      security:
-        - bearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MaintenanceInput'
+              $ref: '#/components/schemas/CreateMaintenance'
       responses:
         '201':
-          description: Maintenance record created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MaintenanceRecord'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+          description: Maintenance record created
 
   /maintenance/statistics:
     get:
-      tags:
-        - Maintenance
+      tags: [Maintenance]
       summary: Get maintenance statistics
-      security:
-        - bearerAuth: []
       responses:
         '200':
-          description: Statistics retrieved successfully
+          description: Maintenance statistics
 
   /maintenance/categories:
     get:
-      tags:
-        - Maintenance
+      tags: [Maintenance]
       summary: Get maintenance categories
-      security:
-        - bearerAuth: []
       responses:
         '200':
-          description: Categories retrieved successfully
+          description: List of categories
           content:
             application/json:
               schema:
@@ -377,37 +434,22 @@ paths:
                   $ref: '#/components/schemas/MaintenanceCategory'
 
     post:
-      tags:
-        - Maintenance
-      summary: Create maintenance category (Admin/Org Admin only)
-      security:
-        - bearerAuth: []
+      tags: [Maintenance]
+      summary: Create maintenance category (Owner only)
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - name
-              properties:
-                name:
-                  type: string
+              $ref: '#/components/schemas/CreateMaintenanceCategory'
       responses:
         '201':
-          description: Category created successfully
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
+          description: Category created
 
   /maintenance/categories/{id}:
     put:
-      tags:
-        - Maintenance
-      summary: Update maintenance category (Admin/Org Admin only)
-      security:
-        - bearerAuth: []
+      tags: [Maintenance]
+      summary: Update maintenance category (Owner only)
       parameters:
         - name: id
           in: path
@@ -420,28 +462,14 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - name
-              properties:
-                name:
-                  type: string
+              $ref: '#/components/schemas/UpdateMaintenanceCategory'
       responses:
         '200':
-          description: Category updated successfully
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
+          description: Category updated
 
     delete:
-      tags:
-        - Maintenance
-      summary: Delete maintenance category (Admin/Org Admin only)
-      security:
-        - bearerAuth: []
+      tags: [Maintenance]
+      summary: Delete maintenance category (Owner only)
       parameters:
         - name: id
           in: path
@@ -450,22 +478,13 @@ paths:
             type: string
             format: uuid
       responses:
-        '204':
-          description: Category deleted successfully
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        '200':
+          description: Category deleted
 
   /maintenance/car/{carId}:
     get:
-      tags:
-        - Maintenance
-      summary: Get maintenance records for a car
-      security:
-        - bearerAuth: []
+      tags: [Maintenance]
+      summary: Get maintenance records for specific car
       parameters:
         - name: carId
           in: path
@@ -475,21 +494,18 @@ paths:
             format: uuid
       responses:
         '200':
-          description: Maintenance records retrieved successfully
+          description: Car maintenance records
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/MaintenanceRecord'
+                  $ref: '#/components/schemas/Maintenance'
 
   /maintenance/{id}:
     get:
-      tags:
-        - Maintenance
+      tags: [Maintenance]
       summary: Get maintenance record by ID
-      security:
-        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -499,18 +515,15 @@ paths:
             format: uuid
       responses:
         '200':
-          description: Maintenance record retrieved successfully
+          description: Maintenance record
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MaintenanceRecord'
+                $ref: '#/components/schemas/Maintenance'
 
     put:
-      tags:
-        - Maintenance
+      tags: [Maintenance]
       summary: Update maintenance record
-      security:
-        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -523,21 +536,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MaintenanceInput'
+              $ref: '#/components/schemas/UpdateMaintenance'
       responses:
         '200':
-          description: Maintenance record updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MaintenanceRecord'
+          description: Maintenance record updated
 
     delete:
-      tags:
-        - Maintenance
+      tags: [Maintenance]
       summary: Delete maintenance record
-      security:
-        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -546,202 +552,746 @@ paths:
             type: string
             format: uuid
       responses:
-        '204':
-          description: Maintenance record deleted successfully
+        '200':
+          description: Maintenance record deleted
 
-  /dashboard/summary:
+  # Expenses Management
+  /expenses:
     get:
-      tags:
-        - Dashboard
-      summary: Get dashboard summary
-      security:
-        - bearerAuth: []
+      tags: [Expenses]
+      summary: Get all expenses (Owner/Manager only)
+      parameters:
+        - name: category_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
       responses:
         '200':
-          description: Dashboard summary retrieved successfully
+          description: List of expenses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Expense'
+
+    post:
+      tags: [Expenses]
+      summary: Create expense (Owner/Manager only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExpense'
+      responses:
+        '201':
+          description: Expense created
+
+  /expenses/summary:
+    get:
+      tags: [Expenses]
+      summary: Get expense summary (Owner/Manager only)
+      responses:
+        '200':
+          description: Expense summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseSummary'
+
+  /expenses/categories:
+    get:
+      tags: [Expenses]
+      summary: Get expense categories
+      responses:
+        '200':
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExpenseCategory'
+
+    post:
+      tags: [Expenses]
+      summary: Create expense category (Owner only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExpenseCategory'
+      responses:
+        '201':
+          description: Category created
+
+  /expenses/categories/{id}:
+    put:
+      tags: [Expenses]
+      summary: Update expense category (Owner only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Category updated
+
+    delete:
+      tags: [Expenses]
+      summary: Delete expense category (Owner only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Category deleted
+
+  /expenses/{id}:
+    get:
+      tags: [Expenses]
+      summary: Get expense by ID (Owner/Manager only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Expense details
+
+    put:
+      tags: [Expenses]
+      summary: Update expense (Owner/Manager only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Expense updated
+
+    delete:
+      tags: [Expenses]
+      summary: Delete expense (Owner/Manager only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Expense deleted
+
+  # Dashboard
+  /dashboard/summary:
+    get:
+      tags: [Dashboard]
+      summary: Get dashboard summary
+      responses:
+        '200':
+          description: Dashboard summary data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummary'
+
+  /dashboard/top-sold-models:
+    get:
+      tags: [Dashboard]
+      summary: Get top sold car models
+      responses:
+        '200':
+          description: Top sold models
+
+  /dashboard/top-maintenance:
+    get:
+      tags: [Dashboard]
+      summary: Get top maintenance items
+      responses:
+        '200':
+          description: Top maintenance items
+
+  /dashboard/car-metrics:
+    get:
+      tags: [Dashboard]
+      summary: Get car metrics
+      responses:
+        '200':
+          description: Car metrics
+
+  # Reports
+  /reports/inventory:
+    get:
+      tags: [Reports]
+      summary: Generate inventory report
+      parameters:
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [in_stock, pending, sold]
+      responses:
+        '200':
+          description: Inventory report
+
+  /reports/sales:
+    get:
+      tags: [Reports]
+      summary: Generate sales report
+      parameters:
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Sales report
+
+  /reports/maintenance:
+    get:
+      tags: [Reports]
+      summary: Generate maintenance report
+      parameters:
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: car_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Maintenance report
+
+  /reports/profit:
+    get:
+      tags: [Reports]
+      summary: Generate profit report
+      parameters:
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Profit report
+
+  # License Management
+  /licenses:
+    get:
+      tags: [Licenses]
+      summary: Get current organization license info
+      responses:
+        '200':
+          description: License information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/License'
+
+  /licenses/with-usage:
+    get:
+      tags: [Licenses]
+      summary: Get license info with current usage
+      description: Returns license details including current car count (works with inactive licenses)
+      responses:
+        '200':
+          description: License information with usage
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseWithUsage'
+
+  /licenses/{organizationId}:
+    get:
+      tags: [Licenses]
+      summary: Get license info by organization (Owner only)
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: License information
+
+    put:
+      tags: [Licenses]
+      summary: Update license (Owner only)
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLicense'
+      responses:
+        '200':
+          description: License updated
+
+  /licenses/free:
+    post:
+      tags: [Licenses]
+      summary: Create free license (Owner only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFreeLicense'
+      responses:
+        '201':
+          description: Free license created
+
+  # License Tiers
+  /license-tiers/available:
+    get:
+      tags: [License Tiers]
+      summary: Get available license tiers
+      security: []
+      responses:
+        '200':
+          description: Available license tiers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LicenseTier'
+
+  /license-tiers:
+    get:
+      tags: [License Tiers]
+      summary: Get all license tiers (Owner only)
+      responses:
+        '200':
+          description: All license tiers
+
+    post:
+      tags: [License Tiers]
+      summary: Create license tier (Owner only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLicenseTier'
+      responses:
+        '201':
+          description: License tier created
+
+  /license-tiers/{tierName}:
+    get:
+      tags: [License Tiers]
+      summary: Get license tier by name (Owner only)
+      parameters:
+        - name: tierName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: License tier details
+
+    put:
+      tags: [License Tiers]
+      summary: Update license tier (Owner only)
+      parameters:
+        - name: tierName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: License tier updated
+
+  # User Management
+  /users:
+    get:
+      tags: [Users]
+      summary: Get organization users (Owner only)
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+    post:
+      tags: [Users]
+      summary: Create organization user (Owner only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUser'
+      responses:
+        '201':
+          description: User created
+
+  /users/roles:
+    get:
+      tags: [Users]
+      summary: Get user roles
+      responses:
+        '200':
+          description: List of roles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Role'
+
+  /users/{id}:
+    put:
+      tags: [Users]
+      summary: Update organization user (Owner only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUser'
+      responses:
+        '200':
+          description: User updated
+
+    delete:
+      tags: [Users]
+      summary: Delete organization user (Owner only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User deleted
+
+  # Organization Management
+  /organizations/check-name/{name}:
+    get:
+      tags: [Organizations]
+      summary: Check organization name availability
+      security: []
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Name availability status
+
+  /organizations:
+    get:
+      tags: [Organizations]
+      summary: Get all organizations (Owner only)
+      responses:
+        '200':
+          description: List of organizations
+
+    post:
+      tags: [Organizations]
+      summary: Create organization (Owner only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrganization'
+      responses:
+        '201':
+          description: Organization created
+
+  /organizations/{id}:
+    get:
+      tags: [Organizations]
+      summary: Get organization by ID (Owner only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Organization details
+
+    put:
+      tags: [Organizations]
+      summary: Update organization (Owner only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Organization updated
+
+    delete:
+      tags: [Organizations]
+      summary: Delete organization (Owner only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Organization deleted
+
+  # Stripe Integration
+  /stripe/webhook:
+    post:
+      tags: [Stripe]
+      summary: Stripe webhook handler
+      security: []
+      description: Handles Stripe webhook events for subscription management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Webhook processed
+
+  /stripe/create-checkout-session:
+    post:
+      tags: [Stripe]
+      summary: Create Stripe checkout session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [price_id, success_url, cancel_url]
+              properties:
+                price_id:
+                  type: string
+                success_url:
+                  type: string
+                cancel_url:
+                  type: string
+                trial_days:
+                  type: integer
+      responses:
+        '200':
+          description: Checkout session created
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  totalCars:
-                    type: integer
-                  inStock:
-                    type: integer
-                  sold:
-                    type: integer
-                  pending:
-                    type: integer
-                  totalRevenue:
-                    type: number
-                  totalProfit:
-                    type: number
-                  totalMaintenanceCost:
-                    type: number
+                  checkout_url:
+                    type: string
 
-  /dashboard/top-sold-models:
-    get:
-      tags:
-        - Dashboard
-      summary: Get top sold models
-      security:
-        - bearerAuth: []
+  /stripe/create-portal-session:
+    post:
+      tags: [Stripe]
+      summary: Create Stripe customer portal session
+      description: Works with both active and inactive licenses
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [return_url]
+              properties:
+                return_url:
+                  type: string
       responses:
         '200':
-          description: Top sold models retrieved successfully
+          description: Portal session created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  portal_url:
+                    type: string
 
-  /dashboard/top-maintenance:
+  /stripe/subscription-status:
     get:
-      tags:
-        - Dashboard
-      summary: Get top maintenance categories
-      security:
-        - bearerAuth: []
+      tags: [Stripe]
+      summary: Get subscription status
+      description: Works with both active and inactive licenses
       responses:
         '200':
-          description: Top maintenance categories retrieved successfully
+          description: Subscription status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionStatus'
 
-  /dashboard/car-metrics:
+  # Subscriptions
+  /subscriptions/plans:
     get:
-      tags:
-        - Dashboard
-      summary: Get car metrics
-      security:
-        - bearerAuth: []
+      tags: [Subscriptions]
+      summary: Get available subscription plans
+      security: []
       responses:
         '200':
-          description: Car metrics retrieved successfully
-
-  /reports/inventory:
-    get:
-      tags:
-        - Reports
-      summary: Get inventory report
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: startDate
-          in: query
-          schema:
-            type: string
-            format: date
-        - name: endDate
-          in: query
-          schema:
-            type: string
-            format: date
-      responses:
-        '200':
-          description: Inventory report retrieved successfully
-
-  /reports/sales:
-    get:
-      tags:
-        - Reports
-      summary: Get sales report
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: startDate
-          in: query
-          schema:
-            type: string
-            format: date
-        - name: endDate
-          in: query
-          schema:
-            type: string
-            format: date
-      responses:
-        '200':
-          description: Sales report retrieved successfully
-
-  /reports/maintenance:
-    get:
-      tags:
-        - Reports
-      summary: Get maintenance report
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: startDate
-          in: query
-          schema:
-            type: string
-            format: date
-        - name: endDate
-          in: query
-          schema:
-            type: string
-            format: date
-      responses:
-        '200':
-          description: Maintenance report retrieved successfully
-
-  /reports/profit:
-    get:
-      tags:
-        - Reports
-      summary: Get profit report
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: startDate
-          in: query
-          schema:
-            type: string
-            format: date
-        - name: endDate
-          in: query
-          schema:
-            type: string
-            format: date
-      responses:
-        '200':
-          description: Profit report retrieved successfully
-
-  /organizations:
-    get:
-      tags:
-        - Organizations
-      summary: Get all organizations (Admin only)
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Organizations retrieved successfully
+          description: Available plans
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Organization'
+                  $ref: '#/components/schemas/SubscriptionPlan'
 
+  /subscriptions/checkout:
     post:
-      tags:
-        - Organizations
-      summary: Create organization (Admin only)
-      security:
-        - bearerAuth: []
+      tags: [Subscriptions]
+      summary: Create subscription checkout
+      security: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OrganizationInput'
+              $ref: '#/components/schemas/CheckoutRequest'
       responses:
-        '201':
-          description: Organization created successfully
+        '200':
+          description: Checkout session created
 
-  /organizations/{id}:
+  /subscriptions/health:
     get:
-      tags:
-        - Organizations
-      summary: Get organization by ID
-      security:
-        - bearerAuth: []
+      tags: [Subscriptions]
+      summary: Health check
+      security: []
+      responses:
+        '200':
+          description: Service healthy
+
+  # File Attachments
+  /attachments/expenses/{expenseId}/upload:
+    post:
+      tags: [Attachments]
+      summary: Upload expense attachment
       parameters:
-        - name: id
+        - name: expenseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                attachment:
+                  type: string
+                  format: binary
+                  description: File to upload (JPEG, PNG, WebP, PDF - max 8MB)
+      responses:
+        '200':
+          description: File uploaded successfully
+        '400':
+          description: Invalid file type or size
+
+  /attachments/expenses/{expenseId}/attachments:
+    get:
+      tags: [Attachments]
+      summary: Get expense attachments
+      parameters:
+        - name: expenseId
           in: path
           required: true
           schema:
@@ -749,20 +1299,20 @@ paths:
             format: uuid
       responses:
         '200':
-          description: Organization retrieved successfully
+          description: List of attachments
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Organization'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Attachment'
 
-    put:
-      tags:
-        - Organizations
-      summary: Update organization
-      security:
-        - bearerAuth: []
+  /attachments/maintenance/{maintenanceId}/upload:
+    post:
+      tags: [Attachments]
+      summary: Upload maintenance attachment
       parameters:
-        - name: id
+        - name: maintenanceId
           in: path
           required: true
           schema:
@@ -771,36 +1321,146 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/OrganizationInput'
+              type: object
+              properties:
+                attachment:
+                  type: string
+                  format: binary
       responses:
         '200':
-          description: Organization updated successfully
+          description: File uploaded successfully
 
-    delete:
-      tags:
-        - Organizations
-      summary: Delete organization (Admin only)
-      security:
-        - bearerAuth: []
+  /attachments/maintenance/{maintenanceId}/attachments:
+    get:
+      tags: [Attachments]
+      summary: Get maintenance attachments
       parameters:
-        - name: id
+        - name: maintenanceId
           in: path
           required: true
           schema:
             type: string
             format: uuid
       responses:
-        '204':
-          description: Organization deleted successfully
+        '200':
+          description: List of attachments
+
+  /attachments/download/{type}/{recordId}/{attachmentId}:
+    get:
+      tags: [Attachments]
+      summary: Download attachment
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [expenses, maintenance]
+        - name: recordId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: attachmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: File download
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+  # Analytics
+  /analytics/track:
+    post:
+      tags: [Analytics]
+      summary: Track user event
+      description: Internal analytics for user behavior tracking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalyticsEvent'
+      responses:
+        '200':
+          description: Event tracked
+
+  /analytics/usage:
+    get:
+      tags: [Analytics]
+      summary: Get usage statistics
+      responses:
+        '200':
+          description: Usage statistics
+
+  # Admin
+  /admin/clear-email-cache:
+    post:
+      tags: [Admin]
+      summary: Clear email template cache (Owner only)
+      responses:
+        '200':
+          description: Cache cleared
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
 
 components:
   securitySchemes:
-    bearerAuth:
+    BearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
+  responses:
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Authentication required"
+
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Insufficient permissions"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Resource not found"
 
   schemas:
     User:
@@ -818,29 +1478,14 @@ components:
           type: string
         role:
           type: string
-          enum: [user, org_admin, admin]
+          enum: [owner, manager, operator]
+        roleId:
+          type: integer
         organizationId:
           type: string
           format: uuid
-        createdAt:
+        organization_name:
           type: string
-          format: date-time
-
-    Organization:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        address:
-          type: string
-        phone:
-          type: string
-        email:
-          type: string
-          format: email
         createdAt:
           type: string
           format: date-time
@@ -848,21 +1493,48 @@ components:
           type: string
           format: date-time
 
-    OrganizationInput:
+    CreateUser:
       type: object
-      required:
-        - name
-        - email
+      required: [email, password, first_name, last_name, role_id]
       properties:
-        name:
-          type: string
-        address:
-          type: string
-        phone:
-          type: string
         email:
           type: string
           format: email
+        password:
+          type: string
+          minLength: 6
+        first_name:
+          type: string
+        last_name:
+          type: string
+        role_id:
+          type: integer
+          minimum: 1
+          maximum: 3
+
+    UpdateUser:
+      type: object
+      required: [email, first_name, last_name, role_id]
+      properties:
+        email:
+          type: string
+          format: email
+        first_name:
+          type: string
+        last_name:
+          type: string
+        role_id:
+          type: integer
+          minimum: 1
+          maximum: 3
+
+    Role:
+      type: object
+      properties:
+        id:
+          type: integer
+        role_name:
+          type: string
 
     Car:
       type: object
@@ -870,140 +1542,157 @@ components:
         id:
           type: string
           format: uuid
-        organizationId:
-          type: string
-          format: uuid
-        vin:
-          type: string
         make:
           type: string
         model:
           type: string
         year:
           type: integer
+        vin:
+          type: string
+        license_plate:
+          type: string
         color:
           type: string
-        purchaseDate:
-          type: string
-          format: date
-        purchasePrice:
+        mileage:
+          type: integer
+        purchase_price:
           type: number
-          format: decimal
-        saleDate:
-          type: string
-          format: date
-          nullable: true
-        salePrice:
+        sale_price:
           type: number
-          format: decimal
-          nullable: true
         status:
           type: string
-          enum: [in_stock, sold, pending, in_repair]
-        createdAt:
+          enum: [in_stock, pending, sold]
+        purchase_date:
+          type: string
+          format: date
+        sale_date:
+          type: string
+          format: date
+        notes:
+          type: string
+        created_at:
           type: string
           format: date-time
-        updatedAt:
+        updated_at:
           type: string
           format: date-time
 
-    CarInput:
+    CreateCar:
       type: object
-      required:
-        - vin
-        - make
-        - model
-        - year
-        - purchaseDate
-        - purchasePrice
+      required: [make, model, year, vin, purchase_price, status]
       properties:
-        vin:
-          type: string
         make:
           type: string
         model:
           type: string
         year:
           type: integer
+        vin:
+          type: string
+        license_plate:
+          type: string
         color:
           type: string
-        purchaseDate:
-          type: string
-          format: date
-        purchasePrice:
+        mileage:
+          type: integer
+        purchase_price:
           type: number
-          format: decimal
-        saleDate:
-          type: string
-          format: date
-          nullable: true
-        salePrice:
+        sale_price:
           type: number
-          format: decimal
-          nullable: true
         status:
           type: string
-          enum: [in_stock, sold, pending, in_repair]
-          default: pending
+          enum: [in_stock, pending, sold]
+        purchase_date:
+          type: string
+          format: date
+        sale_date:
+          type: string
+          format: date
+        notes:
+          type: string
 
-    MaintenanceCategory:
+    UpdateCar:
+      type: object
+      properties:
+        make:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+        vin:
+          type: string
+        license_plate:
+          type: string
+        color:
+          type: string
+        mileage:
+          type: integer
+        purchase_price:
+          type: number
+        sale_price:
+          type: number
+        status:
+          type: string
+          enum: [in_stock, pending, sold]
+        purchase_date:
+          type: string
+          format: date
+        sale_date:
+          type: string
+          format: date
+        notes:
+          type: string
+
+    CarStatistics:
+      type: object
+      properties:
+        total_cars:
+          type: integer
+        in_stock_count:
+          type: integer
+        pending_count:
+          type: integer
+        sold_count:
+          type: integer
+        total_investment:
+          type: number
+        total_revenue:
+          type: number
+        total_profit:
+          type: number
+
+    Maintenance:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        name:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-
-    MaintenanceRecord:
-      type: object
-      properties:
-        id:
+        car_id:
           type: string
           format: uuid
-        carId:
-          type: string
-          format: uuid
-        categoryId:
+        category_id:
           type: string
           format: uuid
         description:
           type: string
         cost:
           type: number
-          format: decimal
-        maintenanceDate:
+        maintenance_date:
           type: string
           format: date
-        vendor:
-          type: string
-          nullable: true
+        mileage:
+          type: integer
         notes:
           type: string
-          nullable: true
-        createdAt:
+        created_at:
           type: string
           format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-        category:
-          $ref: '#/components/schemas/MaintenanceCategory'
 
-    MaintenanceInput:
+    CreateMaintenance:
       type: object
-      required:
-        - car_id
-        - category_id
-        - description
-        - cost
-        - maintenance_date
+      required: [car_id, category_id, description, cost, maintenance_date]
       properties:
         car_id:
           type: string
@@ -1015,53 +1704,450 @@ components:
           type: string
         cost:
           type: number
-          format: decimal
         maintenance_date:
           type: string
           format: date
-        vendor:
-          type: string
-          nullable: true
+        mileage:
+          type: integer
         notes:
           type: string
-          nullable: true
 
-    Error:
+    UpdateMaintenance:
       type: object
       properties:
-        message:
+        category_id:
           type: string
-        details:
+          format: uuid
+        description:
+          type: string
+        cost:
+          type: number
+        maintenance_date:
+          type: string
+          format: date
+        mileage:
+          type: integer
+        notes:
           type: string
 
-  responses:
-    BadRequest:
-      description: Bad request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    Unauthorized:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    Forbidden:
-      description: Forbidden
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFound:
-      description: Not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    InternalServerError:
-      description: Internal server error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error' 
+    MaintenanceCategory:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        category_name:
+          type: string
+        is_recurring:
+          type: boolean
+        is_default:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+    CreateMaintenanceCategory:
+      type: object
+      required: [category_name]
+      properties:
+        category_name:
+          type: string
+        is_recurring:
+          type: boolean
+          default: false
+
+    UpdateMaintenanceCategory:
+      type: object
+      properties:
+        category_name:
+          type: string
+        is_recurring:
+          type: boolean
+
+    Expense:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        category_id:
+          type: string
+          format: uuid
+        amount:
+          type: number
+        description:
+          type: string
+        expense_date:
+          type: string
+          format: date
+        notes:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    CreateExpense:
+      type: object
+      required: [category_id, amount, description, expense_date]
+      properties:
+        category_id:
+          type: string
+          format: uuid
+        amount:
+          type: number
+        description:
+          type: string
+        expense_date:
+          type: string
+          format: date
+        notes:
+          type: string
+
+    ExpenseCategory:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        category_name:
+          type: string
+        is_recurring:
+          type: boolean
+        is_default:
+          type: boolean
+        expense_count:
+          type: integer
+
+    CreateExpenseCategory:
+      type: object
+      required: [category_name]
+      properties:
+        category_name:
+          type: string
+        is_recurring:
+          type: boolean
+          default: false
+
+    ExpenseSummary:
+      type: object
+      properties:
+        total_amount:
+          type: number
+        total_count:
+          type: integer
+        categories_breakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              category_name:
+                type: string
+              amount:
+                type: number
+              count:
+                type: integer
+        monthly_breakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              month:
+                type: string
+              amount:
+                type: number
+              count:
+                type: integer
+
+    License:
+      type: object
+      properties:
+        license_type:
+          type: string
+        display_name:
+          type: string
+        car_limit:
+          type: integer
+        monthly_price:
+          type: number
+        is_active:
+          type: boolean
+        is_free_account:
+          type: boolean
+        subscription_status:
+          type: string
+        current_period_end:
+          type: string
+          format: date-time
+        free_reason:
+          type: string
+
+    LicenseWithUsage:
+      allOf:
+        - $ref: '#/components/schemas/License'
+        - type: object
+          properties:
+            current_car_count:
+              type: integer
+            usage_percentage:
+              type: integer
+
+    UpdateLicense:
+      type: object
+      properties:
+        license_type:
+          type: string
+        is_active:
+          type: boolean
+        car_limit:
+          type: integer
+        free_reason:
+          type: string
+
+    CreateFreeLicense:
+      type: object
+      required: [organization_id, license_type, car_limit, free_reason]
+      properties:
+        organization_id:
+          type: string
+          format: uuid
+        license_type:
+          type: string
+        car_limit:
+          type: integer
+        free_reason:
+          type: string
+
+    LicenseTier:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tier_name:
+          type: string
+        display_name:
+          type: string
+        car_limit:
+          type: integer
+        monthly_price:
+          type: number
+        stripe_price_id:
+          type: string
+        features:
+          type: array
+          items:
+            type: string
+        is_popular:
+          type: boolean
+        is_available:
+          type: boolean
+
+    CreateLicenseTier:
+      type: object
+      required: [tier_name, display_name, car_limit, monthly_price]
+      properties:
+        tier_name:
+          type: string
+        display_name:
+          type: string
+        car_limit:
+          type: integer
+        monthly_price:
+          type: number
+        stripe_price_id:
+          type: string
+        features:
+          type: array
+          items:
+            type: string
+        is_popular:
+          type: boolean
+        is_available:
+          type: boolean
+
+    SubscriptionStatus:
+      type: object
+      properties:
+        subscription_status:
+          type: string
+        license_type:
+          type: string
+        car_limit:
+          type: integer
+        is_free_account:
+          type: boolean
+        current_period_end:
+          type: string
+          format: date-time
+        stripe_customer_id:
+          type: string
+          nullable: true
+        stripe_subscription_id:
+          type: string
+          nullable: true
+
+    SubscriptionPlan:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        price:
+          type: number
+        car_limit:
+          type: integer
+        features:
+          type: array
+          items:
+            type: string
+        stripe_price_id:
+          type: string
+        is_popular:
+          type: boolean
+
+    CheckoutRequest:
+      type: object
+      required: [organization_name, user_email, user_first_name, user_last_name, plan_id]
+      properties:
+        organization_name:
+          type: string
+        user_email:
+          type: string
+          format: email
+        user_first_name:
+          type: string
+        user_last_name:
+          type: string
+        plan_id:
+          type: string
+        success_url:
+          type: string
+        cancel_url:
+          type: string
+
+    CreateOrganization:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+          format: email
+
+    DashboardSummary:
+      type: object
+      properties:
+        cars:
+          type: object
+          properties:
+            total:
+              type: integer
+            in_stock:
+              type: integer
+            pending:
+              type: integer
+            sold:
+              type: integer
+        financial:
+          type: object
+          properties:
+            total_investment:
+              type: number
+            total_revenue:
+              type: number
+            total_profit:
+              type: number
+            profit_margin:
+              type: number
+        maintenance:
+          type: object
+          properties:
+            total_records:
+              type: integer
+            total_cost:
+              type: number
+            recent_count:
+              type: integer
+
+    Attachment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        original_name:
+          type: string
+        file_size:
+          type: integer
+        mime_type:
+          type: string
+        storage_path:
+          type: string
+        uploaded_at:
+          type: string
+          format: date-time
+
+    AnalyticsEvent:
+      type: object
+      required: [category, action]
+      properties:
+        category:
+          type: string
+          description: Event category (e.g., 'Cars', 'Reports', 'Settings')
+        action:
+          type: string
+          description: Action performed (e.g., 'Create', 'View', 'Export')
+        label:
+          type: string
+          description: Optional label for the event
+        value:
+          type: number
+          description: Optional numeric value
+        timestamp:
+          type: string
+          format: date-time
+        url:
+          type: string
+          description: Current page URL
+
+tags:
+  - name: Authentication
+    description: User authentication and profile management
+  - name: Cars
+    description: Vehicle inventory management
+  - name: Maintenance
+    description: Vehicle maintenance tracking
+  - name: Expenses
+    description: Expense management and categorization
+  - name: Dashboard
+    description: Dashboard summary and metrics
+  - name: Reports
+    description: Business reports and analytics
+  - name: Licenses
+    description: License and subscription management
+  - name: License Tiers
+    description: License tier configuration
+  - name: Users
+    description: Organization user management
+  - name: Organizations
+    description: Organization management
+  - name: Stripe
+    description: Stripe payment integration
+  - name: Subscriptions
+    description: Subscription plans and checkout
+  - name: Attachments
+    description: File upload and management
+  - name: Analytics
+    description: Internal user behavior tracking
+  - name: Admin
+    description: Administrative functions 
