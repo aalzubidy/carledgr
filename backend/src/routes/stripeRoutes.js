@@ -10,6 +10,9 @@ const { getLicenseWithTierByOrganizationId } = require('../db/queries/licenseQue
 // Webhook endpoint (needs raw body)
 router.post('/webhook', express.raw({ type: 'application/json' }), handleWebhook);
 
+// JSON parsing for non-webhook routes
+router.use(express.json());
+
 // Protected routes (require authentication)
 router.use(authenticateJWT);
 
