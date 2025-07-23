@@ -18,7 +18,9 @@ const checkLicenseLimit = async (req, res, next) => {
     }
     
     // Check subscription status for paid accounts
-    if (!license.is_free_account && license.subscription_status !== 'active') {
+    if (!license.is_free_account && 
+        license.subscription_status !== 'active' && 
+        license.subscription_status !== 'trialing') {
       const message = license.subscription_status === 'past_due' 
         ? 'Your subscription payment is past due. Please update your payment method to continue adding cars.'
         : 'Your subscription is not active. Please contact support or update your subscription.';
@@ -54,9 +56,10 @@ const checkLicenseStatus = async (req, res, next) => {
       throw new ForbiddenError('License is inactive. Please contact support.');
     }
     
-    // Allow grace period for past_due subscriptions (they can still view data)
+    // Allow active, trialing, and past_due subscriptions
     if (!license.is_free_account && 
         license.subscription_status !== 'active' && 
+        license.subscription_status !== 'trialing' &&
         license.subscription_status !== 'past_due') {
       throw new ForbiddenError('Subscription is not active. Please contact support.');
     }
