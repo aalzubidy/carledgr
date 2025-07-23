@@ -79,14 +79,14 @@ async function migrateLicensing() {
         monthly_price: 0.00, 
         stripe_price_id: null, 
         is_available_online: false, 
-        sort_order: 0 
+        sort_order: 5 
       },
       { 
         tier_name: 'starter', 
         display_name: 'Starter Plan', 
         car_limit: 20, 
         monthly_price: 79.99, 
-        stripe_price_id: config.stripe?.starterPriceId || 'price_starter', 
+        stripe_price_id: config.stripe?.starterPriceId || null, 
         is_available_online: true, 
         sort_order: 1 
       },
@@ -95,7 +95,7 @@ async function migrateLicensing() {
         display_name: 'Professional Plan', 
         car_limit: 50, 
         monthly_price: 119.99, 
-        stripe_price_id: config.stripe?.professionalPriceId || 'price_professional', 
+        stripe_price_id: config.stripe?.professionalPriceId || null, 
         is_available_online: true, 
         sort_order: 2 
       },
@@ -104,7 +104,7 @@ async function migrateLicensing() {
         display_name: 'Business Plan', 
         car_limit: 100, 
         monthly_price: 179.99, 
-        stripe_price_id: config.stripe?.businessPriceId || 'price_business', 
+        stripe_price_id: config.stripe?.businessPriceId || null, 
         is_available_online: true, 
         sort_order: 3 
       },
@@ -113,7 +113,7 @@ async function migrateLicensing() {
         display_name: 'Enterprise Plan', 
         car_limit: 10000, 
         monthly_price: 249.99, 
-        stripe_price_id: config.stripe?.enterprisePriceId || 'price_enterprise', 
+        stripe_price_id: config.stripe?.enterprisePriceId || null, 
         is_available_online: true, 
         sort_order: 4 
       }

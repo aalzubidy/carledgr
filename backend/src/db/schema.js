@@ -464,8 +464,8 @@ async function initializeLicenseTiers(connection) {
           id: uuidv4(),
           tier_name: 'starter',
           display_name: 'Starter Plan',
-          car_limit: 25,
-          monthly_price: 29.99,
+          car_limit: 20,
+          monthly_price: 79.99,
           stripe_price_id: null,
           sort_order: 1
         },
@@ -473,19 +473,28 @@ async function initializeLicenseTiers(connection) {
           id: uuidv4(),
           tier_name: 'professional',
           display_name: 'Professional Plan',
-          car_limit: 100,
-          monthly_price: 79.99,
+          car_limit: 50,
+          monthly_price: 119.99,
           stripe_price_id: null,
           sort_order: 2
         },
         {
           id: uuidv4(),
-          tier_name: 'enterprise',
-          display_name: 'Enterprise Plan',
-          car_limit: 500,
-          monthly_price: 199.99,
+          tier_name: 'business',
+          display_name: 'Business Plan',
+          car_limit: 100,
+          monthly_price: 179.99,
           stripe_price_id: null,
           sort_order: 3
+        },
+        {
+          id: uuidv4(),
+          tier_name: 'enterprise',
+          display_name: 'Enterprise Plan',
+          car_limit: 10000,
+          monthly_price: 249.99,
+          stripe_price_id: null,
+          sort_order: 4
         },
         {
           id: uuidv4(),
@@ -494,7 +503,7 @@ async function initializeLicenseTiers(connection) {
           car_limit: 10000,
           monthly_price: 0.00,
           stripe_price_id: null,
-          sort_order: 4,
+          sort_order: 5,
           is_available_online: false
         }
       ];
