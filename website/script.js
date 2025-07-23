@@ -470,7 +470,7 @@ function showOrganizationModal(planName) {
                             " placeholder="ABC Auto Dealership">
                         </div>
                         
-                        <div style="margin-bottom: 2rem;">
+                        <div style="margin-bottom: 1.5rem;">
                             <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #374151;">
                                 Owner Email Address *
                             </label>
@@ -485,6 +485,31 @@ function showOrganizationModal(planName) {
                             <small style="color: #6b7280; margin-top: 0.25rem; display: block;">
                                 We'll send your login credentials to this email address
                             </small>
+                        </div>
+                        
+                        <div style="margin-bottom: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; border: 1px solid #e5e7eb;">
+                            <div style="margin-bottom: 0.75rem;">
+                                <label style="display: flex; align-items: center; cursor: pointer; color: #374151;">
+                                    <input type="checkbox" id="terms-checkbox" required style="
+                                        margin-right: 0.5rem;
+                                        transform: scale(1.2);
+                                    ">
+                                    <span style="font-size: 0.9rem;">
+                                        I agree to the <a href="terms-of-service.html" target="_blank" style="color: #2563eb; text-decoration: none;">Terms of Service</a> *
+                                    </span>
+                                </label>
+                            </div>
+                            <div>
+                                <label style="display: flex; align-items: center; cursor: pointer; color: #374151;">
+                                    <input type="checkbox" id="privacy-checkbox" required style="
+                                        margin-right: 0.5rem;
+                                        transform: scale(1.2);
+                                    ">
+                                    <span style="font-size: 0.9rem;">
+                                        I acknowledge the <a href="privacy-policy.html" target="_blank" style="color: #2563eb; text-decoration: none;">Privacy Policy</a> *
+                                    </span>
+                                </label>
+                            </div>
                         </div>
                         
                         <div style="display: flex; gap: 1rem; justify-content: flex-end;">
@@ -528,11 +553,18 @@ function showOrganizationModal(planName) {
             e.preventDefault();
             const organizationName = document.getElementById('org-name').value.trim();
             const ownerEmail = document.getElementById('owner-email').value.trim();
+            const termsChecked = document.getElementById('terms-checkbox').checked;
+            const privacyChecked = document.getElementById('privacy-checkbox').checked;
             const submitBtn = form.querySelector('button[type="submit"]');
             const originalBtnText = submitBtn.textContent;
             
             if (!organizationName || !ownerEmail) {
                 showErrorMessage('Please fill in all required fields');
+                return;
+            }
+            
+            if (!termsChecked || !privacyChecked) {
+                showErrorMessage('Please agree to the Terms of Service and Privacy Policy to continue');
                 return;
             }
             
