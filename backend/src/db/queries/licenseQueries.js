@@ -140,12 +140,12 @@ const canAddCar = async (organizationId) => {
 
 // Create stripe event record
 const createStripeEvent = async (eventData) => {
-  const { id, stripe_event_id, event_type, organization_id, license_id, event_data } = eventData;
+  const { id, stripe_event_id, event_type, organization_id, event_data } = eventData;
   
   return query(
-    `INSERT INTO stripe_events (id, stripe_event_id, event_type, organization_id, license_id, event_data) 
-     VALUES (?, ?, ?, ?, ?, ?)`,
-    [id, stripe_event_id, event_type, organization_id, license_id, JSON.stringify(event_data)]
+    `INSERT INTO stripe_events (id, stripe_event_id, event_type, organization_id, event_data) 
+     VALUES (?, ?, ?, ?, ?)`,
+    [id, stripe_event_id, event_type, organization_id, JSON.stringify(event_data)]
   );
 };
 
@@ -161,8 +161,8 @@ const isStripeEventProcessed = async (stripeEventId) => {
 // Update stripe event status
 const updateStripeEventStatus = async (stripeEventId, status, errorMessage = null) => {
   return query(
-    'UPDATE stripe_events SET processing_status = ?, error_message = ? WHERE stripe_event_id = ?',
-    [status, errorMessage, stripeEventId]
+    'UPDATE stripe_events SET processed = ?, processed_at = CURRENT_TIMESTAMP WHERE stripe_event_id = ?',
+    [status === 'processed' ? true : false, stripeEventId]
   );
 };
 

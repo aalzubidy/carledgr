@@ -50,7 +50,6 @@ const handleWebhook = async (req, res) => {
       stripe_event_id: event.id,
       event_type: event.type,
       organization_id: null,
-      license_id: null,
       event_data: event
     };
 
