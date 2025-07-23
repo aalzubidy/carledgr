@@ -48,11 +48,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// Body parsing middleware (needed for most routes)
+// Stripe webhook route FIRST (needs raw body before JSON parsing)
+app.use('/api/stripe', stripeRoutes);
+
+// Body parsing middleware (needed for most other routes)
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// API routes
+// Other API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/organizations', organizationRoutes);
 app.use('/api/cars', carRoutes);
@@ -64,7 +67,6 @@ app.use('/api/users', userRoutes);
 app.use('/api/attachments', attachmentRoutes);
 app.use('/api/licenses', licenseRoutes);
 app.use('/api/license-tiers', licenseTierRoutes);
-app.use('/api/stripe', stripeRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/analytics', analyticsRoutes);
