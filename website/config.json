@@ -1,6 +1,6 @@
 {
   "api": {
-    "baseUrl": "https://api.carledgr.com/api",
+    "baseUrl": "https://demo-api.carledgr.com/api",
     "endpoints": {
       "plans": "/subscriptions/plans",
       "checkout": "/subscriptions/checkout",
