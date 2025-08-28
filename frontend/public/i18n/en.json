@@ -53,7 +53,8 @@
     "totalRevenue": "Total Revenue",
     "avgSalePrice": "Average Sale Price",
     "noSalesData": "No Sales Data",
-    "noSalesDataDesc": "No sales data available for the selected period"
+    "noSalesDataDesc": "No sales data available for the selected period",
+    "clickToViewAllCars": "Click to view all cars"
   },
   "cars": {
     "title": "Cars",

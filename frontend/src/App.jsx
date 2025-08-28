@@ -65,8 +65,12 @@ function App() {
     // Custom navigation function for the app
     window.navigate = (path) => {
       window.history.pushState({}, '', path)
-      const params = parseRoute(path)
-      setCurrentRoute(path)
+      
+      // Extract the pathname without query parameters for routing
+      const [pathname] = path.split('?')
+      const params = parseRoute(pathname)
+      
+      setCurrentRoute(pathname)
       setRouteParams(params)
     }
   }

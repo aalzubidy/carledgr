@@ -1319,6 +1319,22 @@ input[type="number"].form-control::-webkit-inner-spin-button {
   gap: 30px;
 }
 
+/* Three-column dashboard grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 350px 250px;
+  gap: 25px;
+  align-items: start;
+}
+
+/* Chart section (left column) */
+.chart-section {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
 /* Inventory section with pie chart */
 .inventory-section {
   background: white;
@@ -1328,23 +1344,149 @@ input[type="number"].form-control::-webkit-inner-spin-button {
 }
 
 .chart-container {
-  padding: 30px;
+  padding: 25px;
   text-align: center;
 }
 
 .chart-container h2 {
   color: #2c3e50;
-  margin-bottom: 25px;
-  font-size: 1.5rem;
+  margin-bottom: 10px;
+  font-size: 1.3rem;
   font-weight: 600;
+}
+
+/* Click hint styling */
+.click-hint {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  margin: 5px 0 20px 0;
+  font-style: italic;
+  transition: color 0.2s ease;
+}
+
+.clickable-title:hover + .click-hint {
+  color: #3498db;
+}
+
+/* Clickable title styling */
+.clickable-title {
+  transition: color 0.2s ease;
+}
+
+.clickable-title:hover {
+  color: #3498db !important;
+  text-decoration: underline;
+}
+
+/* Clickable row styling */
+.clickable-row {
+  transition: background-color 0.2s ease;
+}
+
+.clickable-row:hover {
+  background-color: #f8f9fa;
 }
 
 .pie-chart-wrapper {
   width: 100%;
-  max-width: 500px;
-  height: 400px;
+  max-width: 400px;
+  height: 320px;
   margin: 0 auto;
   position: relative;
+}
+
+/* Stats column (middle column) */
+.stats-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Quick actions column (right column) */
+.quick-actions-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.quick-actions-card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.quick-actions-card h3 {
+  color: #2c3e50;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.quick-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.quick-action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Custom colors for quick action buttons */
+.quick-action-car {
+  background-color: #5cb85c; /* Soft green */
+  color: white;
+  border-color: #4cae4c;
+}
+
+.quick-action-car:hover {
+  background-color: #4cae4c;
+  border-color: #449d44;
+}
+
+.quick-action-maintenance {
+  background-color: #f0ad4e; /* Soft orange */
+  color: white;
+  border-color: #eea236;
+}
+
+.quick-action-maintenance:hover {
+  background-color: #eea236;
+  border-color: #e6982e;
+}
+
+.quick-action-expense {
+  background-color: #5bc0de; /* Soft blue */
+  color: white;
+  border-color: #46b8da;
+}
+
+.quick-action-expense:hover {
+  background-color: #46b8da;
+  border-color: #31b0d5;
+}
+
+.no-actions-message {
+  color: #7f8c8d;
+  font-style: italic;
+  text-align: center;
+  margin: 10px 0;
+  font-size: 0.9rem;
 }
 
 .stats-grid {
@@ -1356,21 +1498,21 @@ input[type="number"].form-control::-webkit-inner-spin-button {
 
 .stat-card {
   background: white;
-  padding: 20px;
+  padding: 16px;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .stat-card h3 {
   color: #7f8c8d;
-  font-size: 14px;
-  margin-bottom: 10px;
+  font-size: 13px;
+  margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .stat-value {
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: bold;
   color: #2c3e50;
 }
@@ -1384,8 +1526,45 @@ input[type="number"].form-control::-webkit-inner-spin-button {
 }
 
 /* Responsive adjustments for dashboard */
+@media (max-width: 1024px) {
+  /* Stack quick actions below stats on tablets */
+  .dashboard-grid {
+    grid-template-columns: 1fr 320px;
+    gap: 20px;
+  }
+  
+  .quick-actions-column {
+    grid-column: 1 / -1;
+    margin-top: 20px;
+  }
+  
+  .quick-actions-card {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .quick-actions-card h3 {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .quick-action-btn {
+    flex: 1;
+    min-width: 160px;
+    justify-content: center;
+  }
+}
+
 @media (max-width: 768px) {
   .dashboard-content {
+    gap: 20px;
+  }
+  
+  /* Stack all columns vertically on mobile */
+  .dashboard-grid {
+    grid-template-columns: 1fr;
     gap: 20px;
   }
   
@@ -1394,12 +1573,27 @@ input[type="number"].form-control::-webkit-inner-spin-button {
   }
   
   .chart-container h2 {
-    font-size: 1.3rem;
-    margin-bottom: 20px;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
   }
   
   .pie-chart-wrapper {
-    height: 300px;
+    height: 280px;
+    max-width: 350px;
+  }
+  
+  .stats-column {
+    gap: 15px;
+  }
+  
+  .quick-actions-card {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .quick-action-btn {
+    justify-content: center;
+    min-width: auto;
   }
   
   .stats-grid {

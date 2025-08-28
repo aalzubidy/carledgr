@@ -53,7 +53,8 @@
     "totalRevenue": "Ingresos Totales",
     "avgSalePrice": "Precio de Venta Promedio",
     "noSalesData": "Sin Datos de Ventas",
-    "noSalesDataDesc": "No hay datos de ventas disponibles para el período seleccionado"
+    "noSalesDataDesc": "No hay datos de ventas disponibles para el período seleccionado",
+    "clickToViewAllCars": "Haz clic para ver todos los vehículos"
   },
   "cars": {
     "title": "Vehículos",
