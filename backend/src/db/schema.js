@@ -528,6 +528,66 @@ async function initializeLicenseTiers(connection) {
   }
 }
 
+// Migrate favorite_cars table
+async function migrateFavoriteCarsTable(connection) {
+  try {
+    // Check if favorite_cars table exists
+    const [tableExists] = await connection.execute(`
+      SELECT COUNT(*) as count 
+      FROM information_schema.tables 
+      WHERE table_schema = DATABASE() 
+      AND table_name = 'favorite_cars'
+    `);
+    
+    if (tableExists[0].count === 0) {
+      logger.info('📋 Creating favorite_cars table...');
+      
+      // Get the actual data type and collation from users table
+      const [userTableInfo] = await connection.execute(`
+        SELECT COLUMN_TYPE, COLLATION_NAME 
+        FROM information_schema.COLUMNS 
+        WHERE table_schema = DATABASE() 
+        AND table_name = 'users' 
+        AND column_name = 'id'
+      `);
+      
+      const [carTableInfo] = await connection.execute(`
+        SELECT COLUMN_TYPE, COLLATION_NAME 
+        FROM information_schema.COLUMNS 
+        WHERE table_schema = DATABASE() 
+        AND table_name = 'cars' 
+        AND column_name = 'id'
+      `);
+      
+      const userIdType = userTableInfo[0].COLUMN_TYPE;
+      const userCollation = userTableInfo[0].COLLATION_NAME;
+      const carIdType = carTableInfo[0].COLUMN_TYPE;
+      const carCollation = carTableInfo[0].COLLATION_NAME;
+      
+      // Create the table with matching collations
+      await connection.execute(`
+        CREATE TABLE favorite_cars (
+          id ${userIdType} COLLATE ${userCollation} PRIMARY KEY,
+          user_id ${userIdType} COLLATE ${userCollation} NOT NULL,
+          car_id ${carIdType} COLLATE ${carCollation} NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE KEY unique_user_car (user_id, car_id),
+          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+          FOREIGN KEY (car_id) REFERENCES cars(id) ON DELETE CASCADE
+        ) COLLATE=${userCollation}
+      `);
+      
+      logger.info('✅ favorite_cars table created successfully');
+    } else {
+      logger.info('✅ favorite_cars table already exists');
+    }
+  } catch (error) {
+    logger.error(`Error migrating favorite_cars table: ${error.message}`);
+    // Don't throw error here, as this is a non-critical feature
+    logger.info('⚠️ Continuing without favorite_cars table');
+  }
+}
+
 // Initialize the database schema
 async function initializeSchema() {
   const connection = await pool.getConnection();
@@ -543,6 +603,9 @@ async function initializeSchema() {
       await connection.execute(statement);
       logger.info(`✅ Table ${i + 1}/${createTableStatements.length} created successfully`);
     }
+
+    // Step 1.5: Handle favorite_cars table migration
+    await migrateFavoriteCarsTable(connection);
     
     // Step 2: Initialize user roles (critical for system to function)
     await initializeUserRoles(connection);

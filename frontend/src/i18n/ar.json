@@ -54,7 +54,9 @@
     "avgSalePrice": "متوسط سعر البيع",
     "noSalesData": "لا توجد بيانات مبيعات",
     "noSalesDataDesc": "لا توجد بيانات مبيعات متاحة للفترة المحددة",
-    "clickToViewAllCars": "انقر لعرض جميع السيارات"
+    "clickToViewAllCars": "انقر لعرض جميع السيارات",
+    "favoriteCars": "السيارات المفضلة",
+    "noFavoriteCars": "لا توجد سيارات مفضلة بعد. أضف السيارات إلى المفضلة من صفحات تفاصيلها!"
   },
   "cars": {
     "title": "السيارات",
@@ -68,6 +70,7 @@
     "model": "الموديل",
     "year": "السنة",
     "color": "اللون",
+    "mileage": "المسافة المقطوعة",
     "purchaseDate": "تاريخ الشراء",
     "purchasePrice": "سعر الشراء",
     "saleDate": "تاريخ البيع",
@@ -80,7 +83,12 @@
     "editMaintenance": "تعديل الصيانة",
     "totalMaintenanceCost": "إجمالي تكلفة الصيانة",
     "car": "سيارة",
-    "cars": "سيارات"
+    "cars": "سيارات",
+    "addToFavorites": "إضافة للمفضلة",
+    "removeFromFavorites": "إزالة من المفضلة",
+    "favorited": "مفضلة",
+    "addedToFavorites": "تمت إضافة السيارة للمفضلة",
+    "removedFromFavorites": "تمت إزالة السيارة من المفضلة"
   },
   "maintenance": {
     "title": "الصيانة",

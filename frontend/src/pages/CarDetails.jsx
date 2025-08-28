@@ -45,6 +45,10 @@ function CarDetails({ carId }) {
   const [uploadingFile, setUploadingFile] = useState(false)
   const [recordsWithAttachments, setRecordsWithAttachments] = useState({})
 
+  // Favorite-related state
+  const [isFavorited, setIsFavorited] = useState(false)
+  const [favoriteLoading, setFavoriteLoading] = useState(false)
+
   useEffect(() => {
     if (carId) {
       loadCarDetails()
@@ -76,7 +80,8 @@ function CarDetails({ carId }) {
         api.getCar(carId),
         api.getMaintenanceRecords(carId),
         api.getMaintenanceCategories(),
-        loadAttachmentIndicators()
+        loadAttachmentIndicators(),
+        loadFavoriteStatus()
       ])
       
       setCarData(car)
@@ -89,6 +94,16 @@ function CarDetails({ carId }) {
       showError(t('messages.errorOccurred') + ': ' + error.message)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const loadFavoriteStatus = async () => {
+    try {
+      const response = await api.checkCarFavoriteStatus(carId)
+      setIsFavorited(response.isFavorited)
+    } catch (error) {
+      console.error('Failed to load favorite status:', error)
+      // Don't show error to user for this, it's not critical
     }
   }
 
@@ -205,6 +220,28 @@ function CarDetails({ carId }) {
       } catch (error) {
         showError(error.message)
       }
+    }
+  }
+
+  const handleToggleFavorite = async () => {
+    if (favoriteLoading) return
+    
+    try {
+      setFavoriteLoading(true)
+      
+      if (isFavorited) {
+        await api.removeFromFavorites(carId)
+        setIsFavorited(false)
+        showSuccess(t('cars.removedFromFavorites'))
+      } else {
+        await api.addToFavorites(carId)
+        setIsFavorited(true)
+        showSuccess(t('cars.addedToFavorites'))
+      }
+    } catch (error) {
+      showError(error.message)
+    } finally {
+      setFavoriteLoading(false)
     }
   }
 
@@ -1121,8 +1158,18 @@ function CarDetails({ carId }) {
   return (
     <Layout activeRoute="cars">
       <div className="dashboard-header">
-        <h1>{t('cars.carDetails')}</h1>
+        <h1>
+          {t('cars.carDetails')}
+        </h1>
         <div style={{ display: 'flex', gap: '10px' }}>
+          <button 
+            className={`btn ${isFavorited ? 'btn-warning' : 'btn-outline-secondary'}`}
+            onClick={handleToggleFavorite}
+            disabled={favoriteLoading}
+            title={isFavorited ? t('cars.removeFromFavorites') : t('cars.addToFavorites')}
+          >
+            {favoriteLoading ? '⏳' : (isFavorited ? `⭐ ${t('cars.favorited')}` : `☆ ${t('cars.addToFavorites')}`)}
+          </button>
           <button className="btn btn-primary" onClick={handleEditCar}>
             {t('cars.editCar')}
           </button>
@@ -1138,7 +1185,9 @@ function CarDetails({ carId }) {
       {/* Car Information */}
       <div className="table-container" style={{ marginBottom: '30px' }}>
         <div className="table-header">
-          <h2>{carData.year} {carData.make} {carData.model}</h2>
+          <h2>
+            {carData.year} {carData.make} {carData.model}
+          </h2>
           <span className={`status-badge status-${carData.status}`}>
             {t('status.' + carData.status)}
           </span>

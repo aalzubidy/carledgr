@@ -54,7 +54,9 @@
     "avgSalePrice": "Precio de Venta Promedio",
     "noSalesData": "Sin Datos de Ventas",
     "noSalesDataDesc": "No hay datos de ventas disponibles para el período seleccionado",
-    "clickToViewAllCars": "Haz clic para ver todos los vehículos"
+    "clickToViewAllCars": "Haz clic para ver todos los vehículos",
+    "favoriteCars": "Vehículos Favoritos",
+    "noFavoriteCars": "Aún no hay vehículos favoritos. ¡Agrega vehículos a favoritos desde sus páginas de detalles!"
   },
   "cars": {
     "title": "Vehículos",
@@ -81,7 +83,12 @@
     "editMaintenance": "Editar Mantenimiento",
     "totalMaintenanceCost": "Costo Total de Mantenimiento",
     "car": "auto",
-    "cars": "autos"
+    "cars": "autos",
+    "addToFavorites": "Agregar a Favoritos",
+    "removeFromFavorites": "Quitar de Favoritos",
+    "favorited": "Favorito",
+    "addedToFavorites": "Vehículo agregado a favoritos",
+    "removedFromFavorites": "Vehículo quitado de favoritos"
   },
   "maintenance": {
     "title": "Mantenimiento",

@@ -11,6 +11,10 @@ const errorHandler = (err, req, res, next) => {
     return res.status(400).json({ message: err.message, error: err.message });
   }
   
+  if (err.name === 'BadRequestError') {
+    return res.status(400).json({ message: err.message, error: err.message });
+  }
+  
   if (err.name === 'UnauthorizedError') {
     return res.status(401).json({ message: 'Authentication required', error: 'Authentication required' });
   }
@@ -49,6 +53,14 @@ class ValidationError extends Error {
   }
 }
 
+class BadRequestError extends Error {
+  constructor(message = 'Bad Request') {
+    super(message);
+    this.name = 'BadRequestError';
+    this.statusCode = 400;
+  }
+}
+
 class UnauthorizedError extends Error {
   constructor(message = 'Authentication required') {
     super(message);
@@ -77,6 +89,7 @@ module.exports = {
   errorHandler,
   notFoundHandler,
   ValidationError,
+  BadRequestError,
   UnauthorizedError,
   ForbiddenError,
   NotFoundError
