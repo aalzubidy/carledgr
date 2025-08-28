@@ -14,6 +14,7 @@ ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels)
 function Dashboard() {
   const [dashboardData, setDashboardData] = useState(null)
   const [topSoldModels, setTopSoldModels] = useState([])
+  const [favoriteCars, setFavoriteCars] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
   const [user, setUser] = useState(null)
@@ -44,14 +45,16 @@ function Dashboard() {
       setIsLoading(true)
       setError(null)
       
-      // Fetch dashboard data and top sold models
-      const [dashboardResponse, topSoldModelsResponse] = await Promise.all([
+      // Fetch dashboard data, top sold models, and favorite cars
+      const [dashboardResponse, topSoldModelsResponse, favoriteResponse] = await Promise.all([
         api.getDashboardSummary(),
-        api.getTopSoldModels()
+        api.getTopSoldModels(),
+        api.getFavoriteCars()
       ])
       
       setDashboardData(dashboardResponse)
       setTopSoldModels(topSoldModelsResponse || [])
+      setFavoriteCars(favoriteResponse || [])
     } catch (error) {
       console.error('Failed to load dashboard:', error)
       setError(error.message)
@@ -97,6 +100,59 @@ function Dashboard() {
               <td>{model.units_sold}</td>
               <td>${formatNumber(model.total_revenue)}</td>
               <td>${formatNumber(model.avg_sale_price)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )
+  }
+
+  const renderFavoriteCarsTable = () => {
+    if (!favoriteCars || favoriteCars.length === 0) {
+      return (
+        <div className="empty-state">
+          <div className="empty-state-icon"></div>
+          <h4 style={{ fontSize: '1rem', fontWeight: '400' }}>{t('dashboard.noFavoriteCars')}</h4>
+        </div>
+      )
+    }
+    
+    const handleCarRowClick = (carId) => {
+      if (window.navigate) {
+        window.navigate(`/cars/${carId}`)
+      }
+    }
+    
+    return (
+      <table className="data-table">
+        <thead>
+          <tr>
+            <th>{t('cars.vin')}</th>
+            <th>{t('cars.make')}</th>
+            <th>{t('cars.model')}</th>
+            <th>{t('cars.year')}</th>
+            <th>{t('cars.color')}</th>
+            <th>{t('cars.status')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {favoriteCars.map((car) => (
+            <tr 
+              key={car.id} 
+              className="car-row" 
+              onClick={() => handleCarRowClick(car.id)}
+              style={{ cursor: 'pointer' }}
+            >
+              <td>{car.vin}</td>
+              <td>{car.make}</td>
+              <td>{car.model}</td>
+              <td>{car.year}</td>
+              <td>{car.color || '-'}</td>
+              <td>
+                <span className={`status-badge status-${car.status}`}>
+                  {t('status.' + car.status)}
+                </span>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -334,6 +390,16 @@ function Dashboard() {
               )}
             </div>
           </div>
+        </div>
+      </div>
+      
+      {/* Favorite Cars Table */}
+      <div className="table-container" style={{ marginTop: '30px' }}>
+        <div className="table-header">
+          <h2>{t('dashboard.favoriteCars')}</h2>
+        </div>
+        <div className="table-wrapper">
+          {renderFavoriteCarsTable()}
         </div>
       </div>
       

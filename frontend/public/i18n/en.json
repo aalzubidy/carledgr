@@ -54,7 +54,9 @@
     "avgSalePrice": "Average Sale Price",
     "noSalesData": "No Sales Data",
     "noSalesDataDesc": "No sales data available for the selected period",
-    "clickToViewAllCars": "Click to view all cars"
+    "clickToViewAllCars": "Click to view all cars",
+    "favoriteCars": "Favorite Cars",
+    "noFavoriteCars": "No favorite cars yet. Add cars to favorites from their detail pages!"
   },
   "cars": {
     "title": "Cars",
@@ -81,7 +83,12 @@
     "editMaintenance": "Edit Maintenance",
     "totalMaintenanceCost": "Total Maintenance Cost",
     "car": "car",
-    "cars": "cars"
+    "cars": "cars",
+    "addToFavorites": "Add to Favorites",
+    "removeFromFavorites": "Remove from Favorites",
+    "favorited": "Favorited",
+    "addedToFavorites": "Car added to favorites",
+    "removedFromFavorites": "Car removed from favorites"
   },
   "maintenance": {
     "title": "Maintenance",

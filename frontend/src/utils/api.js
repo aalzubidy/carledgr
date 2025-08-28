@@ -616,6 +616,31 @@ const api = {
       // Don't let analytics errors break the app
       console.log('Analytics tracking failed:', error);
     }
+  },
+
+  // Favorite Cars
+  async getFavoriteCars() {
+    return makeRequest('/favorites');
+  },
+
+  async addToFavorites(carId) {
+    return makeRequest(`/favorites/${carId}`, {
+      method: 'POST'
+    });
+  },
+
+  async removeFromFavorites(carId) {
+    return makeRequest(`/favorites/${carId}`, {
+      method: 'DELETE'
+    });
+  },
+
+  async checkCarFavoriteStatus(carId) {
+    return makeRequest(`/favorites/check/${carId}`);
+  },
+
+  async getFavoriteCount() {
+    return makeRequest('/favorites/count');
   }
 };
 
