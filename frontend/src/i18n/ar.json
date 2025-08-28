@@ -53,7 +53,8 @@
     "totalRevenue": "إجمالي الإيرادات",
     "avgSalePrice": "متوسط سعر البيع",
     "noSalesData": "لا توجد بيانات مبيعات",
-    "noSalesDataDesc": "لا توجد بيانات مبيعات متاحة للفترة المحددة"
+    "noSalesDataDesc": "لا توجد بيانات مبيعات متاحة للفترة المحددة",
+    "clickToViewAllCars": "انقر لعرض جميع السيارات"
   },
   "cars": {
     "title": "السيارات",

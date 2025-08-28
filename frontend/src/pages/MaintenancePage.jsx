@@ -41,6 +41,17 @@ function MaintenancePage() {
 
   useEffect(() => {
     loadMaintenanceData()
+    
+    // Check if we should auto-open the add modal
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.get('action') === 'add') {
+      // Clear the URL parameter to avoid re-triggering
+      window.history.replaceState({}, '', window.location.pathname)
+      // Open the add modal after a short delay to ensure page is loaded
+      setTimeout(() => {
+        handleAddMaintenance()
+      }, 100)
+    }
   }, [])
 
   useEffect(() => {

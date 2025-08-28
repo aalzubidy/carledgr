@@ -6,6 +6,7 @@ import { t } from '../utils/i18n.js'
 import { api } from '../utils/api.js'
 import Layout, { Loading, EmptyState } from '../components/Layout.jsx'
 import { showError } from '../utils/snackbar.js'
+import { getCurrentUser } from '../utils/permissions.js'
 
 // Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels)
@@ -15,10 +16,28 @@ function Dashboard() {
   const [topSoldModels, setTopSoldModels] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [user, setUser] = useState(null)
 
   useEffect(() => {
     loadDashboardData()
+    loadUserData()
   }, [])
+
+  const loadUserData = async () => {
+    try {
+      // First check localStorage
+      let userData = getCurrentUser()
+      
+      // If no user data in localStorage, fetch from API
+      if (!userData) {
+        userData = await api.getCurrentUser()
+      }
+      
+      setUser(userData)
+    } catch (error) {
+      console.error('Error loading user data:', error)
+    }
+  }
 
   const loadDashboardData = async () => {
     try {
@@ -189,6 +208,43 @@ function Dashboard() {
     }
   }
 
+  const handleInventoryClick = () => {
+    if (window.navigate) {
+      window.navigate('/cars')
+    }
+  }
+
+  const handleQuickAddCar = () => {
+    if (window.navigate) {
+      window.navigate('/cars?action=add')
+    }
+  }
+
+  const handleQuickAddMaintenance = () => {
+    if (window.navigate) {
+      window.navigate('/maintenance?action=add')
+    }
+  }
+
+  const handleQuickAddExpense = () => {
+    if (window.navigate) {
+      window.navigate('/expenses?action=add')
+    }
+  }
+
+  // RBAC helper functions
+  const canAddExpense = () => {
+    return user && (user.roleId === 1 || user.roleId === 2) // owner or manager
+  }
+
+  const canAddCar = () => {
+    return user && (user.roleId === 1 || user.roleId === 2 || user.roleId === 3) // all roles
+  }
+
+  const canAddMaintenance = () => {
+    return user && (user.roleId === 1 || user.roleId === 2 || user.roleId === 3) // all roles
+  }
+
   return (
     <Layout activeRoute="dashboard">
       <div className="dashboard-header">
@@ -196,34 +252,87 @@ function Dashboard() {
       </div>
       
       <div className="dashboard-content">
-        {/* Inventory Pie Chart */}
-        <div className="inventory-section">
-          <div className="chart-container">
-            <h2>{t('dashboard.inventory')} - {t('dashboard.totalCars')}: {totalCars}</h2>
-            <div className="pie-chart-wrapper">
-              <Pie data={pieChartData} options={pieChartOptions} />
+        {/* Three-column layout: chart on left, cards in middle, quick actions on right */}
+        <div className="dashboard-grid">
+          {/* Left column: Inventory Pie Chart */}
+          <div className="chart-section">
+            <div className="chart-container">
+              <h2 
+                onClick={handleInventoryClick}
+                style={{ cursor: 'pointer' }}
+                className="clickable-title"
+              >
+                {t('dashboard.inventory')} - {t('dashboard.totalCars')}: {totalCars} 📊
+              </h2>
+              <p className="click-hint">{t('dashboard.clickToViewAllCars')} →</p>
+              <div className="pie-chart-wrapper">
+                <Pie data={pieChartData} options={pieChartOptions} />
+              </div>
             </div>
           </div>
-        </div>
-        
-        {/* Financial Stats Cards */}
-        <div className="stats-grid">
-          <div className="stat-card">
-            <h3>{t('dashboard.carsSoldThisMonth')}</h3>
-            <div className="stat-value">{carsSoldThisMonth}</div>
-            <p>{t('dashboard.carsSoldThisMonth')}</p>
-          </div>
           
-          <div className="stat-card profit">
-            <h3>{t('dashboard.profitThisMonth')}</h3>
-            <div className="stat-value">${formatNumber(profitThisMonth)}</div>
-            <p>{t('dashboard.profitThisMonth')}</p>
+          {/* Middle column: Financial Stats Cards */}
+          <div className="stats-column">
+            <div className="stat-card">
+              <h3>{t('dashboard.carsSoldThisMonth')}</h3>
+              <div className="stat-value">{carsSoldThisMonth}</div>
+              <p>{t('dashboard.carsSoldThisMonth')}</p>
+            </div>
+            
+            <div className="stat-card profit">
+              <h3>{t('dashboard.profitThisMonth')}</h3>
+              <div className="stat-value">${formatNumber(profitThisMonth)}</div>
+              <p>{t('dashboard.profitThisMonth')}</p>
+            </div>
+            
+            <div className="stat-card">
+              <h3>{t('dashboard.inventoryValue')}</h3>
+              <div className="stat-value">${formatNumber(inventoryValue)}</div>
+              <p>{t('dashboard.inventoryValue')}</p>
+            </div>
           </div>
-          
-          <div className="stat-card">
-            <h3>{t('dashboard.inventoryValue')}</h3>
-            <div className="stat-value">${formatNumber(inventoryValue)}</div>
-            <p>{t('dashboard.inventoryValue')}</p>
+
+          {/* Right column: Quick Actions */}
+          <div className="quick-actions-column">
+            <div className="quick-actions-card">
+              <h3>Quick Actions</h3>
+              
+              {canAddCar() && (
+                <button 
+                  className="btn quick-action-btn quick-action-car"
+                  onClick={handleQuickAddCar}
+                  title="Add a new car to inventory"
+                >
+                  🚗 {t('cars.addCar')}
+                </button>
+              )}
+              
+              {canAddMaintenance() && (
+                <button 
+                  className="btn quick-action-btn quick-action-maintenance"
+                  onClick={handleQuickAddMaintenance}
+                  title="Add maintenance record"
+                >
+                  🔧 {t('cars.addMaintenance')}
+                </button>
+              )}
+              
+              {canAddExpense() && (
+                <button 
+                  className="btn quick-action-btn quick-action-expense"
+                  onClick={handleQuickAddExpense}
+                  title="Add dealership expense"
+                >
+                  💰 {t('expenses.addExpense')}
+                </button>
+              )}
+              
+              {!canAddCar() && !canAddMaintenance() && !canAddExpense() && (
+                <p className="no-actions-message">
+                  No quick actions available for your role.
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </div>

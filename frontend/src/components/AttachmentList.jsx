@@ -3,6 +3,7 @@ import { api } from '../utils/api';
 
 const AttachmentList = ({ attachments, onDelete, readonly = false }) => {
   const [loadingDownload, setLoadingDownload] = useState({});
+  const [loadingView, setLoadingView] = useState({});
   const [loadingDelete, setLoadingDelete] = useState({});
 
   const formatFileSize = (bytes) => {
@@ -17,6 +18,31 @@ const AttachmentList = ({ attachments, onDelete, readonly = false }) => {
     if (fileType.includes('pdf')) return '📄';
     if (fileType.includes('image')) return '🖼️';
     return '📎';
+  };
+
+  const handleView = async (attachment) => {
+    setLoadingView(prev => ({ ...prev, [attachment.id]: true }));
+    
+    try {
+      const type = attachment.expense_id ? 'expense' : 'maintenance';
+      const recordId = attachment.expense_id || attachment.maintenance_id;
+      
+      const data = await api.downloadAttachment(type, recordId, attachment.id);
+      
+      // Open the signed URL in a new tab for viewing
+      window.open(data.downloadUrl, '_blank');
+      
+    } catch (error) {
+      console.error('View failed:', error);
+      
+      if (error.message.includes('temporarily unavailable')) {
+        alert('File viewing is temporarily unavailable. Please contact support.');
+      } else {
+        alert('Failed to view file. Please try again.');
+      }
+    } finally {
+      setLoadingView(prev => ({ ...prev, [attachment.id]: false }));
+    }
   };
 
   const handleDownload = async (attachment) => {
@@ -139,6 +165,24 @@ const AttachmentList = ({ attachments, onDelete, readonly = false }) => {
           </div>
           
           <div style={{ display: 'flex', gap: '5px', marginLeft: '10px' }}>
+            <button
+              onClick={() => handleView(attachment)}
+              disabled={loadingView[attachment.id]}
+              style={{
+                padding: '4px 8px',
+                fontSize: '14px',
+                border: 'none',
+                borderRadius: '4px',
+                backgroundColor: '#28a745',
+                color: 'white',
+                cursor: loadingView[attachment.id] ? 'not-allowed' : 'pointer',
+                opacity: loadingView[attachment.id] ? 0.6 : 1
+              }}
+              title="View"
+            >
+              {loadingView[attachment.id] ? '⏳' : '👁️'}
+            </button>
+            
             <button
               onClick={() => handleDownload(attachment)}
               disabled={loadingDownload[attachment.id]}

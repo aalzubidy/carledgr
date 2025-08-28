@@ -35,6 +35,22 @@ function CarsPage() {
   useEffect(() => {
     loadCarsData()
     
+    // Check if we should auto-open the add modal
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.get('action') === 'add') {
+      // Remove only the action parameter, preserve others
+      urlParams.delete('action')
+      const newUrl = urlParams.toString() 
+        ? `${window.location.pathname}?${urlParams.toString()}`
+        : window.location.pathname
+      window.history.replaceState({}, '', newUrl)
+      
+      // Open the add modal after a short delay to ensure page is loaded
+      setTimeout(() => {
+        handleAddCar()
+      }, 100)
+    }
+    
     // Cleanup function
     return () => {
       if (decodeTimeoutRef.current) {
